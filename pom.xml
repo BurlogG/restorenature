@@ -25,12 +25,6 @@
       <version>1.9-R0.1-SNAPSHOT</version>
       <scope>provided</scope>
 	</dependency>
-    <dependency>
-      <groupId>net.milkbowl.vault</groupId>
-      <artifactId>VaultAPI</artifactId>
-      <version>1.5</version>
-      <scope>provided</scope>
-    </dependency>
 	<!--Bukkit API-->
 	<dependency>
        <groupId>org.bukkit</groupId>

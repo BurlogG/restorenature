@@ -1,7 +1,5 @@
 
-package io.github.kuohsuan.paytax;
-
-import net.milkbowl.vault.economy.EconomyResponse;
+package io.github.kuohsuan.restorenature;
 
 import org.bukkit.Location;
 import org.bukkit.command.Command;
