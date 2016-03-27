@@ -22,7 +22,7 @@ import net.milkbowl.vault.permission.Permission;
  *
  * @author Dinnerbone
  */
-public class PayTaxPlugin extends JavaPlugin {
+public class RestoreNaturePlugin extends JavaPlugin {
     private final HashMap<Player, Boolean> debugees = new HashMap<Player, Boolean>();
     
     private static final Logger log = Logger.getLogger("Minecraft");
