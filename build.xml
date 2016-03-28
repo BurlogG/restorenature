@@ -1,5 +1,5 @@
-<project name="PayTaxPlugin" default="dist" basedir=".">
-	<property name="paytax" value="PayTaxPlugin"/>
+<project name="RestoreNature" default="dist" basedir=".">
+	<property name="restorenature" value="RestoreNature"/>
 	<property name="bukkit.jar" location="../Bukkit/dist/Bukkit.jar"/>
 	<property name="plugins" location="../../plugins/"/>
 

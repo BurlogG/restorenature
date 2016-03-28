@@ -1,8 +1,15 @@
-name: PayTaxPlugin
-main: io.github.kuohsuan.paytax.PayTaxPlugin
+name: RestoreNature
+main: io.github.kuohsuanlo.restorenature.RestoreNaturePlugin
 version: ${version}
-loadbefore: [essentials]
 commands:
   restorenature:
     description: .
     usage: 
+permissions:
+    restorenature.*:
+        description: Gives access to all restorenature commands
+        children:
+            restorenature.manualrestore: true
+    restorenature.manualrestore:
+        description: check falloutcraft status.
+        default: op
