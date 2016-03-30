@@ -1,6 +1,7 @@
 name: RestoreNature
 main: io.github.kuohsuanlo.restorenature.RestoreNaturePlugin
 version: ${version}
+depend: [Factions]
 commands:
   restorenature:
     description: .

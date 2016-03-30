@@ -1,0 +1,56 @@
+package com.massivecraft.factions.cmd;
+
+import com.massivecraft.factions.Perm;
+import com.massivecraft.massivecore.MassiveException;
+import com.massivecraft.massivecore.command.requirement.RequirementHasPerm;
+import com.massivecraft.massivecore.command.requirement.RequirementIsPlayer;
+import com.massivecraft.massivecore.command.type.primitive.TypeBoolean;
+import com.massivecraft.massivecore.util.Txt;
+
+public class CmdFactionsSeeChunk extends FactionsCommand
+{
+	// -------------------------------------------- //
+	// CONSTRUCT
+	// -------------------------------------------- //
+	
+	public CmdFactionsSeeChunk()
+	{
+		// Aliases
+		this.addAliases("sc", "seechunk");
+		
+		// Parameters
+		this.addParameter(TypeBoolean.getOn(), "active", "toggle");
+
+		// Requirements
+		this.addRequirements(RequirementHasPerm.get(Perm.SEECHUNK.node));
+		this.addRequirements(RequirementIsPlayer.get());
+	}
+
+	// -------------------------------------------- //
+	// OVERRIDE
+	// -------------------------------------------- //
+	
+	@Override
+	public void perform() throws MassiveException
+	{
+		// Args
+		boolean old = msender.isSeeingChunk();
+		boolean targetDefault = !old;
+		boolean target = this.readArg(targetDefault);
+		String targetDesc = Txt.parse(target ? "<g>ON": "<b>OFF");
+		
+		// NoChange
+		if (target == old)
+		{
+			msg("<i>See Chunk is already %s<i>.", targetDesc);
+			return;
+		}
+		
+		// Apply
+		msender.setSeeingChunk(target);
+		
+		// Inform
+		msg("<i>See Chunk is now %s<i>.", targetDesc);
+	}
+
+}

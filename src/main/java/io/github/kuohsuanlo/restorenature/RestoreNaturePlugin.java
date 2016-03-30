@@ -2,37 +2,37 @@
 package io.github.kuohsuanlo.restorenature;
 
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.logging.Logger;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.logging.Logger;
 
-import org.bukkit.Chunk;
-import org.bukkit.ChunkSnapshot;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import com.massivecraft.factions.entity.BoardColl;
+import com.massivecraft.factions.entity.Faction;
+import com.massivecraft.factions.entity.FactionColl;
+import com.massivecraft.factions.entity.MPlayer;
+import com.massivecraft.massivecore.ps.PS;
+
+
 
 public class RestoreNaturePlugin extends JavaPlugin {
     private static final Logger log = Logger.getLogger("Minecraft");
     public static int MAX_SECONDS_UNTOUCHED = 20;//864000 = 10 days
     public static int CHECK_PERIOD_IN_SECONDS = 5;//
     public static int MAX_CHUNK_RADIUS = 3;
+    public Faction faction = null;
     private ArrayList<String> worlds_name = new ArrayList<String>();
 	public ArrayList<MapChunkInfo> maintained_worlds = new ArrayList<MapChunkInfo>();
     protected RestoreNatureRegularUpdate BukkitSchedulerSuck; 
@@ -74,7 +74,24 @@ public class RestoreNaturePlugin extends JavaPlugin {
  
     }
     private void importLandClaimingAPIs(){
+    	// The faction data class is simply called "Faction".
+    	Faction faction = null;
+    	 
+    	// If you have an MPlayer you can get the Faction it belongs to.
+    	// NOTE: If the player has no faction Wilderness/None will be returned.
+    	MPlayer mplayer = null;
+    	faction = mplayer.getFaction();
+    	 
+    	// The Wilderness (None), Safezone and Warzone can be retrieved like this:
+    	faction = FactionColl.get().getNone();
+    	faction = FactionColl.get().getSafezone();
+    	faction = FactionColl.get().getWarzone();
+    	 
+    	// What faction owns the land at a certain location?
+    	Location location = new Location(this.getServer().getWorld("derp"), 1337, 1337, 1337);
+    	faction = BoardColl.get().getFactionAt(PS.valueOf(location));
     	
+
     }
     private void registeringCommands(){
     	PluginManager pm = getServer().getPluginManager();
