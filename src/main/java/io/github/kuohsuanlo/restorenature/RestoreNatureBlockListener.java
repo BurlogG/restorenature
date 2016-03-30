@@ -14,7 +14,7 @@ public class RestoreNatureBlockListener implements Listener {
     private final RestoreNaturePlugin rnplugin;
     public RestoreNatureBlockListener(RestoreNaturePlugin plugin){
     	rnplugin  = plugin;
-    }
+    } 
     
     @EventHandler
     public void onBlockBreakEvent(BlockBreakEvent event) {
