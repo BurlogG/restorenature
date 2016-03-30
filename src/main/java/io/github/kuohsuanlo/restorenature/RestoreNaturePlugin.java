@@ -62,20 +62,27 @@ public class RestoreNaturePlugin extends JavaPlugin {
     @Override
     public void onEnable() { 
 
+    	importLandClaimingAPIs();
     	
     	readingConfig();
+    	registeringCommands();
+        enablingWorlds();
+        startingRestoreRoutines();
         
+        PluginDescriptionFile pdfFile = this.getDescription();
+        getLogger().info( pdfFile.getName() + " version " + pdfFile.getVersion() + " is enabled!" );
+ 
+    }
+    private void importLandClaimingAPIs(){
+    	
+    }
+    private void registeringCommands(){
     	PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(blockListener, this);
 
         // Register our commands
         getCommand("restorenature").setExecutor(new RestoreNatureCommand());
 
-        PluginDescriptionFile pdfFile = this.getDescription();
-        getLogger().info( pdfFile.getName() + " version " + pdfFile.getVersion() + " is enabled!" );
-        
-        enablingWorlds();
-        startingRestoreRoutines();
     }
     private void readingConfig(){
     	new File("./plugins/RestoreNature").mkdirs();
