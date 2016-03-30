@@ -5,6 +5,7 @@ package io.github.kuohsuanlo.restorenature;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -13,6 +14,11 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import com.massivecraft.factions.entity.BoardColl;
+import com.massivecraft.factions.entity.Faction;
+import com.massivecraft.factions.entity.FactionColl;
+import com.massivecraft.massivecore.ps.PS;
 
  
 class MapChunkInfo implements Serializable {
@@ -34,7 +40,11 @@ class RestoreNatureRegularUpdate implements Runnable {
 	private int max_chunk_x;
 	private int max_chunk_z;
 	private int chunk_radius;
-
+	
+	public static final int chunk_center_x = 8;
+	public static final int chunk_center_y = 64;
+	public static final int chunk_center_z = 8;
+	public static final String NOT_CLAIMED_FACTION_NAME = "none";
     public RestoreNatureRegularUpdate(int period,int max_time,int radius,ArrayList<MapChunkInfo> existing_worlds,RestoreNaturePlugin plugin) {
     	max_time_in_seconds = max_time;
     	period_in_seconds = period;
@@ -51,6 +61,16 @@ class RestoreNatureRegularUpdate implements Runnable {
 
 
     }
+    private boolean checkLocationClaimed(Chunk checkedChunk){
+    	
+        	Location location = checkedChunk.getBlock(chunk_center_x, chunk_center_y, chunk_center_z).getLocation();
+        	Faction faction = BoardColl.get().getFactionAt(PS.valueOf(location));
+        	
+        	if(faction.getName().equals(NOT_CLAIMED_FACTION_NAME)){
+        		return false;
+        	}
+        	return true;
+    }
     public void run() {
     	rnplugin.getServer().getConsoleSender().sendMessage("¡±e[RestoreNature] : Total # worlds : "+maintained_worlds.size());	
     	for(int i=0;i<maintained_worlds.size();i++){
@@ -59,13 +79,20 @@ class RestoreNatureRegularUpdate implements Runnable {
     		    	rnplugin.getServer().getConsoleSender().sendMessage("¡±e[RestoreNature] : Checking "+maintained_worlds.get(i).world_name+" "+Integer.toString(x-chunk_radius)+" ; "+Integer.toString(z-chunk_radius));	
 					maintained_worlds.get(i).chunk_untouchedtime[x][z]+=period_in_seconds;
 					
-					if(maintained_worlds.get(i).chunk_untouchedtime[x][z]>=max_time_in_seconds){
-						//Triggering console restorenature
-						int chunk_x = x-chunk_radius;
-						int chunk_z = z-chunk_radius;
-						rnplugin.getServer().dispatchCommand(rnplugin.getServer().getConsoleSender(), "restorenature "+maintained_worlds.get(i).world_name+" "+chunk_x+" "+chunk_z);
-						maintained_worlds.get(i).chunk_untouchedtime[x][z]=0;
+					
+					int chunk_x = x-chunk_radius;
+					int chunk_z = z-chunk_radius;
+					Chunk checked_chunk = rnplugin.getServer().getWorld(this.maintained_worlds.get(i).world_name).getChunkAt(chunk_x, chunk_z);
+					if(!checkLocationClaimed(checked_chunk)){ // Land not claimed
+						if(maintained_worlds.get(i).chunk_untouchedtime[x][z]>=max_time_in_seconds){
+
+							rnplugin.getServer().dispatchCommand(rnplugin.getServer().getConsoleSender(), "restorenature "+maintained_worlds.get(i).world_name+" "+chunk_x+" "+chunk_z);
+							maintained_worlds.get(i).chunk_untouchedtime[x][z]=0;
+						}
 					}
+					
+					
+
     	        	
     			}
     		}

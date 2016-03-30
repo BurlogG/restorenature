@@ -29,7 +29,7 @@ import com.massivecraft.massivecore.ps.PS;
 
 public class RestoreNaturePlugin extends JavaPlugin {
     private static final Logger log = Logger.getLogger("Minecraft");
-    public static int MAX_SECONDS_UNTOUCHED = 20;//864000 = 10 days
+    public static int MAX_SECONDS_UNTOUCHED = 10;//864000 = 10 days
     public static int CHECK_PERIOD_IN_SECONDS = 5;//
     public static int MAX_CHUNK_RADIUS = 3;
     public Faction faction = null;
@@ -62,8 +62,6 @@ public class RestoreNaturePlugin extends JavaPlugin {
     @Override
     public void onEnable() { 
 
-    	importLandClaimingAPIs();
-    	
     	readingConfig();
     	registeringCommands();
         enablingWorlds();
@@ -73,26 +71,7 @@ public class RestoreNaturePlugin extends JavaPlugin {
         getLogger().info( pdfFile.getName() + " version " + pdfFile.getVersion() + " is enabled!" );
  
     }
-    private void importLandClaimingAPIs(){
-    	// The faction data class is simply called "Faction".
-    	Faction faction = null;
-    	 
-    	// If you have an MPlayer you can get the Faction it belongs to.
-    	// NOTE: If the player has no faction Wilderness/None will be returned.
-    	MPlayer mplayer = null;
-    	faction = mplayer.getFaction();
-    	 
-    	// The Wilderness (None), Safezone and Warzone can be retrieved like this:
-    	faction = FactionColl.get().getNone();
-    	faction = FactionColl.get().getSafezone();
-    	faction = FactionColl.get().getWarzone();
-    	 
-    	// What faction owns the land at a certain location?
-    	Location location = new Location(this.getServer().getWorld("derp"), 1337, 1337, 1337);
-    	faction = BoardColl.get().getFactionAt(PS.valueOf(location));
-    	
 
-    }
     private void registeringCommands(){
     	PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(blockListener, this);
