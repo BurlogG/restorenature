@@ -49,11 +49,12 @@ public class RestoreNaturePlugin extends JavaPlugin {
     private static final Logger log = Logger.getLogger("Minecraft");
     public static final int DEFAULT_MAX_SECONDS_UNTOUCHED = 864000;
     public static final int DEFAULT_CHECK_PERIOD_IN_SECONDS = 3600;
+    public static final int DEFAULT_MAX_CHUNK_RADIUS = 200;
     public static final String VERSION = "1.0.0";
     public static final String DEFAULT_WORLDS_INFO = "{\"maintained_worlds\":[{\"world_name\": \"my_cool_world\",\"nature_factions\": [{\"faction_name\": \"Wilderness\"},{\"faction_name\": \"some_resource_area_faction\"}]},{\"world_name\": \"my_wrecked_nether\",\"nature_factions\": []}]}";
     public static int MAX_SECONDS_UNTOUCHED = DEFAULT_MAX_SECONDS_UNTOUCHED;
     public static int CHECK_PERIOD_IN_SECONDS = DEFAULT_CHECK_PERIOD_IN_SECONDS;
-    public static int MAX_CHUNK_RADIUS = 3;
+    public static int MAX_CHUNK_RADIUS = DEFAULT_MAX_CHUNK_RADIUS;
     private FileConfiguration config;
     public Faction faction = null;
     
@@ -105,7 +106,7 @@ public class RestoreNaturePlugin extends JavaPlugin {
 
     }
     public void reloadingConfig(){
-    	/*Reading worlds*/
+		/*Reading worlds*/
 
 		JSONParser parser = new JSONParser();
 		JSONObject J_maintained_worlds = null;
@@ -130,6 +131,8 @@ public class RestoreNaturePlugin extends JavaPlugin {
     		String world_name = world.get("world_name")+"";
     		maintain_worlds.add( new Maintained_World(world_name,n_factions ));     	
     	}
+
+    	
     }
     @SuppressWarnings("unchecked")
 	private void readingConfig(){
@@ -143,6 +146,7 @@ public class RestoreNaturePlugin extends JavaPlugin {
     	config.addDefault("version",VERSION);
     	config.addDefault("MAX_SECONDS_UNTOUCHED",DEFAULT_MAX_SECONDS_UNTOUCHED);
     	config.addDefault("CHECK_PERIOD_IN_SECONDS",DEFAULT_CHECK_PERIOD_IN_SECONDS);
+    	config.addDefault("MAX_CHUNK_RADIUS",DEFAULT_MAX_CHUNK_RADIUS);
     	config.addDefault("WORLDS_INFO",DEFAULT_WORLDS_INFO);
     	
     	config.options().copyDefaults(true);
@@ -150,7 +154,7 @@ public class RestoreNaturePlugin extends JavaPlugin {
     	
     	MAX_SECONDS_UNTOUCHED = config.getInt("MAX_SECONDS_UNTOUCHED");
     	CHECK_PERIOD_IN_SECONDS = config.getInt("CHECK_PERIOD_IN_SECONDS");
-
+    	MAX_CHUNK_RADIUS = config.getInt("MAX_CHUNK_RADIUS");
 
 		
 		/*Reading worlds*/
