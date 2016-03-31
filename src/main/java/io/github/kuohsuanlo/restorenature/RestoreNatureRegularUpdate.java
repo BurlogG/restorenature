@@ -87,7 +87,7 @@ class RestoreNatureRegularUpdate implements Runnable {
         	}        	
         	
         
-        	rnplugin.getServer().getConsoleSender().sendMessage("¡±e[RestoreNature] : "+claimed);	
+        	//rnplugin.getServer().getConsoleSender().sendMessage("¡±e[RestoreNature] : "+claimed);	
     		return claimed;
 
     }
