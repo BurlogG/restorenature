@@ -35,27 +35,30 @@ class RestoreNatureRegularUpdate implements Runnable {
 	private int period_in_seconds;
 	private RestoreNaturePlugin rnplugin;
 	public ArrayList<MapChunkInfo> maintained_worlds = new ArrayList<MapChunkInfo>();
-	private int min_chunk_x;
-	private int min_chunk_z;
+
 	private int max_chunk_x;
 	private int max_chunk_z;
+	private int CHECK_RADIUS_PER_PERIOD = 5;
+	private int now_min_x;
+	private int now_min_z;
 	private int chunk_radius;
 	
 	public static final int chunk_center_x = 8;
 	public static final int chunk_center_y = 64;
 	public static final int chunk_center_z = 8;
+	
     public RestoreNatureRegularUpdate(int period,int max_time,int radius,ArrayList<MapChunkInfo> existing_worlds,RestoreNaturePlugin plugin) {
     	max_time_in_seconds = max_time;
     	period_in_seconds = period;
     	chunk_radius = radius; 
     	
     	rnplugin= plugin;
-       	min_chunk_x = 0;
-       	min_chunk_z = 0; 
+    	now_min_x = 0;
+    	now_min_z = 0; 
        	max_chunk_x = radius*2;
        	max_chunk_z = radius*2; 
  
-    	
+       	
     	maintained_worlds = existing_worlds;
 
 
@@ -94,22 +97,33 @@ class RestoreNatureRegularUpdate implements Runnable {
     public void run() {
     	rnplugin.getServer().getConsoleSender().sendMessage("¡±e[RestoreNature] : Total # worlds : "+maintained_worlds.size());
     	int restore_chunks_number =0;
+
+    	
     	for(int i=0;i<maintained_worlds.size();i++){
-        	for(int x=min_chunk_x; x <= max_chunk_x; x++){
-    		    for(int z=min_chunk_z; z <= max_chunk_z; z++){
+    		rnplugin.getServer().getConsoleSender().sendMessage("¡±e[RestoreNature] : Checking world "+maintained_worlds.get(i).world_name+" "+now_min_x+" ; "+now_min_z);
+    		
+        	for(int x=now_min_x; x < now_min_x+CHECK_RADIUS_PER_PERIOD; x++){
+    		    for(int z=now_min_z; z < now_min_z+CHECK_RADIUS_PER_PERIOD; z++){
     		    	
-    		    	maintained_worlds.get(i).chunk_untouchedtime[x][z]+=period_in_seconds;
-					
-					
+    		    	
+    		    	
+    		    	maintained_worlds.get(i).chunk_untouchedtime[x][z]+=period_in_seconds * (max_chunk_x/CHECK_RADIUS_PER_PERIOD)* (max_chunk_x/CHECK_RADIUS_PER_PERIOD);
+
 					int chunk_x = x-chunk_radius;
 					int chunk_z = z-chunk_radius;
 					Chunk checked_chunk = rnplugin.getServer().getWorld(this.maintained_worlds.get(i).world_name).getChunkAt(chunk_x, chunk_z);
 					if(!checkLocationClaimed(checked_chunk)){ // Land not claimed
 						if(maintained_worlds.get(i).chunk_untouchedtime[x][z]>=max_time_in_seconds){
 
-							rnplugin.getServer().dispatchCommand(rnplugin.getServer().getConsoleSender(), "restorenature "+maintained_worlds.get(i).world_name+" "+chunk_x+" "+chunk_z);
-							restore_chunks_number++;
-							maintained_worlds.get(i).chunk_untouchedtime[x][z]=0;
+							//rnplugin.getServer().dispatchCommand(rnplugin.getServer().getConsoleSender(), "restorenature "+maintained_worlds.get(i).world_name+" "+chunk_x+" "+chunk_z);
+							if(rnplugin.RestoringTaskQueue.addTask(checked_chunk)){
+								restore_chunks_number++;
+								maintained_worlds.get(i).chunk_untouchedtime[x][z]=0;
+							}
+							else{
+								//Skip because of too much task;
+							}
+
 						}
 					}
 					
@@ -117,10 +131,26 @@ class RestoreNatureRegularUpdate implements Runnable {
 
     	        	
     			}
+ 
     		}
-        	rnplugin.getServer().getConsoleSender().sendMessage("¡±e[RestoreNature] : Restoring "+restore_chunks_number+" chunks in world :"+maintained_worlds.get(i).world_name);	
+        	rnplugin.getServer().getConsoleSender().sendMessage("¡±e[RestoreNature] : Add "+restore_chunks_number+" chunks into queue, in world :"+maintained_worlds.get(i).world_name);	
         	restore_chunks_number = 0;
+
     	}
+
+
+    	now_min_z +=CHECK_RADIUS_PER_PERIOD;
+    	if(now_min_z >=max_chunk_z){
+    		now_min_z=0;
+    		
+        	now_min_x +=CHECK_RADIUS_PER_PERIOD;
+        	if(now_min_x >=max_chunk_x){
+        		now_min_x=0;
+        	}
+    	} 
+  	
+    	
+    	
     }
 	public void setWorldsChunkUntouchedTime(Block touched_block){
     	for(int i=0;i<maintained_worlds.size();i++){
