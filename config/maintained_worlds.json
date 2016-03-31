@@ -1,0 +1,16 @@
+{
+	"maintained_worlds":[
+	{
+		"world_name": "my_cool_world",
+		"nature_factions": [
+			{"faction_name": "Wilderness"},
+			{"faction_name": "some_resource_area_faction"}
+		]
+	},
+	{
+		"world_name": "my_wrecked_nether",
+		"nature_factions": [
+		]
+	}
+	]
+}

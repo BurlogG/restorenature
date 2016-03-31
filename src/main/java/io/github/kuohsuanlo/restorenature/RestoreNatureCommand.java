@@ -13,39 +13,44 @@ import org.bukkit.material.MaterialData;
  
 public class RestoreNatureCommand implements CommandExecutor {
     @SuppressWarnings("deprecation")
+    private RestoreNaturePlugin rnplugin;
+    public static final String WORLD_SUFFIX = "_restorenature";
+    public RestoreNatureCommand(RestoreNaturePlugin plugin){
+    	rnplugin = plugin;
+    }
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (!(sender instanceof Player)) {
-			if (cmd.getName().equalsIgnoreCase("restorenature")) { // If the player typed /basic then do the following...
-		        if (args.length == 3 ) {
-		        	String world_name = args[0];
-		        	int chunk_x = Integer.valueOf(args[1]);
-		        	int chunk_z = Integer.valueOf(args[2]);
-		        	
-		        	Chunk player_chunk = sender.getServer().getWorld(world_name).getChunkAt(chunk_x, chunk_z);		        	
-		        	Chunk restoring_chunk = sender.getServer().getWorld(world_name+"_restorenature").getChunkAt(chunk_x, chunk_z);	
-		        	
-		            
-		        	restoreChunk(player_chunk,restoring_chunk);
-		            	    
-					sender.sendMessage("¡±eChunk successfully restored on world chunk : "+world_name+" ; "+restoring_chunk.getX()+" "+restoring_chunk.getZ());	
-		            
-		        }
-	        }
-			return false;
-        }
-        else{
-	        Player player = (Player) sender;
-	        
-			if (cmd.getName().equalsIgnoreCase("restorenature")) { // If the player typed /basic then do the following...
-		        if (args.length == 1 ) {
 
-			    	if (sender.hasPermission("restorenature.manualrestore")){
-			    		if (args[0].equals("manualrestore")){
+	        
+		if (cmd.getName().equalsIgnoreCase("restorenature")) { // If the player typed /basic then do the following...   
+		    if (args.length == 3 ) {
+		    	if (sender instanceof Player) {
+		    		 if (!sender.hasPermission("restorenature.manualrestore")){
+						 sender.sendMessage("¡±cYou don't have the permission.");
+		    			 return false;
+		    		 }
+		    	}
+	        	String world_name = args[0];
+	        	int chunk_x = Integer.valueOf(args[1]);
+	        	int chunk_z = Integer.valueOf(args[2]);
+	        	
+	        	Chunk player_chunk = sender.getServer().getWorld(world_name).getChunkAt(chunk_x, chunk_z);		        	
+	        	Chunk restoring_chunk = sender.getServer().getWorld(world_name+WORLD_SUFFIX).getChunkAt(chunk_x, chunk_z);	
+	        	restoreChunk(player_chunk,restoring_chunk);
+				//sender.sendMessage("¡±eChunk successfully restored on world chunk : "+world_name+" ; "+restoring_chunk.getX()+" "+restoring_chunk.getZ());	
+	            
+		    }
+		    else if (args.length == 1 ) {
+
+		        if (sender instanceof Player) {
+			        Player player = (Player) sender;
+
+		    		if (args[0].equals("manualrestore")){
+				        if (sender.hasPermission("restorenature.manualrestore")){
 			    			Location player_location = player.getLocation();
 				        	String player_world_name = player.getWorld().getName();
 				        	
 				        	Chunk player_chunk = player.getWorld().getChunkAt(player_location);
-				        	Chunk restoring_chunk = sender.getServer().getWorld(player_world_name+"_restorenature").getChunkAt(player_location) ;
+				        	Chunk restoring_chunk = sender.getServer().getWorld(player_world_name+WORLD_SUFFIX).getChunkAt(player_location) ;
 				        	
 				        	restoreChunk(player_chunk,restoring_chunk);
 				        	
@@ -53,18 +58,35 @@ public class RestoreNatureCommand implements CommandExecutor {
 				            return true;    
 			    			
 			    		}
+				        else{
+							sender.sendMessage("¡±cYou don't have the permission.");
+							return false;
+						}
 			        	
 			    	}
-					else{
-						sender.sendMessage("¡±cYou don't have the permission.");
-						return false;
-					}
+		    		else if (args[0].equals("reload")){
+		    			 if (sender.hasPermission("restorenature.reload")){
+		    				 rnplugin.reloadingConfig();
+		    				 return true;
+		    			 }
+		    		}
+
 		        }
+		        if (args[0].equals("reload")){
+		        	rnplugin.reloadingConfig();
+		        	return true;
+	    		}
+		        
 	        }
-			return false;
-			
-		}
+        }
+		return false;
+        	
+
     }
+
+			
+		
+    
     @SuppressWarnings("deprecation")
 	private void restoreChunk(Chunk player_chunk, Chunk restoring_chunk){
     	for(int x=0;x<16;x++){

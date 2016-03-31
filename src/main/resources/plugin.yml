@@ -6,11 +6,17 @@ commands:
   restorenature:
     description: .
     usage: 
+  reload:
+    description: .
+    usage: 
 permissions:
     restorenature.*:
         description: Gives access to all restorenature commands
         children:
             restorenature.manualrestore: true
     restorenature.manualrestore:
-        description: check falloutcraft status.
+        description: manually force the plugin to restore the chunk player standing in.
+        default: op
+    restorenature.reload:
+        description: reload the plugin's config.
         default: op

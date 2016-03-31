@@ -6,35 +6,59 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import com.massivecraft.factions.entity.BoardColl;
 import com.massivecraft.factions.entity.Faction;
 import com.massivecraft.factions.entity.FactionColl;
 import com.massivecraft.factions.entity.MPlayer;
 import com.massivecraft.massivecore.ps.PS;
+import com.massivecraft.massivecore.xlib.mongodb.util.JSON;
 
 
+class Maintained_World{
+	public String world_name = "";
+	public ArrayList<String> nature_factions;
+	
+	public Maintained_World(String name,ArrayList<String> factions){
+		world_name =name;
+		nature_factions = factions;
+	}
+}
 
 public class RestoreNaturePlugin extends JavaPlugin {
     private static final Logger log = Logger.getLogger("Minecraft");
-    public static int MAX_SECONDS_UNTOUCHED = 10;//864000 = 10 days
-    public static int CHECK_PERIOD_IN_SECONDS = 5;//
+    public static final int DEFAULT_MAX_SECONDS_UNTOUCHED = 864000;
+    public static final int DEFAULT_CHECK_PERIOD_IN_SECONDS = 3600;
+    public static final String VERSION = "1.0.0";
+    public static final String DEFAULT_WORLDS_INFO = "{\"maintained_worlds\":[{\"world_name\": \"my_cool_world\",\"nature_factions\": [{\"faction_name\": \"Wilderness\"},{\"faction_name\": \"some_resource_area_faction\"}]},{\"world_name\": \"my_wrecked_nether\",\"nature_factions\": []}]}";
+    public static int MAX_SECONDS_UNTOUCHED = DEFAULT_MAX_SECONDS_UNTOUCHED;
+    public static int CHECK_PERIOD_IN_SECONDS = DEFAULT_CHECK_PERIOD_IN_SECONDS;
     public static int MAX_CHUNK_RADIUS = 3;
+    private FileConfiguration config;
     public Faction faction = null;
-    private ArrayList<String> worlds_name = new ArrayList<String>();
-	public ArrayList<MapChunkInfo> maintained_worlds = new ArrayList<MapChunkInfo>();
+    
+    public ArrayList<Maintained_World> maintain_worlds = new ArrayList<Maintained_World>();
+	public ArrayList<MapChunkInfo> maintain_world_chunk_info = new ArrayList<MapChunkInfo>();
     protected RestoreNatureRegularUpdate BukkitSchedulerSuck; 
     protected RestoreNatureBlockListener blockListener = new RestoreNatureBlockListener(this); 
     public static HashMap<String, String> messageData = new HashMap<String, String>();
@@ -77,21 +101,94 @@ public class RestoreNaturePlugin extends JavaPlugin {
         pm.registerEvents(blockListener, this);
 
         // Register our commands
-        getCommand("restorenature").setExecutor(new RestoreNatureCommand());
+        getCommand("restorenature").setExecutor(new RestoreNatureCommand(this));
 
     }
-    private void readingConfig(){
-    	new File("./plugins/RestoreNature").mkdirs();
+    public void reloadingConfig(){
+    	/*Reading worlds*/
 
-	    worlds_name.add("world");     	
+		JSONParser parser = new JSONParser();
+		JSONObject J_maintained_worlds = null;
+		JSONArray J_worlds = null ;
+		try {
+			J_maintained_worlds = (JSONObject)parser.parse(config.getString("WORLDS_INFO"));
+			J_worlds = (JSONArray)J_maintained_worlds.get("maintained_worlds");
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+
+    	for(int i=0;i<J_worlds.size();i++){
+    		JSONObject world = (JSONObject)J_worlds.get(i);
+    		ArrayList<String> n_factions = new ArrayList<String>();
+    		JSONArray factions = (JSONArray) world.get("nature_factions");
+    		for(int j=0;j<factions.size();j++){
+    			JSONObject faction = (JSONObject)factions.get(j);
+    			n_factions.add(faction.get("faction_name")+"");
+    		}
+    		String world_name = world.get("world_name")+"";
+    		maintain_worlds.add( new Maintained_World(world_name,n_factions ));     	
+    	}
+    }
+    @SuppressWarnings("unchecked")
+	private void readingConfig(){
+    	new File("./plugins/RestoreNature").mkdirs();
+        new File("./plugins/RestoreNature/worlds_chunk_info").mkdirs();  
+    	
+    	config = this.getConfig();
+    	
+    	//config.createSection("#The following time period and max_untouched_chunk tolerance before it gets restored");
+    	//config.createSection("#needs a server restart to change.");
+    	config.addDefault("version",VERSION);
+    	config.addDefault("MAX_SECONDS_UNTOUCHED",DEFAULT_MAX_SECONDS_UNTOUCHED);
+    	config.addDefault("CHECK_PERIOD_IN_SECONDS",DEFAULT_CHECK_PERIOD_IN_SECONDS);
+    	config.addDefault("WORLDS_INFO",DEFAULT_WORLDS_INFO);
+    	
+    	config.options().copyDefaults(true);
+    	saveConfig();
+    	
+    	MAX_SECONDS_UNTOUCHED = config.getInt("MAX_SECONDS_UNTOUCHED");
+    	CHECK_PERIOD_IN_SECONDS = config.getInt("CHECK_PERIOD_IN_SECONDS");
+
+
+		
+		/*Reading worlds*/
+
+		JSONParser parser = new JSONParser();
+		JSONObject J_maintained_worlds = null;
+		JSONArray J_worlds = null ;
+		try {
+			J_maintained_worlds = (JSONObject)parser.parse(config.getString("WORLDS_INFO"));
+			J_worlds = (JSONArray)J_maintained_worlds.get("maintained_worlds");
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+
+    	for(int i=0;i<J_worlds.size();i++){
+    		JSONObject world = (JSONObject)J_worlds.get(i);
+    		ArrayList<String> n_factions = new ArrayList<String>();
+    		JSONArray factions = (JSONArray) world.get("nature_factions");
+    		for(int j=0;j<factions.size();j++){
+    			JSONObject faction = (JSONObject)factions.get(j);
+    			n_factions.add(faction.get("faction_name")+"");
+    		}
+    		String world_name = world.get("world_name")+"";
+    		maintain_worlds.add( new Maintained_World(world_name,n_factions ));     	
+    	}
+
+    	
+    	
+    	
     }
     private void enablingWorlds(){
     	MapChunkInfo world_chunk_info;
-	
-        new File("./plugins/RestoreNature/worlds_chunk_info").mkdirs();        
+      
 
-        for(int i =0;i<worlds_name.size();i++){
-        	String world_name = worlds_name.get(i);
+        for(int i =0;i<this.maintain_worlds.size();i++){
+        	String world_name = this.maintain_worlds.get(i).world_name;
     		try {
     	  	   	String path = "./plugins/RestoreNature/worlds_chunk_info/"+world_name+".chunkinfo";
     	  	   	File file = new File(path);
@@ -112,7 +209,7 @@ public class RestoreNaturePlugin extends JavaPlugin {
 
     	  	   	}
 
-    	    	maintained_worlds.add(world_chunk_info);
+    	    	maintain_world_chunk_info.add(world_chunk_info);
     		} catch (FileNotFoundException e) {
     			// TODO Auto-generated catch block
     			e.printStackTrace();
@@ -146,7 +243,7 @@ public class RestoreNaturePlugin extends JavaPlugin {
     	
     }
     private void startingRestoreRoutines(){
-        BukkitSchedulerSuck = new RestoreNatureRegularUpdate(CHECK_PERIOD_IN_SECONDS,MAX_SECONDS_UNTOUCHED,MAX_CHUNK_RADIUS,maintained_worlds,this);
+        BukkitSchedulerSuck = new RestoreNatureRegularUpdate(CHECK_PERIOD_IN_SECONDS,MAX_SECONDS_UNTOUCHED,MAX_CHUNK_RADIUS,maintain_world_chunk_info,this);
         this.getServer().getScheduler().scheduleSyncRepeatingTask(this, BukkitSchedulerSuck, 0, 20*CHECK_PERIOD_IN_SECONDS);
 
     }

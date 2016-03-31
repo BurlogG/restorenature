@@ -44,7 +44,6 @@ class RestoreNatureRegularUpdate implements Runnable {
 	public static final int chunk_center_x = 8;
 	public static final int chunk_center_y = 64;
 	public static final int chunk_center_z = 8;
-	public static final String NOT_CLAIMED_FACTION_NAME = "none";
     public RestoreNatureRegularUpdate(int period,int max_time,int radius,ArrayList<MapChunkInfo> existing_worlds,RestoreNaturePlugin plugin) {
     	max_time_in_seconds = max_time;
     	period_in_seconds = period;
@@ -66,18 +65,40 @@ class RestoreNatureRegularUpdate implements Runnable {
         	Location location = checkedChunk.getBlock(chunk_center_x, chunk_center_y, chunk_center_z).getLocation();
         	Faction faction = BoardColl.get().getFactionAt(PS.valueOf(location));
         	
-        	if(faction.getName().equals(NOT_CLAIMED_FACTION_NAME)){
-        		return false;
-        	}
-        	return true;
+        	//rnplugin.getServer().getConsoleSender().sendMessage("¡±e[RestoreNature] : Checking whether it is wilderness faction : "+faction.getName());	
+			
+        	boolean claimed = true;
+
+        	for(int i=0;i<rnplugin.maintain_worlds.size();i++){
+        		if(checkedChunk.getWorld().getName().equals(rnplugin.maintain_worlds.get(i).world_name)){
+            		if(rnplugin.maintain_worlds.get(i).nature_factions.size()==0){
+            			claimed = false;
+            		}
+            		else{
+                		for(int j=0;j<rnplugin.maintain_worlds.get(i).nature_factions.size();j++){
+                        	if(faction.getName().equals(rnplugin.maintain_worlds.get(i).nature_factions.get(j))){
+                        		claimed = false;
+                        		
+                        	}
+                			
+                		}
+            		}         		
+            	}
+        	}        	
+        	
+        
+        	rnplugin.getServer().getConsoleSender().sendMessage("¡±e[RestoreNature] : "+claimed);	
+    		return claimed;
+
     }
     public void run() {
-    	rnplugin.getServer().getConsoleSender().sendMessage("¡±e[RestoreNature] : Total # worlds : "+maintained_worlds.size());	
+    	rnplugin.getServer().getConsoleSender().sendMessage("¡±e[RestoreNature] : Total # worlds : "+maintained_worlds.size());
+    	int restore_chunks_number =0;
     	for(int i=0;i<maintained_worlds.size();i++){
         	for(int x=min_chunk_x; x <= max_chunk_x; x++){
     		    for(int z=min_chunk_z; z <= max_chunk_z; z++){
-    		    	rnplugin.getServer().getConsoleSender().sendMessage("¡±e[RestoreNature] : Checking "+maintained_worlds.get(i).world_name+" "+Integer.toString(x-chunk_radius)+" ; "+Integer.toString(z-chunk_radius));	
-					maintained_worlds.get(i).chunk_untouchedtime[x][z]+=period_in_seconds;
+    		    	
+    		    	maintained_worlds.get(i).chunk_untouchedtime[x][z]+=period_in_seconds;
 					
 					
 					int chunk_x = x-chunk_radius;
@@ -87,6 +108,7 @@ class RestoreNatureRegularUpdate implements Runnable {
 						if(maintained_worlds.get(i).chunk_untouchedtime[x][z]>=max_time_in_seconds){
 
 							rnplugin.getServer().dispatchCommand(rnplugin.getServer().getConsoleSender(), "restorenature "+maintained_worlds.get(i).world_name+" "+chunk_x+" "+chunk_z);
+							restore_chunks_number++;
 							maintained_worlds.get(i).chunk_untouchedtime[x][z]=0;
 						}
 					}
@@ -96,7 +118,8 @@ class RestoreNatureRegularUpdate implements Runnable {
     	        	
     			}
     		}
-
+        	rnplugin.getServer().getConsoleSender().sendMessage("¡±e[RestoreNature] : Restoring "+restore_chunks_number+" chunks in world :"+maintained_worlds.get(i).world_name);	
+        	restore_chunks_number = 0;
     	}
     }
 	public void setWorldsChunkUntouchedTime(Block touched_block){
