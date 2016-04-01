@@ -31,7 +31,13 @@ public class RestoreNatureTaskQueue implements Runnable {
 
     public RestoreNatureTaskQueue(RestoreNaturePlugin plugin) {
     	rnplugin = plugin;
-    	MAX_TASK_IN_QUEUE = (rnplugin.MAX_CHUNK_RADIUS*2+1)* (rnplugin.MAX_CHUNK_RADIUS*2+1);
+    	MAX_TASK_IN_QUEUE=0;
+    	for(int i=0;i<rnplugin.config_maintain_worlds.size();i++){
+    		int cr = rnplugin.config_maintain_worlds.get(i).chunk_radius;
+    		MAX_TASK_IN_QUEUE+= (2*cr+1)*(2*cr+1);
+    	}
+    	rnplugin.getServer().getConsoleSender().sendMessage("¡±e[RestoreNature] : Maximum number of tasks could be in TaskQueue : "+MAX_TASK_IN_QUEUE);
+		
     }
 	public boolean addTask(Chunk newTask){
 		if(TaskQueue.size()<MAX_TASK_IN_QUEUE){
