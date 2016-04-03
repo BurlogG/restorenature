@@ -145,9 +145,6 @@ public class RestoreNaturePlugin extends JavaPlugin {
         new File("./plugins/RestoreNature/worlds_chunk_info").mkdirs();  
     	
     	config = this.getConfig();
-    	
-    	//config.createSection("#The following time period and max_untouched_chunk tolerance before it gets restored");
-    	//config.createSection("#needs a server restart to change.");
     	config.addDefault("version",VERSION);
     	config.addDefault("MAX_SECONDS_UNTOUCHED",DEFAULT_MAX_SECONDS_UNTOUCHED);
     	config.addDefault("CHECK_PERIOD_IN_SECONDS",DEFAULT_CHECK_PERIOD_IN_SECONDS);
@@ -155,6 +152,7 @@ public class RestoreNaturePlugin extends JavaPlugin {
     	config.addDefault("RESTORING_PERIOD_PER_CHUNK_IN_SECONDS",RESTORING_PERIOD_PER_CHUNK_IN_SECONDS);
     	config.options().copyDefaults(true);
     	saveConfig();
+    	
     	
     	MAX_SECONDS_UNTOUCHED = config.getInt("MAX_SECONDS_UNTOUCHED");
     	CHECK_PERIOD_IN_SECONDS = config.getInt("CHECK_PERIOD_IN_SECONDS");
