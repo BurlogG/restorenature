@@ -31,7 +31,7 @@ class RestoreNatureRegularUpdate implements Runnable {
 	private int CHECK_RADIUS_PER_PERIOD = 5;
 
 
-	
+	private Faction faction =null;
 	public static final int chunk_center_x = 8;
 	public static final int chunk_center_y = 64;
 	public static final int chunk_center_z = 8;
@@ -47,7 +47,10 @@ class RestoreNatureRegularUpdate implements Runnable {
     private boolean checkLocationClaimed(Chunk checkedChunk){
     	
         	Location location = checkedChunk.getBlock(chunk_center_x, chunk_center_y, chunk_center_z).getLocation();
-        	Faction faction = BoardColl.get().getFactionAt(PS.valueOf(location));
+        	
+        	if(rnplugin.USING_FEATURE_FACTION){
+            	faction = BoardColl.get().getFactionAt(PS.valueOf(location));
+        	}
         	
         	//rnplugin.getServer().getConsoleSender().sendMessage("¡±e[RestoreNature] : Checking whether it is wilderness faction : "+faction.getName());	
 			
@@ -60,7 +63,9 @@ class RestoreNatureRegularUpdate implements Runnable {
             		}
             		else{
                 		for(int j=0;j<maintained_worlds.get(i).factions_name.size();j++){
-                        	if(faction.getName().equals(maintained_worlds.get(i).factions_name.get(j))){
+                        	if(faction==null){
+                        		claimed = false;
+                        	}else if(faction.getName().equals(maintained_worlds.get(i).factions_name.get(j))){
                         		claimed = false;
                         		
                         	}

@@ -57,6 +57,7 @@ public class RestoreNaturePlugin extends JavaPlugin {
     public static int MAX_SECONDS_UNTOUCHED = DEFAULT_MAX_SECONDS_UNTOUCHED;
     public static int CHECK_PERIOD_IN_SECONDS = DEFAULT_CHECK_PERIOD_IN_SECONDS;
     //public static int MAX_CHUNK_RADIUS = DEFAULT_MAX_CHUNK_RADIUS;
+    public static boolean USING_FEATURE_FACTION = true;
     public static int RESTORING_PERIOD_PER_CHUNK_IN_SECONDS = DEFAULT_RESTORING_PERIOD_PER_CHUNK_IN_SECONDS;
     private FileConfiguration config;
     public Faction faction = null;
@@ -148,6 +149,7 @@ public class RestoreNaturePlugin extends JavaPlugin {
     	config.addDefault("version",VERSION);
     	config.addDefault("MAX_SECONDS_UNTOUCHED",DEFAULT_MAX_SECONDS_UNTOUCHED);
     	config.addDefault("CHECK_PERIOD_IN_SECONDS",DEFAULT_CHECK_PERIOD_IN_SECONDS);
+    	config.addDefault("USING_FEATURE_FACTION",true);
     	config.addDefault("WORLDS_INFO",DEFAULT_WORLDS_INFO);
     	config.addDefault("RESTORING_PERIOD_PER_CHUNK_IN_SECONDS",RESTORING_PERIOD_PER_CHUNK_IN_SECONDS);
     	config.options().copyDefaults(true);
@@ -156,6 +158,7 @@ public class RestoreNaturePlugin extends JavaPlugin {
     	
     	MAX_SECONDS_UNTOUCHED = config.getInt("MAX_SECONDS_UNTOUCHED");
     	CHECK_PERIOD_IN_SECONDS = config.getInt("CHECK_PERIOD_IN_SECONDS");
+    	USING_FEATURE_FACTION = config.getBoolean("USING_FEATURE_FACTION");
     	RESTORING_PERIOD_PER_CHUNK_IN_SECONDS = config.getInt("RESTORING_PERIOD_PER_CHUNK_IN_SECONDS");
 		
 		/*Reading worlds*/
