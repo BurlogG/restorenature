@@ -3,6 +3,7 @@ package io.github.kuohsuanlo.restorenature;
 
 import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.command.Command;
@@ -36,15 +37,14 @@ public class RestoreNatureCommand implements CommandExecutor {
 	        	Chunk player_chunk = sender.getServer().getWorld(world_name).getChunkAt(chunk_x, chunk_z);		        	
 	        	Chunk restoring_chunk = sender.getServer().getWorld(world_name+WORLD_SUFFIX).getChunkAt(chunk_x, chunk_z);	
 	        	restoreChunk(player_chunk,restoring_chunk);
-				//sender.sendMessage("¡±eChunk successfully restored on world chunk : "+world_name+" ; "+restoring_chunk.getX()+" "+restoring_chunk.getZ());	
-	            
+				
 		    }
 		    else if (args.length == 1 ) {
 
 		        if (sender instanceof Player) {
 			        Player player = (Player) sender;
 
-		    		if (args[0].equals("manualrestore")){
+		    		if (args[0].equals("mr")){
 				        if (sender.hasPermission("restorenature.manualrestore")){
 			    			Location player_location = player.getLocation();
 				        	String player_world_name = player.getWorld().getName();
@@ -64,18 +64,62 @@ public class RestoreNatureCommand implements CommandExecutor {
 						}
 			        	
 			    	}
-		    		else if (args[0].equals("reload")){
-		    			 if (sender.hasPermission("restorenature.reload")){
-		    				 rnplugin.reloadingConfig();
+		    		else if (args[0].equals("rnworld")){
+		    			 if (sender.hasPermission("restorenature.rnworld")){
+		    				 rnplugin.rnworld(player);
 		    				 return true;
+		    			 }
+		    			 else{
+							 sender.sendMessage("¡±cYou don't have the permission.");
+							 return false;
+		    			 }
+		    		}
+		    		else if (args[0].equals("trymr")){
+		    			 if (sender.hasPermission("restorenature.rnworld")){
+		    				 
+		    				 Location player_location = player.getLocation();
+					         String player_world_name = player.getWorld().getName();
+					        	
+					         Chunk player_chunk = player.getWorld().getChunkAt(player_location);
+					         Chunk restoring_chunk = sender.getServer().getWorld(player_world_name+WORLD_SUFFIX).getChunkAt(player_location) ;
+
+		 					if(!rnplugin.BukkitSchedulerSuck.checkLocationClaimed(player_chunk)){ // Land not claimed
+						         
+						     	for(int i=0;i<rnplugin.maintain_world_chunk_info.size();i++){
+						     		if(player_world_name.equals( rnplugin.maintain_world_chunk_info.get(i).world_name)){
+
+							    		MapChunkInfo chunksInfo = rnplugin.maintain_world_chunk_info.get(i);
+							    		int x = rnplugin.transformation_from_chunkidx_to_arrayidx(player_chunk.getX());
+							    		int z = rnplugin.transformation_from_chunkidx_to_arrayidx(player_chunk.getZ());
+
+							    		if(chunksInfo.chunk_untouchedtime[x][z]>=rnplugin.MAX_SECONDS_UNTOUCHED){
+							    			restoreChunk(player_chunk,restoring_chunk,chunksInfo,x,z);
+								        	
+								        	sender.sendMessage("¡±eChunk successfully restored on world chunk : "+player_world_name+" "+restoring_chunk.getX()+" ; "+restoring_chunk.getZ());	
+								            return true;    
+							    			
+
+										}
+							    		else{
+							    			sender.sendMessage("¡±eChunk untouch time not enough : "+chunksInfo.chunk_untouchedtime[x][z]+" < "+rnplugin.MAX_SECONDS_UNTOUCHED);	
+								            return true; 
+							    		}
+						     		}
+						     	}
+		 					}
+		 					else{
+				    			sender.sendMessage("¡±eChunk claimed");	
+					            return true; 
+		 					}
+		 					
+		    			 }
+		    			 else{
+								sender.sendMessage("¡±cYou don't have the permission.");
+								return false;
 		    			 }
 		    		}
 
 		        }
-		        if (args[0].equals("reload")){
-		        	rnplugin.reloadingConfig();
-		        	return true;
-	    		}
 		        
 	        }
         }
@@ -85,18 +129,49 @@ public class RestoreNatureCommand implements CommandExecutor {
     }
 
 			
-		
-    
+	
     @SuppressWarnings("deprecation")
-	private void restoreChunk(Chunk player_chunk, Chunk restoring_chunk){
+	public void restoreChunk(Chunk player_chunk, Chunk restoring_chunk){
     	for(int x=0;x<16;x++){
-            for(int y=0;y<128;y++){
+            for(int y=0;y<256;y++){
                 for(int z=0;z<16;z++){
-                	player_chunk.getBlock(x, y, z).setTypeId(restoring_chunk.getBlock(x, y, z).getTypeId());
-                	player_chunk.getBlock(x, y, z).setData(restoring_chunk.getBlock(x, y, z).getData());
+                	if(rnplugin.ONLY_RESTORE_AIR){
+                    	if(player_chunk.getBlock(x, y, z).getType().equals(Material.AIR)){
+                    		player_chunk.getBlock(x, y, z).setTypeId(restoring_chunk.getBlock(x, y, z).getTypeId());
+                        	player_chunk.getBlock(x, y, z).setData(restoring_chunk.getBlock(x, y, z).getData());
+                    	}
+                    	
+                	}
+                	else{
+                		player_chunk.getBlock(x, y, z).setTypeId(restoring_chunk.getBlock(x, y, z).getTypeId());
+                    	player_chunk.getBlock(x, y, z).setData(restoring_chunk.getBlock(x, y, z).getData());
+                	}
+
         		}
         	}
     	}
+    } 
+    @SuppressWarnings("deprecation")
+	public void restoreChunk(Chunk player_chunk, Chunk restoring_chunk, MapChunkInfo chunk_info,int array_x,int array_z){
+    	for(int x=0;x<16;x++){
+            for(int y=0;y<256;y++){
+                for(int z=0;z<16;z++){
+                	if(rnplugin.ONLY_RESTORE_AIR){
+                    	if(player_chunk.getBlock(x, y, z).getType().equals(Material.AIR)){
+                    		player_chunk.getBlock(x, y, z).setTypeId(restoring_chunk.getBlock(x, y, z).getTypeId());
+                        	player_chunk.getBlock(x, y, z).setData(restoring_chunk.getBlock(x, y, z).getData());
+                    	}
+                    	
+                	}
+                	else{
+                		player_chunk.getBlock(x, y, z).setTypeId(restoring_chunk.getBlock(x, y, z).getTypeId());
+                    	player_chunk.getBlock(x, y, z).setData(restoring_chunk.getBlock(x, y, z).getData());
+                	}
+                	
+        		}
+        	}
+    	}
+    	chunk_info.chunk_untouchedtime[array_x][array_z]=0;
     }
 
 }
