@@ -6,6 +6,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.CreatureSpawner;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -36,7 +37,7 @@ public class RestoreNatureCommand implements CommandExecutor {
 	        	
 	        	Chunk player_chunk = sender.getServer().getWorld(world_name).getChunkAt(chunk_x, chunk_z);		        	
 	        	Chunk restoring_chunk = sender.getServer().getWorld(world_name+WORLD_SUFFIX).getChunkAt(chunk_x, chunk_z);	
-	        	restoreChunk(player_chunk,restoring_chunk);
+	        	restoreChunk(player_chunk,restoring_chunk,null,-1,-1);
 				
 		    }
 		    else if (args.length == 1 ) {
@@ -52,7 +53,7 @@ public class RestoreNatureCommand implements CommandExecutor {
 				        	Chunk player_chunk = player.getWorld().getChunkAt(player_location);
 				        	Chunk restoring_chunk = sender.getServer().getWorld(player_world_name+WORLD_SUFFIX).getChunkAt(player_location) ;
 				        	
-				        	restoreChunk(player_chunk,restoring_chunk);
+				        	restoreChunk(player_chunk,restoring_chunk,null,-1,-1);
 				        	
 				        	sender.sendMessage("¡±eChunk successfully restored on world chunk : "+player_world_name+" "+restoring_chunk.getX()+" ; "+restoring_chunk.getZ());	
 				            return true;    
@@ -129,28 +130,6 @@ public class RestoreNatureCommand implements CommandExecutor {
     }
 
 			
-	
-    @SuppressWarnings("deprecation")
-	public void restoreChunk(Chunk player_chunk, Chunk restoring_chunk){
-    	for(int x=0;x<16;x++){
-            for(int y=0;y<256;y++){
-                for(int z=0;z<16;z++){
-                	if(rnplugin.ONLY_RESTORE_AIR){
-                    	if(player_chunk.getBlock(x, y, z).getType().equals(Material.AIR)){
-                    		player_chunk.getBlock(x, y, z).setTypeId(restoring_chunk.getBlock(x, y, z).getTypeId());
-                        	player_chunk.getBlock(x, y, z).setData(restoring_chunk.getBlock(x, y, z).getData());
-                    	}
-                    	
-                	}
-                	else{
-                		player_chunk.getBlock(x, y, z).setTypeId(restoring_chunk.getBlock(x, y, z).getTypeId());
-                    	player_chunk.getBlock(x, y, z).setData(restoring_chunk.getBlock(x, y, z).getData());
-                	}
-
-        		}
-        	}
-    	}
-    } 
     @SuppressWarnings("deprecation")
 	public void restoreChunk(Chunk player_chunk, Chunk restoring_chunk, MapChunkInfo chunk_info,int array_x,int array_z){
     	for(int x=0;x<16;x++){
@@ -160,18 +139,39 @@ public class RestoreNatureCommand implements CommandExecutor {
                     	if(player_chunk.getBlock(x, y, z).getType().equals(Material.AIR)){
                     		player_chunk.getBlock(x, y, z).setTypeId(restoring_chunk.getBlock(x, y, z).getTypeId());
                         	player_chunk.getBlock(x, y, z).setData(restoring_chunk.getBlock(x, y, z).getData());
+                        	if(restoring_chunk.getBlock(x, y, z).getType().equals(Material.MOB_SPAWNER)){
+
+                        		rnplugin.getServer().getConsoleSender().sendMessage("¡±e[RestoreNature] : restoring mobspawner");
+                    			CreatureSpawner restoring_spawner = ((CreatureSpawner)restoring_chunk.getBlock(x, y, z).getState());
+                    			CreatureSpawner restored_spawner = ((CreatureSpawner)player_chunk.getBlock(x, y, z).getState());                			
+                    			restored_spawner.setSpawnedType(restoring_spawner.getSpawnedType());
+                    			player_chunk.getBlock(x, y, z).getState().update();
+                            }
                     	}
+
                     	
                 	}
                 	else{
                 		player_chunk.getBlock(x, y, z).setTypeId(restoring_chunk.getBlock(x, y, z).getTypeId());
                     	player_chunk.getBlock(x, y, z).setData(restoring_chunk.getBlock(x, y, z).getData());
+                		if(restoring_chunk.getBlock(x, y, z).getType().equals(Material.MOB_SPAWNER)){
+
+                    		rnplugin.getServer().getConsoleSender().sendMessage("¡±e[RestoreNature] : restoring mobspawner");
+                			CreatureSpawner restoring_spawner = ((CreatureSpawner)restoring_chunk.getBlock(x, y, z).getState());
+                			CreatureSpawner restored_spawner = ((CreatureSpawner)player_chunk.getBlock(x, y, z).getState());                			
+                			restored_spawner.setSpawnedType(restoring_spawner.getSpawnedType());
+                			player_chunk.getBlock(x, y, z).getState().update();
+
+                		}
+
                 	}
                 	
         		}
         	}
     	}
-    	chunk_info.chunk_untouchedtime[array_x][array_z]=0;
+    	if(chunk_info  !=null){
+        	chunk_info.chunk_untouchedtime[array_x][array_z]=0;
+    	}
     }
 
 }
