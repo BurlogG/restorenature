@@ -1,3 +1,173 @@
+![ScreenShot](http://i.imgur.com/pK1bLqy.png)
+
+Hi, everyone. I have developed a plugin that would periodically check the chunks in worlds of its untouched time. And more, you could turn on factions feature to check whether it is claimed by factions plugin.
+
+With configurable parameters, this plugin will slowly regenerate your world! (Actually, copy and paste from the other world.)
+
+==============================================
+Commands and corresponding permissions
+​
+/restorenature mr
+restorenature.mr:
+description: manually force the plugin to restore the chunk player standing in.
+default: op
+
+/restorenature rnworld
+restorenature.rnworld:
+description: manually make all the chunks exceeds the max untouched time and start to resotre the world(still according to the config).
+default: op
+
+/restorenature trymr
+restorenature.trymr: (Player only)
+description: try to restore the land, if not success, show why.
+default: op
+==============================================​
+Your potential performance and memory issue :
+
+1.
+Not enough power of CPU?
+Performance could be tuned to fit the server's computing power. (Check Install Steps-2 Carefully.)
+
+2.
+You might be afraid of all the chunks tasks will freeze or use up your memory.
+2-1 : Freeze issue? Don't worry. This plugin will cut the tasks into tiny pieces for your server to consume.
+2-2 : Memory issue? Not a problem either. This plugin will have a maximum task queue. It will drop the upcoming tasks if the queue is temporarily filled.
+
+3. The progress will be saved in restorenature/world_chunk_info/...
+You are free to stop the server and proceed the progress at any time :)
+
+
+==============================================​
+
+Dependency:
+
+0. This plugin compiled in Java 8.
+1. Factions (Optional, remember to turn on/off in the config)
+2. Multiverse (You need this to generate the copy world if needed.)
+
+==============================================​
+Install Steps:
+1.
+Create the world you want to use as backup.
+The backup world is assigned by the world's suffix. _restorenature
+For example :
+Run commands /mv create world_name_restorenature ...
+
+2.
+Read this CAREFULLY:
+
+Unzip and open, edit and config.yml file
+
+version: 1.0.0d
+#Nothing. Just ignore it.
+
+MAX_SECONDS_UNTOUCHED: 864000
+#How many seconds the chunks will be restored after no one break/place the block.
+
+RESTORING_PERIOD_PER_CHUNK_IN_SECONDS: 1
+#Every X seconds will restore a chunk.
+#If the server is not lagging. Set to 1 if you want. Only accept integer.
+
+BLOCK_EVENT_EFFECTING_RADIUS: 1
+#1.0.0e New feature. The affecting area of the player event.
+# 1 = 16x16 blocks, 2 = 3x3 chunks with the event in the middle.
+
+CHECK_RADIUS_PER_PERIOD: 1
+#radius in chunks coordinate for each period
+#Just leave it 1 if you would like to make the job easy for server to handle
+
+USING_FEATURE_FACTION: true
+#turn this false will ignore the faction name checks
+
+
+In the following json structure : 
+WORLDS_INFO:
+{
+"maintained_worlds":[
+{
+"world_name":"my_cool_world",
+"check_radius":"200",
+"nature_factions":[
+{
+"faction_name":"Wilderness"
+},
+{
+"faction_name":"some_resource_area_faction"
+}
+]
+},
+{
+"world_name":"my_wrecked_nether",
+"check_radius":"200",
+"nature_factions":[]
+}
+]
+}
+#world_name : The name in
+/mstore/factions_faction/xxx.json file. 
+{
+"name": "Wilderness",
+...
+}
+NOT the .json file's name.
+
+#Check_raduis : 1 chunk = 16x16, Count your chunk radius.
+#If say you have a world 160x160. "check_radius" should be 10.
+#If you change "check_radius", you must manually delete the .chunkinfo file in worlds_chunk_info/
+
+#nature_factions : The factions that be regarded as wilderness.
+# Note that if "nature_factions" : [] is set. This means that all the faction check-out is cancel. All the chunks will be restored only depends on the untouched time.
+
+
+The above case study: 
+In world : "my_cool_world", my plugin will check whether the chunk is own by "Wilderness", or "some_resource_area_faction". If it is true, it will further check it has been untouched (blocks inside being broken, placed, interacted) for a configurable MAX_UNTOUCHED_TIME.
+Also, there is a configurable radius. Outside this range, the plugin would check the untouched time.
+
+And if both conditions pass, the plugin will restore the chunk by :
+Copying chunk at the same coordinates from world "my_cool_world_restorenature".
+You have to manually create that world first. It is done by a duplication because you might want to restore instead by "map regeneration" but a customized map.
+
+**And if in your server, worlds like nether, or the_end is not claimable. So there would be no "Wilderness" factions to checks. In this situations, just leave the "nature_factions": [], with a empty array.
+
+**With this mechanism, your world would not be accidentally restore because the restore processes would not be done by default. Only if they pass the factions name checks. No false positive situations that restore users factions land.
+
+3.
+Run the Server.
+
+4.(Optional)
+If you are not confident enough to run it directly.
+Just use a check_radius = 3 for the test world.
+And set
+MAX_SECONDS_UNTOUCHED: 5
+CHECK_RADIUS_PER_PERIOD: 1
+RESTORING_PERIOD_PER_CHUNK_IN_SECONDS: 1
+
+
+==============================================​
+Future plans :
+current progress :
+
+1. More land claim plugins checks : Griefprevetion API. And the exempt players land
+2. More land claim plugins checks : WorldGuard API. And the exempt region
+3. More land claim plugins checks : Towny API. And the exempt Towny area
+4. Default and exempt world fucntion.
+
+
+==============================================
+The event that make the chunks untouched time to zero 
+​
+public void onFurnaceSmeltEvent(FurnaceSmeltEvent event) {
+public void onBrewEvent(BrewEvent event) {
+public void onBlockRedstoneEvent(BlockRedstoneEvent event) {
+public void onBlockIgniteEvent(BlockIgniteEvent event) {
+public void onBlockGrowEvent(BlockGrowEvent event) {
+public void onBlockFormEvent(BlockFormEvent event) {
+public void onBlockFromToEvent(BlockFromToEvent event) {
+public void onBlockBreakEvent(BlockBreakEvent event) {
+public void onBlockPlaceEvent(BlockPlaceEvent event) {
+
+
+
 插件名稱 : RestoreNature 重回自然
 
 原文網址 : https://www.spigotmc.org/resources/restore-nature.21215/
