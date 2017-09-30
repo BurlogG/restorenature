@@ -61,6 +61,7 @@ public class RestoreNaturePlugin extends JavaPlugin {
     public static int BLOCK_EVENT_EFFECTING_RADIUS = 1;
 	public static int CHECK_RADIUS_PER_PERIOD = 1;
     public static boolean USING_FEATURE_FACTION = true;
+    public static boolean USING_FEATURE_GRIEFPREVENTION = true;
     public static boolean ONLY_RESTORE_AIR = true;
     public static int RESTORING_PERIOD_PER_CHUNK_IN_SECONDS = DEFAULT_RESTORING_PERIOD_PER_CHUNK_IN_SECONDS;
     private FileConfiguration config;
@@ -141,7 +142,8 @@ public class RestoreNaturePlugin extends JavaPlugin {
     	//config.addDefault("CHECK_PERIOD_IN_SECONDS",DEFAULT_CHECK_PERIOD_IN_SECONDS);
     	config.addDefault("CHECK_RADIUS_PER_PERIOD",1);
     	config.addDefault("BLOCK_EVENT_EFFECTING_RADIUS",1);
-    	config.addDefault("USING_FEATURE_FACTION",true);
+    	config.addDefault("USING_FEATURE_FACTION",false);
+    	config.addDefault("USING_FEATURE_GRIEFPREVENTION",true);
     	config.addDefault("ONLY_RESTORE_AIR",true);
     	
     	
@@ -156,6 +158,7 @@ public class RestoreNaturePlugin extends JavaPlugin {
     	MAX_SECONDS_UNTOUCHED = config.getInt("MAX_SECONDS_UNTOUCHED");
     	//CHECK_PERIOD_IN_SECONDS = config.getInt("CHECK_PERIOD_IN_SECONDS");
     	USING_FEATURE_FACTION = config.getBoolean("USING_FEATURE_FACTION");
+    	USING_FEATURE_GRIEFPREVENTION = config.getBoolean("USING_FEATURE_GRIEFPREVENTION");
     	ONLY_RESTORE_AIR = config.getBoolean("ONLY_RESTORE_AIR");
     	CHECK_RADIUS_PER_PERIOD = config.getInt("CHECK_RADIUS_PER_PERIOD");
     	RESTORING_PERIOD_PER_CHUNK_IN_SECONDS = config.getInt("RESTORING_PERIOD_PER_CHUNK_IN_SECONDS");
@@ -204,7 +207,7 @@ public class RestoreNaturePlugin extends JavaPlugin {
     	  	   	
     	  	   	
     	  	   	if(file.exists()){
-    	  	   		this.getServer().getConsoleSender().sendMessage("¡±e[RestoreNature] : successfully load from "+"./plugins/RestoreNature/worlds_chunk_info/"+world_name+".chunkinfo");	
+    	  	   		this.getServer().getConsoleSender().sendMessage("ï¿½ï¿½e[RestoreNature] : successfully load from "+"./plugins/RestoreNature/worlds_chunk_info/"+world_name+".chunkinfo");	
     	  	   		
     				FileInputStream fis;
     				fis = new FileInputStream("./plugins/RestoreNature/worlds_chunk_info/"+world_name+".chunkinfo");
@@ -213,7 +216,7 @@ public class RestoreNaturePlugin extends JavaPlugin {
     		    	ois.close();
     	  	   	}
     	  	   	else{
-    	  	   		this.getServer().getConsoleSender().sendMessage("¡±e[RestoreNature] : no existing file, creating new chunk info");
+    	  	   		this.getServer().getConsoleSender().sendMessage("ï¿½ï¿½e[RestoreNature] : no existing file, creating new chunk info");
     				world_chunk_info = createMapChunkInfo(world_name,radius, this.config_maintain_worlds.get(i).nature_factions);
 
     	  	   	}
