@@ -35,8 +35,11 @@ class RestoreNatureRegularUpdate implements Runnable {
 
 
 	private Faction faction =null;
+	
 	private GriefPrevention gp;
 	private final String notClaimedOwner = "administrator";
+	
+	
 	public static final int chunk_center_x = 8;
 	public static final int chunk_center_y = 64;
 	public static final int chunk_center_z = 8;
@@ -81,13 +84,18 @@ class RestoreNatureRegularUpdate implements Runnable {
                         		gp_claimed = false;
                         	}
                         	else{
-                        		gp_claimed = !(gp.dataStore.getClaimAt(location, true, null).getOwnerName().equals(notClaimedOwner) &&
-                        		gp.dataStore.getClaimAt(checkedChunk.getBlock( 0, chunk_center_y,  0).getLocation(), true, null).getOwnerName().equals(notClaimedOwner) &&
-                        		gp.dataStore.getClaimAt(checkedChunk.getBlock(15, chunk_center_y, 0).getLocation(), true, null).getOwnerName().equals(notClaimedOwner) &&
-                        		gp.dataStore.getClaimAt(checkedChunk.getBlock( 0, chunk_center_y, 15).getLocation(), true, null).getOwnerName().equals(notClaimedOwner)&&
-                        		gp.dataStore.getClaimAt(checkedChunk.getBlock(15, chunk_center_y, 15).getLocation(), true, null).getOwnerName().equals(notClaimedOwner));
-
-                        		
+                        		boolean isOthersLand = false;
+                        		for(int x=0;x<16;x++){
+                        			for(int z=0;z<16;z++){
+                        				isOthersLand = isOthersLand  ||  ( !gp.dataStore.getClaimAt(
+                								checkedChunk.getBlock( x, chunk_center_y,  z).getLocation(), true, null
+												).getOwnerName().equals(notClaimedOwner) );
+                        				
+                        				if(isOthersLand) break;
+                        			}
+                        			if(isOthersLand) break;
+                        		}
+                        		gp_claimed = isOthersLand;
                         		System.out.println(gp_claimed);
                         	}
                 			
@@ -96,8 +104,8 @@ class RestoreNatureRegularUpdate implements Runnable {
             	}
         	}        	
         	
-        
-    		return claimed;
+        	
+    		return gp_claimed || fc_claimed ;
 
     }
 
