@@ -48,13 +48,11 @@ class Maintained_World{
 }
 
 public class RestoreNaturePlugin extends JavaPlugin {
+	
     private static final Logger log = Logger.getLogger("Minecraft");
     public static final int DEFAULT_MAX_SECONDS_UNTOUCHED = 864000;
-    //public static final int DEFAULT_CHECK_PERIOD_IN_SECONDS = 3600;
     public static final int DEFAULT_MAX_CHUNK_RADIUS = 200;
     public static final int DEFAULT_RESTORING_PERIOD_PER_CHUNK_IN_SECONDS = 1;    
-    public static final String VERSION = "1.0.0";
-    public static final String DEFAULT_WORLDS_INFO = "{\"maintained_worlds\":[{\"world_name\": \"my_cool_world\",\"check_radius\": \""+DEFAULT_MAX_CHUNK_RADIUS+"\",\"nature_factions\": [{\"faction_name\": \"Wilderness\"},{\"faction_name\": \"some_resource_area_faction\"}]},{\"world_name\": \"my_wrecked_nether\",\"check_radius\": \""+DEFAULT_MAX_CHUNK_RADIUS+"\",\"nature_factions\": []}]}";
     public static int MAX_SECONDS_UNTOUCHED = DEFAULT_MAX_SECONDS_UNTOUCHED;
     public static int CHECK_PERIOD_IN_SECONDS;// = DEFAULT_CHECK_PERIOD_IN_SECONDS;
 
@@ -65,7 +63,10 @@ public class RestoreNaturePlugin extends JavaPlugin {
     public static boolean ONLY_RESTORE_AIR = true;
     public static int RESTORING_PERIOD_PER_CHUNK_IN_SECONDS = DEFAULT_RESTORING_PERIOD_PER_CHUNK_IN_SECONDS;
     private FileConfiguration config;
-    public Faction faction = null;
+    
+    public static final String VERSION = "1.0.1a";
+    public static final String DEFAULT_WORLDS_INFO = "{\"maintained_worlds\":[{\"world_name\": \"my_cool_world\",\"check_radius\": \""+DEFAULT_MAX_CHUNK_RADIUS+"\",\"nature_factions\": [{\"faction_name\": \"Wilderness\"},{\"faction_name\": \"some_resource_area_faction\"}]},{\"world_name\": \"my_wrecked_nether\",\"check_radius\": \""+DEFAULT_MAX_CHUNK_RADIUS+"\",\"nature_factions\": []}]}";
+    
     
     public ArrayList<Maintained_World> config_maintain_worlds = new ArrayList<Maintained_World>();
 	public ArrayList<MapChunkInfo> maintain_world_chunk_info = new ArrayList<MapChunkInfo>();

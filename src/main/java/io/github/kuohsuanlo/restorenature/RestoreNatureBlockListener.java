@@ -14,6 +14,7 @@ import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockRedstoneEvent;
+import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.inventory.BrewEvent;
 import org.bukkit.event.inventory.FurnaceSmeltEvent;
 
@@ -32,7 +33,15 @@ public class RestoreNatureBlockListener implements Listener {
     public void onBrewEvent(BrewEvent event) {
         Block block = event.getBlock();
         rnplugin.BukkitSchedulerSuck.setWorldsChunkUntouchedTime(block);
-    }     
+    }   
+    @EventHandler
+    public void onEnchantItemEvent(EnchantItemEvent event) {
+        Block block = event.getEnchantBlock();
+        rnplugin.BukkitSchedulerSuck.setWorldsChunkUntouchedTime(block);
+    }      
+    
+    
+    
     @EventHandler
     public void onBlockRedstoneEvent(BlockRedstoneEvent event) {
         Block block = event.getBlock();
@@ -68,4 +77,5 @@ public class RestoreNatureBlockListener implements Listener {
         Block block = event.getBlock();
         rnplugin.BukkitSchedulerSuck.setWorldsChunkUntouchedTime(block);
     }
+    
 }
