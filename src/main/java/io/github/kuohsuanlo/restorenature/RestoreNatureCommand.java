@@ -16,13 +16,12 @@ import org.bukkit.material.MaterialData;
 public class RestoreNatureCommand implements CommandExecutor {
     @SuppressWarnings("deprecation")
     private RestoreNaturePlugin rnplugin;
-    public static final String WORLD_SUFFIX = "_restorenature";
     public RestoreNatureCommand(RestoreNaturePlugin plugin){
     	rnplugin = plugin;
     }
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 
-	        
+	    //System.out.println(cmd.toString());    
 		if (cmd.getName().equalsIgnoreCase("restorenature")) { // If the player typed /basic then do the following...   
 		    if (args.length == 3 ) {
 		    	if (sender instanceof Player) {
@@ -36,7 +35,7 @@ public class RestoreNatureCommand implements CommandExecutor {
 	        	int chunk_z = Integer.valueOf(args[2]);
 	        	
 	        	Chunk player_chunk = sender.getServer().getWorld(world_name).getChunkAt(chunk_x, chunk_z);		        	
-	        	Chunk restoring_chunk = sender.getServer().getWorld(world_name+WORLD_SUFFIX).getChunkAt(chunk_x, chunk_z);	
+	        	Chunk restoring_chunk = sender.getServer().getWorld(world_name+RestoreNaturePlugin.WORLD_SUFFIX).getChunkAt(chunk_x, chunk_z);	
 	        	restoreChunk(player_chunk,restoring_chunk,null,-1,-1);
 				
 		    }
@@ -51,7 +50,7 @@ public class RestoreNatureCommand implements CommandExecutor {
 				        	String player_world_name = player.getWorld().getName();
 				        	
 				        	Chunk player_chunk = player.getWorld().getChunkAt(player_location);
-				        	Chunk restoring_chunk = sender.getServer().getWorld(player_world_name+WORLD_SUFFIX).getChunkAt(player_location) ;
+				        	Chunk restoring_chunk = sender.getServer().getWorld(player_world_name+RestoreNaturePlugin.WORLD_SUFFIX).getChunkAt(player_location) ;
 				        	
 				        	restoreChunk(player_chunk,restoring_chunk,null,-1,-1);
 				        	
@@ -82,7 +81,7 @@ public class RestoreNatureCommand implements CommandExecutor {
 					         String player_world_name = player.getWorld().getName();
 					        	
 					         Chunk player_chunk = player.getWorld().getChunkAt(player_location);
-					         Chunk restoring_chunk = sender.getServer().getWorld(player_world_name+WORLD_SUFFIX).getChunkAt(player_location) ;
+					         Chunk restoring_chunk = sender.getServer().getWorld(player_world_name+RestoreNaturePlugin.WORLD_SUFFIX).getChunkAt(player_location) ;
 
 		 					if(!rnplugin.BukkitSchedulerSuck.checkLocationClaimed(player_chunk)){ // Land not claimed
 						         
