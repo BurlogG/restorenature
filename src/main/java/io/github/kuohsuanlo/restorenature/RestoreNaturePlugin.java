@@ -49,8 +49,8 @@ class Maintained_World{
 
 public class RestoreNaturePlugin extends JavaPlugin {
 
+
     public static final String WORLD_SUFFIX = "_rs";
-    
     private static final Logger log = Logger.getLogger("Minecraft");
     public static final int DEFAULT_MAX_SECONDS_UNTOUCHED = 864000;
     public static final int DEFAULT_MAX_CHUNK_RADIUS = 200;
