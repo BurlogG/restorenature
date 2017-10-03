@@ -112,8 +112,8 @@ public class RestoreNatureCommand implements CommandExecutor {
 		 							 if(player_world_name.equals( rnplugin.maintain_world_chunk_info.get(i).world_name)){
 
 							    		MapChunkInfo chunksInfo = rnplugin.maintain_world_chunk_info.get(i);
-							    		int x = rnplugin.transformation_from_chunkidx_to_arrayidx(player_chunk.getX());
-							    		int z = rnplugin.transformation_from_chunkidx_to_arrayidx(player_chunk.getZ());
+							    		int x = rnplugin.transformation_from_chunkidx_to_arrayidx(player_chunk.getX(),chunksInfo.chunk_radius);
+							    		int z = rnplugin.transformation_from_chunkidx_to_arrayidx(player_chunk.getZ(),chunksInfo.chunk_radius);
 	
 							    		if(chunksInfo.chunk_untouchedtime[x][z]>=rnplugin.MAX_SECONDS_UNTOUCHED){
 							    			restoreChunk(player_world, player_chunk.getX(),player_chunk.getZ(),sender);
@@ -190,8 +190,8 @@ public class RestoreNatureCommand implements CommandExecutor {
         	}
     	}
     	if(chunk_info  !=null){
-    		int array_x = rnplugin.transformation_from_chunkidx_to_arrayidx(replaced_chunk.getX());
-        	int array_z = rnplugin.transformation_from_chunkidx_to_arrayidx(replaced_chunk.getZ());
+    		int array_x = rnplugin.transformation_from_chunkidx_to_arrayidx(replaced_chunk.getX(),chunk_info.chunk_radius);
+        	int array_z = rnplugin.transformation_from_chunkidx_to_arrayidx(replaced_chunk.getZ(),chunk_info.chunk_radius);
         	
     		if(array_x<chunk_info.max_x &&  array_z<chunk_info.max_z &&  array_x>=0  &&  array_z>=0)
     			chunk_info.chunk_untouchedtime[array_x][array_z]=0;

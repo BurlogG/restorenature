@@ -54,7 +54,7 @@ public class RestoreNaturePlugin extends JavaPlugin {
     private static final Logger log = Logger.getLogger("Minecraft");
     public static final int DEFAULT_MAX_SECONDS_UNTOUCHED = 864000;
     public static final int DEFAULT_MAX_CHUNK_RADIUS = 200;  
-    public static int MAX_SECONDS_UNTOUCHED = DEFAULT_MAX_SECONDS_UNTOUCHED;a
+    public static int MAX_SECONDS_UNTOUCHED = DEFAULT_MAX_SECONDS_UNTOUCHED;
     public static int RESTORING_PERIOD_PER_CHUNK_IN_SECONDS = 1;
     
     public static int BLOCK_EVENT_EFFECTING_RADIUS = 1;
@@ -138,17 +138,16 @@ public class RestoreNaturePlugin extends JavaPlugin {
     	config = this.getConfig();
     	config.addDefault("version",VERSION);
     	config.addDefault("MAX_SECONDS_UNTOUCHED",DEFAULT_MAX_SECONDS_UNTOUCHED);
-    	//config.addDefault("CHECK_PERIOD_IN_SECONDS",DEFAULT_CHECK_PERIOD_IN_SECONDS);
     	config.addDefault("CHECK_RADIUS_PER_PERIOD",1);
     	config.addDefault("BLOCK_EVENT_EFFECTING_RADIUS",1);
     	config.addDefault("USING_FEATURE_FACTION",false);
     	config.addDefault("USING_FEATURE_GRIEFPREVENTION",true);
     	config.addDefault("ONLY_RESTORE_AIR",true);
+    	config.addDefault("RESTORING_PERIOD_PER_CHUNK_IN_SECONDS",RESTORING_PERIOD_PER_CHUNK_IN_SECONDS);
     	
     	
     	config.addDefault("WORLDS_INFO",DEFAULT_WORLDS_INFO);
     	
-    	config.addDefault("RESTORING_PERIOD_PER_CHUNK_IN_SECONDS",RESTORING_PERIOD_PER_CHUNK_IN_SECONDS);
     	config.options().copyDefaults(true);
     	saveConfig();
     	
@@ -268,30 +267,11 @@ public class RestoreNaturePlugin extends JavaPlugin {
     	}
     	return null;
     }
-    public int transformation_from_arrayidx_to_chunkidx(int x){
-  	  int chunk_x =0;
-  	  int bool_mod_2;
-  	  if(x%2==1){
-  	    bool_mod_2 = -1;
-  	  }
-  	  else{
-  	    bool_mod_2 = 1;
-  	  }
-  	  chunk_x = (-1)*bool_mod_2*((x+1)/2);
-  	  return chunk_x;
+    public int transformation_from_arrayidx_to_chunkidx(int x,int radius){
+  	  	return x-radius;
 
   	}
-	public int transformation_from_chunkidx_to_arrayidx(int chunk_x){
-	  int x=0;
-	  int bool_gtz;
-	  if(chunk_x>0){
-	    bool_gtz = -1;
-	  }
-	  else{
-	    bool_gtz = 0;
-	  }
-	  x = Math.abs(chunk_x)*2+bool_gtz;
-	  return x;
-
+	public int transformation_from_chunkidx_to_arrayidx(int chunk_x,int radius){
+		return chunk_x+radius;
 	}
 }

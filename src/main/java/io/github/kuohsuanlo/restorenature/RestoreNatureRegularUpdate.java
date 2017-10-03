@@ -138,8 +138,8 @@ class RestoreNatureRegularUpdate implements Runnable {
     		    for(int z=chunksInfo.now_min_z; z < chunksInfo.now_min_z+1; z++){
     		    
 
-    		    	int chunk_x = rnplugin.transformation_from_arrayidx_to_chunkidx(x);
-    		    	int chunk_z = rnplugin.transformation_from_arrayidx_to_chunkidx(z);
+    		    	int chunk_x = rnplugin.transformation_from_arrayidx_to_chunkidx(x,chunksInfo.chunk_radius);
+    		    	int chunk_z = rnplugin.transformation_from_arrayidx_to_chunkidx(z,chunksInfo.chunk_radius);
     		    	Chunk checked_chunk = rnplugin.getServer().getWorld(chunksInfo.world_name).getChunkAt(chunk_x, chunk_z);
 					if(!checkLocationClaimed(checked_chunk)){ // Land not claimed
 						if(chunksInfo.chunk_untouchedtime[x][z]>=max_time_in_seconds){
@@ -188,12 +188,13 @@ class RestoreNatureRegularUpdate implements Runnable {
 
 		for(int i=0;i<maintained_worlds.size();i++){
     		if(maintained_worlds.get(i).world_name.equals(touched_block.getWorld().getName())){
+    			MapChunkInfo chunksInfo = maintained_worlds.get(i);
     			if(
-					rnplugin.transformation_from_chunkidx_to_arrayidx( touched_block.getLocation().getChunk().getX())<=maintained_worlds.get(i).max_x  &&
-					rnplugin.transformation_from_chunkidx_to_arrayidx( touched_block.getLocation().getChunk().getZ())<=maintained_worlds.get(i).max_z  
+					rnplugin.transformation_from_chunkidx_to_arrayidx( touched_block.getLocation().getChunk().getX(),chunksInfo.chunk_radius)<=maintained_worlds.get(i).max_x  &&
+					rnplugin.transformation_from_chunkidx_to_arrayidx( touched_block.getLocation().getChunk().getZ(),chunksInfo.chunk_radius)<=maintained_worlds.get(i).max_z  
     					){
-    				int x = rnplugin.transformation_from_chunkidx_to_arrayidx( touched_block.getChunk().getX());
-        			int z = rnplugin.transformation_from_chunkidx_to_arrayidx( touched_block.getChunk().getZ());
+    				int x = rnplugin.transformation_from_chunkidx_to_arrayidx( touched_block.getChunk().getX(),chunksInfo.chunk_radius);
+        			int z = rnplugin.transformation_from_chunkidx_to_arrayidx( touched_block.getChunk().getZ(),chunksInfo.chunk_radius);
         			//int x = touched_block.getChunk().getX()+maintained_worlds.get(i).chunk_radius;
         			//int z = touched_block.getChunk().getZ()+maintained_worlds.get(i).chunk_radius;
         			
