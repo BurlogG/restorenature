@@ -134,8 +134,8 @@ class RestoreNatureRegularUpdate implements Runnable {
     		
 	    	
     		
-        	for(int x=chunksInfo.now_min_x; x < chunksInfo.now_min_x+rnplugin.CHECK_RADIUS_PER_PERIOD; x++){
-    		    for(int z=chunksInfo.now_min_z; z < chunksInfo.now_min_z+rnplugin.CHECK_RADIUS_PER_PERIOD; z++){
+        	for(int x=chunksInfo.now_min_x; x < chunksInfo.now_min_x+1; x++){
+    		    for(int z=chunksInfo.now_min_z; z < chunksInfo.now_min_z+1; z++){
     		    
 
     		    	int chunk_x = rnplugin.transformation_from_arrayidx_to_chunkidx(x);
@@ -164,11 +164,11 @@ class RestoreNatureRegularUpdate implements Runnable {
         	//rnplugin.getServer().getConsoleSender().sendMessage("[RestoreNature] : Add "+restore_chunks_number+" chunks into queue, in world :"+maintained_worlds.get(i).world_name);	
         	restore_chunks_number = 0;
 
-        	chunksInfo.now_min_z +=+rnplugin.CHECK_RADIUS_PER_PERIOD;
+        	chunksInfo.now_min_z +=rnplugin.RESTORING_PERIOD_PER_CHUNK_IN_SECONDS;
         	if(chunksInfo.now_min_z >=chunksInfo.max_z){
         		chunksInfo.now_min_z=0;
         		
-        		chunksInfo.now_min_x +=+rnplugin.CHECK_RADIUS_PER_PERIOD;
+        		chunksInfo.now_min_x +=rnplugin.RESTORING_PERIOD_PER_CHUNK_IN_SECONDS;
             	if(chunksInfo.now_min_x >=chunksInfo.max_x){
             		chunksInfo.now_min_x=0;
             	}
@@ -188,14 +188,13 @@ class RestoreNatureRegularUpdate implements Runnable {
 
 		for(int i=0;i<maintained_worlds.size();i++){
     		if(maintained_worlds.get(i).world_name.equals(touched_block.getWorld().getName())){
+    			MapChunkInfo chunksInfo = maintained_worlds.get(i);
     			if(
 					rnplugin.transformation_from_chunkidx_to_arrayidx( touched_block.getLocation().getChunk().getX())<=maintained_worlds.get(i).max_x  &&
 					rnplugin.transformation_from_chunkidx_to_arrayidx( touched_block.getLocation().getChunk().getZ())<=maintained_worlds.get(i).max_z  
     					){
     				int x = rnplugin.transformation_from_chunkidx_to_arrayidx( touched_block.getChunk().getX());
         			int z = rnplugin.transformation_from_chunkidx_to_arrayidx( touched_block.getChunk().getZ());
-        			//int x = touched_block.getChunk().getX()+maintained_worlds.get(i).chunk_radius;
-        			//int z = touched_block.getChunk().getZ()+maintained_worlds.get(i).chunk_radius;
         			
         			int R = rnplugin.BLOCK_EVENT_EFFECTING_RADIUS-1;
         			for(int r_x=(-1)*R;r_x<=R;r_x++){

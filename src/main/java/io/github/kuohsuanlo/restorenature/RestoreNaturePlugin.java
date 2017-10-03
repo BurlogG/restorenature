@@ -49,26 +49,20 @@ class Maintained_World{
 
 public class RestoreNaturePlugin extends JavaPlugin {
 
-
-    public static final String WORLD_SUFFIX = "_rs";
     private static final Logger log = Logger.getLogger("Minecraft");
     public static final int DEFAULT_MAX_SECONDS_UNTOUCHED = 864000;
-    public static final int DEFAULT_MAX_CHUNK_RADIUS = 200;
-    public static final int DEFAULT_RESTORING_PERIOD_PER_CHUNK_IN_SECONDS = 1;    
+    public static final int DEFAULT_MAX_CHUNK_RADIUS = 200;  
     public static int MAX_SECONDS_UNTOUCHED = DEFAULT_MAX_SECONDS_UNTOUCHED;
-    public static int CHECK_PERIOD_IN_SECONDS;// = DEFAULT_CHECK_PERIOD_IN_SECONDS;
-
+    public static int RESTORING_PERIOD_PER_CHUNK_IN_SECONDS = 1;
+    
     public static int BLOCK_EVENT_EFFECTING_RADIUS = 1;
-	public static int CHECK_RADIUS_PER_PERIOD = 1;
     public static boolean USING_FEATURE_FACTION = true;
     public static boolean USING_FEATURE_GRIEFPREVENTION = true;
     public static boolean ONLY_RESTORE_AIR = true;
-    public static int RESTORING_PERIOD_PER_CHUNK_IN_SECONDS = DEFAULT_RESTORING_PERIOD_PER_CHUNK_IN_SECONDS;
-    private FileConfiguration config;
-    
     public static final String VERSION = "1.0.1a";
     public static final String DEFAULT_WORLDS_INFO = "{\"maintained_worlds\":[{\"world_name\": \"my_cool_world\",\"check_radius\": \""+DEFAULT_MAX_CHUNK_RADIUS+"\",\"nature_factions\": [{\"faction_name\": \"Wilderness\"},{\"faction_name\": \"some_resource_area_faction\"}]},{\"world_name\": \"my_wrecked_nether\",\"check_radius\": \""+DEFAULT_MAX_CHUNK_RADIUS+"\",\"nature_factions\": []}]}";
-    
+
+    private FileConfiguration config;
     
     public ArrayList<Maintained_World> config_maintain_worlds = new ArrayList<Maintained_World>();
 	public ArrayList<MapChunkInfo> maintain_world_chunk_info = new ArrayList<MapChunkInfo>();
@@ -142,17 +136,16 @@ public class RestoreNaturePlugin extends JavaPlugin {
     	config = this.getConfig();
     	config.addDefault("version",VERSION);
     	config.addDefault("MAX_SECONDS_UNTOUCHED",DEFAULT_MAX_SECONDS_UNTOUCHED);
-    	//config.addDefault("CHECK_PERIOD_IN_SECONDS",DEFAULT_CHECK_PERIOD_IN_SECONDS);
     	config.addDefault("CHECK_RADIUS_PER_PERIOD",1);
     	config.addDefault("BLOCK_EVENT_EFFECTING_RADIUS",1);
     	config.addDefault("USING_FEATURE_FACTION",false);
     	config.addDefault("USING_FEATURE_GRIEFPREVENTION",true);
     	config.addDefault("ONLY_RESTORE_AIR",true);
+    	config.addDefault("RESTORING_PERIOD_PER_CHUNK_IN_SECONDS",RESTORING_PERIOD_PER_CHUNK_IN_SECONDS);
     	
     	
     	config.addDefault("WORLDS_INFO",DEFAULT_WORLDS_INFO);
     	
-    	config.addDefault("RESTORING_PERIOD_PER_CHUNK_IN_SECONDS",RESTORING_PERIOD_PER_CHUNK_IN_SECONDS);
     	config.options().copyDefaults(true);
     	saveConfig();
     	
@@ -163,9 +156,7 @@ public class RestoreNaturePlugin extends JavaPlugin {
     	USING_FEATURE_FACTION = config.getBoolean("USING_FEATURE_FACTION");
     	USING_FEATURE_GRIEFPREVENTION = config.getBoolean("USING_FEATURE_GRIEFPREVENTION");
     	ONLY_RESTORE_AIR = config.getBoolean("ONLY_RESTORE_AIR");
-    	CHECK_RADIUS_PER_PERIOD = config.getInt("CHECK_RADIUS_PER_PERIOD");
     	RESTORING_PERIOD_PER_CHUNK_IN_SECONDS = config.getInt("RESTORING_PERIOD_PER_CHUNK_IN_SECONDS");
-    	CHECK_PERIOD_IN_SECONDS = CHECK_RADIUS_PER_PERIOD*CHECK_RADIUS_PER_PERIOD*RESTORING_PERIOD_PER_CHUNK_IN_SECONDS;
 		/*Reading worlds*/
 
 		JSONParser parser = new JSONParser();
@@ -236,10 +227,10 @@ public class RestoreNaturePlugin extends JavaPlugin {
     			e.printStackTrace();
     		}
         }
-        CHECK_PERIOD_IN_SECONDS=CHECK_PERIOD_IN_SECONDS*config_maintain_worlds.size();
+        RESTORING_PERIOD_PER_CHUNK_IN_SECONDS*=config_maintain_worlds.size();
 
     }
-    private MapChunkInfo createMapChunkInfo(String world_name,int radius,ArrayList<String> fname){
+    public MapChunkInfo createMapChunkInfo(String world_name,int radius,ArrayList<String> fname){
     	
        	int min_chunk_x = 0;
        	int min_chunk_z = 0; 
@@ -258,8 +249,8 @@ public class RestoreNaturePlugin extends JavaPlugin {
     	
     }
     private void startingRestoreRoutines(){
-        BukkitSchedulerSuck = new RestoreNatureRegularUpdate(CHECK_PERIOD_IN_SECONDS,MAX_SECONDS_UNTOUCHED,maintain_world_chunk_info,this);
-        this.getServer().getScheduler().scheduleSyncRepeatingTask(this, BukkitSchedulerSuck, 0, 20*CHECK_PERIOD_IN_SECONDS);
+        BukkitSchedulerSuck = new RestoreNatureRegularUpdate(RESTORING_PERIOD_PER_CHUNK_IN_SECONDS,MAX_SECONDS_UNTOUCHED,maintain_world_chunk_info,this);
+        this.getServer().getScheduler().scheduleSyncRepeatingTask(this, BukkitSchedulerSuck, 0, 20*RESTORING_PERIOD_PER_CHUNK_IN_SECONDS);
         
         RestoringTaskQueue = new RestoreNatureTaskQueue(this);
         this.getServer().getScheduler().scheduleSyncRepeatingTask(this, RestoringTaskQueue, 0, 20*RESTORING_PERIOD_PER_CHUNK_IN_SECONDS);
@@ -274,30 +265,45 @@ public class RestoreNaturePlugin extends JavaPlugin {
     	}
     	return null;
     }
-    public int transformation_from_arrayidx_to_chunkidx(int x){
-  	  int chunk_x =0;
-  	  int bool_mod_2;
-  	  if(x%2==1){
-  	    bool_mod_2 = -1;
+    public static int transformation_from_arrayidx_to_chunkidx(int x){
+    	  int chunk_x =0;
+    	  int bool_mod_2;
+    	  if(x%2==1){
+    	    bool_mod_2 = -1;
+    	  }
+    	  else{
+    	    bool_mod_2 = 1;
+    	  }
+    	  chunk_x = (-1)*bool_mod_2*((x+1)/2);
+    	  return chunk_x;
+
+    	}
+  	public static int transformation_from_chunkidx_to_arrayidx(int chunk_x){
+  	  int x=0;
+  	  int bool_gtz;
+  	  if(chunk_x>0){
+  	    bool_gtz = -1;
   	  }
   	  else{
-  	    bool_mod_2 = 1;
+  	    bool_gtz = 0;
   	  }
-  	  chunk_x = (-1)*bool_mod_2*((x+1)/2);
-  	  return chunk_x;
+  	  x = Math.abs(chunk_x)*2+bool_gtz;
+  	  return x;
 
   	}
-	public int transformation_from_chunkidx_to_arrayidx(int chunk_x){
-	  int x=0;
-	  int bool_gtz;
-	  if(chunk_x>0){
-	    bool_gtz = -1;
-	  }
-	  else{
-	    bool_gtz = 0;
-	  }
-	  x = Math.abs(chunk_x)*2+bool_gtz;
-	  return x;
+  	public static void main(String[] args) {
+  		int chunk_x = 300;
+  		int chunk_z = -5;
+  		
+  		int array_cal_x = RestoreNaturePlugin.transformation_from_chunkidx_to_arrayidx(chunk_x);
+  		int array_cal_z = RestoreNaturePlugin.transformation_from_chunkidx_to_arrayidx(chunk_z);
+  		
 
-	}
+  		int chunk_cal_x = RestoreNaturePlugin.transformation_from_arrayidx_to_chunkidx(array_cal_x);
+  		int chunk_cal_z = RestoreNaturePlugin.transformation_from_arrayidx_to_chunkidx(array_cal_z);
+
+  		System.out.println(chunk_x+","+chunk_z);
+  		System.out.println(array_cal_x+","+array_cal_z);
+  		System.out.println(chunk_cal_x+","+chunk_cal_z);
+  	}
 }
