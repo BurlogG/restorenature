@@ -156,7 +156,6 @@ class RestoreNatureRegularUpdate implements Runnable {
 					}
 					
 					
-
     	        	
     			}
  
