@@ -37,6 +37,9 @@ public class RestoreNatureCommand implements CommandExecutor {
     		currentWorld.regenerateChunk(player_chunk.getX(), player_chunk.getZ());
     	}
     	
+    	sender.sendMessage("[RestoreNature] : Chunk successfully restored on world chunk : "+currentWorld.getName()+" "+player_chunk.getX()+" ; "+player_chunk.getZ());	
+        
+    	
     }
     public void restoreChunk(World currentWorld,int chunk_x, int chunk_z, CommandSender sender){
     	restoreChunk(currentWorld,null, chunk_x,  chunk_z,  sender);
@@ -50,7 +53,7 @@ public class RestoreNatureCommand implements CommandExecutor {
 		    if (args.length == 3 ) {
 		    	if (sender instanceof Player) {
 		    		 if (!sender.hasPermission("restorenature.manualrestore")){
-						 sender.sendMessage("You don't have the permission.");
+						 sender.sendMessage("[RestoreNature] : You don't have the permission.");
 		    			 return false;
 		    		 }
 		    	}
@@ -75,12 +78,11 @@ public class RestoreNatureCommand implements CommandExecutor {
 				        	
 				        	restoreChunk(currentWorld, player_chunk.getX(),player_chunk.getZ(),sender);
 				        	
-				        	sender.sendMessage("Chunk successfully restored on world chunk : "+currentWorld.getName()+" "+player_chunk.getX()+" ; "+player_chunk.getZ());	
-				            return true;    
+				        	return true;    
 			    			
 			    		}
 				        else{
-							sender.sendMessage("You don't have the permission.");
+							sender.sendMessage("[RestoreNature] : You don't have the permission.");
 							return false;
 						}
 			        	
@@ -91,7 +93,7 @@ public class RestoreNatureCommand implements CommandExecutor {
 		    				 return true;
 		    			 }
 		    			 else{
-							 sender.sendMessage("You don't have the permission.");
+							 sender.sendMessage("[RestoreNature] : You don't have the permission.");
 							 return false;
 		    			 }
 		    		}
@@ -103,41 +105,35 @@ public class RestoreNatureCommand implements CommandExecutor {
 					         World player_world = player.getWorld();
 					        	
 					         Chunk player_chunk = player.getWorld().getChunkAt(player_location);
-					         Chunk restoring_chunk = sender.getServer().getWorld(player_world_name+RestoreNaturePlugin.WORLD_SUFFIX).getChunkAt(player_location) ;
-
-		 					if(!rnplugin.BukkitSchedulerSuck.checkLocationClaimed(player_chunk)){ // Land not claimed
+					         
+		 					 if(!rnplugin.BukkitSchedulerSuck.checkLocationClaimed(player_chunk)){ // Land not claimed
 						         
-						     	for(int i=0;i<rnplugin.maintain_world_chunk_info.size();i++){
-						     		if(player_world_name.equals( rnplugin.maintain_world_chunk_info.get(i).world_name)){
+		 						 for(int i=0;i<rnplugin.maintain_world_chunk_info.size();i++){
+		 							 if(player_world_name.equals( rnplugin.maintain_world_chunk_info.get(i).world_name)){
 
 							    		MapChunkInfo chunksInfo = rnplugin.maintain_world_chunk_info.get(i);
 							    		int x = rnplugin.transformation_from_chunkidx_to_arrayidx(player_chunk.getX());
 							    		int z = rnplugin.transformation_from_chunkidx_to_arrayidx(player_chunk.getZ());
-
+	
 							    		if(chunksInfo.chunk_untouchedtime[x][z]>=rnplugin.MAX_SECONDS_UNTOUCHED){
-							    			
 							    			restoreChunk(player_world, player_chunk.getX(),player_chunk.getZ(),sender);
-							    			
-								        	sender.sendMessage("Chunk successfully restored on world chunk : "+player_world_name+" "+restoring_chunk.getX()+" ; "+restoring_chunk.getZ());	
-								            return true;    
-							    			
-
+							    			return true;  
 										}
 							    		else{
-							    			sender.sendMessage("Chunk untouch time not enough : "+chunksInfo.chunk_untouchedtime[x][z]+" < "+rnplugin.MAX_SECONDS_UNTOUCHED);	
+							    			sender.sendMessage("[RestoreNature] : Chunk untouch time not enough : "+chunksInfo.chunk_untouchedtime[x][z]+" < "+rnplugin.MAX_SECONDS_UNTOUCHED);	
 								            return true; 
 							    		}
 						     		}
 						     	}
 		 					}
 		 					else{
-				    			sender.sendMessage("Chunk claimed");	
+				    			sender.sendMessage("[RestoreNature] : Chunk claimed");	
 					            return true; 
 		 					}
 		 					
 		    			 }
 		    			 else{
-								sender.sendMessage("You don't have the permission.");
+								sender.sendMessage("[RestoreNature] : You don't have the permission.");
 								return false;
 		    			 }
 		    		}
@@ -199,11 +195,8 @@ public class RestoreNatureCommand implements CommandExecutor {
         	
     		if(array_x<chunk_info.max_x &&  array_z<chunk_info.max_z &&  array_x>=0  &&  array_z>=0)
     			chunk_info.chunk_untouchedtime[array_x][array_z]=0;
-    		else if (array_x>=chunk_info.max_x  ||   array_z>=chunk_info.max_z ){
-    			sender.sendMessage("[RestoreNature] : X-Z out of maintenance bound.");	
-    		}
-    		else if (array_x<0  ||   array_z<0 ){
-    			sender.sendMessage("[RestoreNature] : not using bound feature.");	
+    		else{
+    			sender.sendMessage("[RestoreNature] : out of maintenance bound,"+"("+array_x+","+array_z+")" );	
     		}
     	}
     }

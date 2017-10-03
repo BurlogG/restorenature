@@ -53,22 +53,18 @@ public class RestoreNaturePlugin extends JavaPlugin {
     public static final String WORLD_SUFFIX = "_rs";
     private static final Logger log = Logger.getLogger("Minecraft");
     public static final int DEFAULT_MAX_SECONDS_UNTOUCHED = 864000;
-    public static final int DEFAULT_MAX_CHUNK_RADIUS = 200;
-    public static final int DEFAULT_RESTORING_PERIOD_PER_CHUNK_IN_SECONDS = 1;    
-    public static int MAX_SECONDS_UNTOUCHED = DEFAULT_MAX_SECONDS_UNTOUCHED;
-    public static int CHECK_PERIOD_IN_SECONDS;// = DEFAULT_CHECK_PERIOD_IN_SECONDS;
-
+    public static final int DEFAULT_MAX_CHUNK_RADIUS = 200;  
+    public static int MAX_SECONDS_UNTOUCHED = DEFAULT_MAX_SECONDS_UNTOUCHED;a
+    public static int RESTORING_PERIOD_PER_CHUNK_IN_SECONDS = 1;
+    
     public static int BLOCK_EVENT_EFFECTING_RADIUS = 1;
-	public static int CHECK_RADIUS_PER_PERIOD = 1;
     public static boolean USING_FEATURE_FACTION = true;
     public static boolean USING_FEATURE_GRIEFPREVENTION = true;
     public static boolean ONLY_RESTORE_AIR = true;
-    public static int RESTORING_PERIOD_PER_CHUNK_IN_SECONDS = DEFAULT_RESTORING_PERIOD_PER_CHUNK_IN_SECONDS;
-    private FileConfiguration config;
-    
     public static final String VERSION = "1.0.1a";
     public static final String DEFAULT_WORLDS_INFO = "{\"maintained_worlds\":[{\"world_name\": \"my_cool_world\",\"check_radius\": \""+DEFAULT_MAX_CHUNK_RADIUS+"\",\"nature_factions\": [{\"faction_name\": \"Wilderness\"},{\"faction_name\": \"some_resource_area_faction\"}]},{\"world_name\": \"my_wrecked_nether\",\"check_radius\": \""+DEFAULT_MAX_CHUNK_RADIUS+"\",\"nature_factions\": []}]}";
-    
+
+    private FileConfiguration config;
     
     public ArrayList<Maintained_World> config_maintain_worlds = new ArrayList<Maintained_World>();
 	public ArrayList<MapChunkInfo> maintain_world_chunk_info = new ArrayList<MapChunkInfo>();
@@ -163,9 +159,7 @@ public class RestoreNaturePlugin extends JavaPlugin {
     	USING_FEATURE_FACTION = config.getBoolean("USING_FEATURE_FACTION");
     	USING_FEATURE_GRIEFPREVENTION = config.getBoolean("USING_FEATURE_GRIEFPREVENTION");
     	ONLY_RESTORE_AIR = config.getBoolean("ONLY_RESTORE_AIR");
-    	CHECK_RADIUS_PER_PERIOD = config.getInt("CHECK_RADIUS_PER_PERIOD");
     	RESTORING_PERIOD_PER_CHUNK_IN_SECONDS = config.getInt("RESTORING_PERIOD_PER_CHUNK_IN_SECONDS");
-    	CHECK_PERIOD_IN_SECONDS = CHECK_RADIUS_PER_PERIOD*CHECK_RADIUS_PER_PERIOD*RESTORING_PERIOD_PER_CHUNK_IN_SECONDS;
 		/*Reading worlds*/
 
 		JSONParser parser = new JSONParser();
@@ -236,7 +230,7 @@ public class RestoreNaturePlugin extends JavaPlugin {
     			e.printStackTrace();
     		}
         }
-        CHECK_PERIOD_IN_SECONDS=CHECK_PERIOD_IN_SECONDS*config_maintain_worlds.size();
+        RESTORING_PERIOD_PER_CHUNK_IN_SECONDS*=config_maintain_worlds.size();
 
     }
     private MapChunkInfo createMapChunkInfo(String world_name,int radius,ArrayList<String> fname){
@@ -258,8 +252,8 @@ public class RestoreNaturePlugin extends JavaPlugin {
     	
     }
     private void startingRestoreRoutines(){
-        BukkitSchedulerSuck = new RestoreNatureRegularUpdate(CHECK_PERIOD_IN_SECONDS,MAX_SECONDS_UNTOUCHED,maintain_world_chunk_info,this);
-        this.getServer().getScheduler().scheduleSyncRepeatingTask(this, BukkitSchedulerSuck, 0, 20*CHECK_PERIOD_IN_SECONDS);
+        BukkitSchedulerSuck = new RestoreNatureRegularUpdate(RESTORING_PERIOD_PER_CHUNK_IN_SECONDS,MAX_SECONDS_UNTOUCHED,maintain_world_chunk_info,this);
+        this.getServer().getScheduler().scheduleSyncRepeatingTask(this, BukkitSchedulerSuck, 0, 20*RESTORING_PERIOD_PER_CHUNK_IN_SECONDS);
         
         RestoringTaskQueue = new RestoreNatureTaskQueue(this);
         this.getServer().getScheduler().scheduleSyncRepeatingTask(this, RestoringTaskQueue, 0, 20*RESTORING_PERIOD_PER_CHUNK_IN_SECONDS);

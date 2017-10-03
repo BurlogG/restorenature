@@ -56,9 +56,6 @@ public class RestoreNatureTaskQueue implements Runnable {
         			restored.getX(),
         			restored.getZ(),
         			rnplugin.getServer().getConsoleSender());
-        	rnplugin.getServer().getConsoleSender().sendMessage("[RestoreNature] : TaskQueue done task : "+restored.getWorld().getName()+" "+restored.getX()+" "+restored.getZ());
-
-			
     	}
 
     }
