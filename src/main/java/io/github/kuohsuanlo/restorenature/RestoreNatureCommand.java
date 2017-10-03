@@ -64,6 +64,7 @@ public class RestoreNatureCommand implements CommandExecutor {
 	        	restoreChunk(currentWorld,
 	        				rnplugin.getMapChunkInfo(currentWorld.getName()),
 	        					chunk_x,chunk_z,sender);
+
 				
 		    }
 		    else if (args.length == 1 ) {
@@ -77,9 +78,11 @@ public class RestoreNatureCommand implements CommandExecutor {
 			    			Chunk player_chunk = player_location.getChunk();
 				        	World currentWorld = player.getWorld();
 				        	
+
 				        	restoreChunk(currentWorld,
 			        				rnplugin.getMapChunkInfo(currentWorld.getName()),
 			        				player_chunk.getX(),player_chunk.getZ(),sender);
+
 				        	
 				        	return true;    
 			    			
@@ -116,6 +119,7 @@ public class RestoreNatureCommand implements CommandExecutor {
 		 							 if(player_world_name.equals( rnplugin.maintain_world_chunk_info.get(i).world_name)){
 
 							    		MapChunkInfo chunksInfo = rnplugin.maintain_world_chunk_info.get(i);
+
 							    		int x = rnplugin.transformation_from_chunkidx_to_arrayidx(player_chunk.getX());
 							    		int z = rnplugin.transformation_from_chunkidx_to_arrayidx(player_chunk.getZ());
 	
@@ -123,6 +127,7 @@ public class RestoreNatureCommand implements CommandExecutor {
 							    			restoreChunk(player.getWorld(),
 							    					chunksInfo,
 							        				player_chunk.getX(),player_chunk.getZ(),sender);
+
 							    			return true;  
 										}
 							    		else{
@@ -214,6 +219,7 @@ public class RestoreNatureCommand implements CommandExecutor {
         	}
     	}
     	if(chunk_info  !=null){
+
     		int array_x = rnplugin.transformation_from_chunkidx_to_arrayidx(replaced_chunk.getX());
         	int array_z = rnplugin.transformation_from_chunkidx_to_arrayidx(replaced_chunk.getZ());
         	
@@ -221,7 +227,7 @@ public class RestoreNatureCommand implements CommandExecutor {
         	int chunk_z = rnplugin.transformation_from_arrayidx_to_chunkidx(array_z);
         	
         	sender.sendMessage("[RestoreNature] : debug "+ array_x+","+array_z+" : "+ chunk_x+","+chunk_z );	
-        	
+
     		if(array_x<chunk_info.max_x &&  array_z<chunk_info.max_z &&  array_x>=0  &&  array_z>=0)
     			chunk_info.chunk_untouchedtime[array_x][array_z]=0;
     		else{
