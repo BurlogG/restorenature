@@ -132,46 +132,34 @@ class RestoreNatureRegularUpdate implements Runnable {
     		    }
     		}
     		
-	    	
-    		
-        	for(int x=chunksInfo.now_min_x; x < chunksInfo.now_min_x+1; x++){
-    		    for(int z=chunksInfo.now_min_z; z < chunksInfo.now_min_z+1; z++){
-    		    
+	    
+        	int x = chunksInfo.now_min_x;
+        	int z = chunksInfo.now_min_z;
+	    	int chunk_x = rnplugin.transformation_from_arrayidx_to_chunkidx(x,chunksInfo.chunk_radius);
+	    	int chunk_z = rnplugin.transformation_from_arrayidx_to_chunkidx(z,chunksInfo.chunk_radius);
+	    	Chunk checked_chunk = rnplugin.getServer().getWorld(chunksInfo.world_name).getChunkAt(chunk_x, chunk_z);
+			if(!checkLocationClaimed(checked_chunk)){ // Land not claimed
+				if(chunksInfo.chunk_untouchedtime[x][z]>=max_time_in_seconds){
 
-    		    	int chunk_x = rnplugin.transformation_from_arrayidx_to_chunkidx(x);
-    		    	int chunk_z = rnplugin.transformation_from_arrayidx_to_chunkidx(z);
-    		    	Chunk checked_chunk = rnplugin.getServer().getWorld(chunksInfo.world_name).getChunkAt(chunk_x, chunk_z);
-					if(!checkLocationClaimed(checked_chunk)){ // Land not claimed
-						if(chunksInfo.chunk_untouchedtime[x][z]>=max_time_in_seconds){
-
-							if(rnplugin.RestoringTaskQueue.addTask(checked_chunk)){
-								restore_chunks_number++;
-								//chunksInfo.chunk_untouchedtime[x][z]=0;
-							}
-							else{
-								rnplugin.getServer().getConsoleSender().sendMessage("[RestoreNature] : Maximum number of tasks in TaskQueue reached. Please increase CHECK_PERIOD_IN_SECONDS" );
-							}
-
-						}
+					if(rnplugin.RestoringTaskQueue.addTask(checked_chunk)){
+						restore_chunks_number++;
 					}
-					
-					
-    	        	
-    			}
- 
-    		}
-        	//rnplugin.getServer().getConsoleSender().sendMessage("[RestoreNature] : Add "+restore_chunks_number+" chunks into queue, in world :"+maintained_worlds.get(i).world_name);	
-        	restore_chunks_number = 0;
+					else{
+						rnplugin.getServer().getConsoleSender().sendMessage("[RestoreNature] : Maximum number of tasks in TaskQueue reached. Please increase CHECK_PERIOD_IN_SECONDS" );
+					}
 
-        	chunksInfo.now_min_z +=rnplugin.RESTORING_PERIOD_PER_CHUNK_IN_SECONDS;
-        	if(chunksInfo.now_min_z >=chunksInfo.max_z){
-        		chunksInfo.now_min_z=0;
-        		
-        		chunksInfo.now_min_x +=rnplugin.RESTORING_PERIOD_PER_CHUNK_IN_SECONDS;
-            	if(chunksInfo.now_min_x >=chunksInfo.max_x){
-            		chunksInfo.now_min_x=0;
-            	}
-        	} 
+				}
+			}
+			
+
+    		chunksInfo.now_min_z++;
+    		if(chunksInfo.now_min_z>=chunksInfo.max_z){
+    			chunksInfo.now_min_z=0;
+        		chunksInfo.now_min_x++;
+    		}
+    		if(chunksInfo.now_min_x>=chunksInfo.max_x){
+    			chunksInfo.now_min_x=0;
+    		}
 
     	}
     	last_time = Instant.now().getEpochSecond();
@@ -182,19 +170,20 @@ class RestoreNatureRegularUpdate implements Runnable {
     	
     	
     }
+	private void sleep(int i) {
+		// TODO Auto-generated method stub
+		
+	}
 	public void setWorldsChunkUntouchedTime(Block touched_block){
 		
 
 		for(int i=0;i<maintained_worlds.size();i++){
     		if(maintained_worlds.get(i).world_name.equals(touched_block.getWorld().getName())){
     			MapChunkInfo chunksInfo = maintained_worlds.get(i);
-    			if(
-					rnplugin.transformation_from_chunkidx_to_arrayidx( touched_block.getLocation().getChunk().getX())<=maintained_worlds.get(i).max_x  &&
-					rnplugin.transformation_from_chunkidx_to_arrayidx( touched_block.getLocation().getChunk().getZ())<=maintained_worlds.get(i).max_z  
-    					){
-    				int x = rnplugin.transformation_from_chunkidx_to_arrayidx( touched_block.getChunk().getX());
-        			int z = rnplugin.transformation_from_chunkidx_to_arrayidx( touched_block.getChunk().getZ());
-        			
+    			int x = rnplugin.transformation_from_chunkidx_to_arrayidx( touched_block.getChunk().getX(),chunksInfo.chunk_radius);
+    			int z = rnplugin.transformation_from_chunkidx_to_arrayidx( touched_block.getChunk().getZ(),chunksInfo.chunk_radius);
+    			if(		chunksInfo.isLegalArrayXZ(x, z)){
+    				
         			int R = rnplugin.BLOCK_EVENT_EFFECTING_RADIUS-1;
         			for(int r_x=(-1)*R;r_x<=R;r_x++){
             			for(int r_z=(-1)*R;r_z<=R;r_z++){

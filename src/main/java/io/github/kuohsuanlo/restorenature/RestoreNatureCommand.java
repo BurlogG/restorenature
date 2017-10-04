@@ -2,6 +2,8 @@
 package io.github.kuohsuanlo.restorenature;
 
 import java.io.FileNotFoundException;
+import java.util.List;
+import java.util.Random;
 
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -14,6 +16,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.generator.BlockPopulator;
 import org.bukkit.material.MaterialData;
  
 public class RestoreNatureCommand implements CommandExecutor {
@@ -23,23 +26,47 @@ public class RestoreNatureCommand implements CommandExecutor {
     public final int restoreType_RestoreAll = 0;
     public final int restoreType_OnlyRestoreAir = 1;
     public final int restoreType_OnlyRestoreNotAir = 2;
+  
+    private Random random = new Random();
+    private int[] i2v = {0,-1,1};
     
     public RestoreNatureCommand(RestoreNaturePlugin plugin){
     	rnplugin = plugin;
     }
+    private void populateChunk(Chunk chunk){
+    	List<BlockPopulator> list = chunk.getWorld().getPopulators();
+    	for(int i=0;i<list.size();i++){
+    		list.get(i).populate(chunk.getWorld(),random , chunk) ;
+    	}
+    }
     public void restoreChunk(World currentWorld,MapChunkInfo map_chunk_info,int chunk_x, int chunk_z, CommandSender sender){
-    	
-    	Chunk player_chunk = currentWorld.getChunkAt(chunk_x, chunk_z);
-    	if(RestoreNaturePlugin.ONLY_RESTORE_AIR==true){
-    		SimpleChunk tmp = new SimpleChunk(player_chunk);
-        	currentWorld.regenerateChunk(player_chunk.getX(), player_chunk.getZ());
-        	pasteChunk(player_chunk,tmp,map_chunk_info,this.restoreType_OnlyRestoreNotAir,sender);
+    	Chunk player_chunk ;
+    	if(RestoreNaturePlugin.BLOCK_EVENT_EFFECTING_RADIUS<2) {
+    		sender.sendMessage("[RestoreNature] : BLOCK_EVENT_EFFECTING_RADIUS must >=2");	
+    		return;
     	}
-    	else{
-    		currentWorld.regenerateChunk(player_chunk.getX(), player_chunk.getZ());
+    	for(int i=0;i<2;i++){
+    		for(int j=0;j<2;j++){
+    			player_chunk = currentWorld.getChunkAt(chunk_x+i2v[i], chunk_z+i2v[j]);
+    			if(i!=0 || j!=0) map_chunk_info = null;//avoid the timer of p{+1,-1} being set to 0
+    			
+        		//bug:  why x-1, z-1 help the issue?
+        		
+            	if(RestoreNaturePlugin.ONLY_RESTORE_AIR==true){
+            		SimpleChunk tmp = new SimpleChunk(player_chunk);
+                	currentWorld.regenerateChunk(player_chunk.getX(), player_chunk.getZ());
+                	populateChunk(player_chunk);
+                	pasteChunk(player_chunk,tmp,map_chunk_info,this.restoreType_OnlyRestoreNotAir,sender);
+            	}
+            	else{
+                	currentWorld.regenerateChunk(player_chunk.getX(), player_chunk.getZ());
+                	populateChunk(player_chunk);
+            	}
+    		}
+    		
     	}
     	
-    	sender.sendMessage("[RestoreNature] : Chunk successfully restored on world chunk : "+currentWorld.getName()+" "+player_chunk.getX()+" ; "+player_chunk.getZ());	
+    	sender.sendMessage("[RestoreNature] : Chunk successfully restored on world chunk : "+currentWorld.getName()+" "+chunk_x+" ; "+chunk_z);	
         
     	
     }
@@ -118,10 +145,12 @@ public class RestoreNatureCommand implements CommandExecutor {
 
 							    		MapChunkInfo chunksInfo = rnplugin.maintain_world_chunk_info.get(i);
 
-							    		int x = rnplugin.transformation_from_chunkidx_to_arrayidx(player_chunk.getX());
-							    		int z = rnplugin.transformation_from_chunkidx_to_arrayidx(player_chunk.getZ());
+							    		int array_x = rnplugin.transformation_from_chunkidx_to_arrayidx(player_chunk.getX(),chunksInfo.chunk_radius);
+							    		int array_z = rnplugin.transformation_from_chunkidx_to_arrayidx(player_chunk.getZ(),chunksInfo.chunk_radius);
 	
-							    		if(chunksInfo.chunk_untouchedtime[x][z]>=rnplugin.MAX_SECONDS_UNTOUCHED){
+							    		
+							    		if(chunksInfo.isLegalArrayXZ(array_x, array_z)  &&
+							    				chunksInfo.chunk_untouchedtime[array_x][array_z]>=rnplugin.MAX_SECONDS_UNTOUCHED){
 							    			restoreChunk(player.getWorld(),
 							    					chunksInfo,
 							        				player_chunk.getX(),player_chunk.getZ(),sender);
@@ -129,7 +158,7 @@ public class RestoreNatureCommand implements CommandExecutor {
 							    			return true;  
 										}
 							    		else{
-							    			sender.sendMessage("[RestoreNature] : Chunk untouch time not enough : "+chunksInfo.chunk_untouchedtime[x][z]+" < "+rnplugin.MAX_SECONDS_UNTOUCHED);	
+							    			sender.sendMessage("[RestoreNature] : Chunk untouch time not enough : "+chunksInfo.chunk_untouchedtime[array_x][array_z]+" < "+rnplugin.MAX_SECONDS_UNTOUCHED);	
 								            return true; 
 							    		}
 						     		}
@@ -202,7 +231,7 @@ public class RestoreNatureCommand implements CommandExecutor {
 
                 	}
                 	else if(restore_type==this.restoreType_OnlyRestoreNotAir){
-                		if(!replaced_chunk.getBlock(x, y, z).getType().equals(Material.AIR)){
+                		if(!pasted_chunk.block_type[x][y][z].equals(Material.AIR)){
                 			replaced_chunk.getBlock(x, y, z).setType(pasted_chunk.block_type[x][y][z]);
                         	replaced_chunk.getBlock(x, y, z).setData(pasted_chunk.block_data[x][y][z]);
                     		if(pasted_chunk.block_type[x][y][z].equals(Material.MOB_SPAWNER)){
@@ -217,15 +246,15 @@ public class RestoreNatureCommand implements CommandExecutor {
     	}
     	if(chunk_info  !=null){
 
-    		int array_x = rnplugin.transformation_from_chunkidx_to_arrayidx(replaced_chunk.getX());
-        	int array_z = rnplugin.transformation_from_chunkidx_to_arrayidx(replaced_chunk.getZ());
+    		int array_x = rnplugin.transformation_from_chunkidx_to_arrayidx(replaced_chunk.getX(),chunk_info.chunk_radius);
+        	int array_z = rnplugin.transformation_from_chunkidx_to_arrayidx(replaced_chunk.getZ(),chunk_info.chunk_radius);
         	
-        	int chunk_x = rnplugin.transformation_from_arrayidx_to_chunkidx(array_x);
-        	int chunk_z = rnplugin.transformation_from_arrayidx_to_chunkidx(array_z);
+        	int chunk_x = rnplugin.transformation_from_arrayidx_to_chunkidx(array_x,chunk_info.chunk_radius);
+        	int chunk_z = rnplugin.transformation_from_arrayidx_to_chunkidx(array_z,chunk_info.chunk_radius);
         	
         	sender.sendMessage("[RestoreNature] : debug "+ array_x+","+array_z+" : "+ chunk_x+","+chunk_z );	
 
-    		if(array_x<chunk_info.max_x &&  array_z<chunk_info.max_z &&  array_x>=0  &&  array_z>=0)
+    		if(chunk_info.isLegalArrayXZ(array_x, array_z))
     			chunk_info.chunk_untouchedtime[array_x][array_z]=0;
     		else{
     			sender.sendMessage("[RestoreNature] : out of maintenance bound,"+"("+array_x+","+array_z+")" );	

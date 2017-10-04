@@ -55,7 +55,7 @@ public class RestoreNaturePlugin extends JavaPlugin {
     public static int MAX_SECONDS_UNTOUCHED = DEFAULT_MAX_SECONDS_UNTOUCHED;
     public static int RESTORING_PERIOD_PER_CHUNK_IN_SECONDS = 1;
     
-    public static int BLOCK_EVENT_EFFECTING_RADIUS = 1;
+    public static int BLOCK_EVENT_EFFECTING_RADIUS = 2;
     public static boolean USING_FEATURE_FACTION = true;
     public static boolean USING_FEATURE_GRIEFPREVENTION = true;
     public static boolean ONLY_RESTORE_AIR = true;
@@ -266,46 +266,33 @@ public class RestoreNaturePlugin extends JavaPlugin {
     	return null;
     }
 
-    public static int transformation_from_arrayidx_to_chunkidx(int x){
-    	  int chunk_x =0;
-    	  int bool_mod_2;
-    	  if(x%2==1){
-    	    bool_mod_2 = -1;
-    	  }
-    	  else{
-    	    bool_mod_2 = 1;
-    	  }
-    	  chunk_x = (-1)*bool_mod_2*((x+1)/2);
-    	  return chunk_x;
-
-    	}
-  	public static int transformation_from_chunkidx_to_arrayidx(int chunk_x){
-  	  int x=0;
-  	  int bool_gtz;
-  	  if(chunk_x>0){
-  	    bool_gtz = -1;
-  	  }
-  	  else{
-  	    bool_gtz = 0;
-  	  }
-  	  x = Math.abs(chunk_x)*2+bool_gtz;
-  	  return x;
+    public static int transformation_from_arrayidx_to_chunkidx(int array_x,int radius){
+    	return array_x-radius;
+    }
+  	public static int transformation_from_chunkidx_to_arrayidx(int chunk_x,int radius){
+  		return chunk_x+radius;
 
   	}
   	public static void main(String[] args) {
-  		int chunk_x = 300;
-  		int chunk_z = -5;
   		
-  		int array_cal_x = RestoreNaturePlugin.transformation_from_chunkidx_to_arrayidx(chunk_x);
-  		int array_cal_z = RestoreNaturePlugin.transformation_from_chunkidx_to_arrayidx(chunk_z);
+  		for(int i=-5;i<5;i++){
+  			for(int j=-5;j<5;j++){
+  				int chunk_x = i;
+  		  		int chunk_z = j;
+  		  		
+  		  		int array_cal_x = RestoreNaturePlugin.transformation_from_chunkidx_to_arrayidx(chunk_x,5);
+  		  		int array_cal_z = RestoreNaturePlugin.transformation_from_chunkidx_to_arrayidx(chunk_z,5);
+  		  		
+
+  		  		int chunk_cal_x = RestoreNaturePlugin.transformation_from_arrayidx_to_chunkidx(array_cal_x,5);
+  		  		int chunk_cal_z = RestoreNaturePlugin.transformation_from_arrayidx_to_chunkidx(array_cal_z,5);
+
+  		  		//System.out.println(chunk_x+","+chunk_z);
+  		  		System.out.println(array_cal_x+","+array_cal_z  +"/"+chunk_cal_x+","+chunk_cal_z);
+  		  		//System.out.println(chunk_cal_x+","+chunk_cal_z);
+  			}
+  		}
   		
-
-  		int chunk_cal_x = RestoreNaturePlugin.transformation_from_arrayidx_to_chunkidx(array_cal_x);
-  		int chunk_cal_z = RestoreNaturePlugin.transformation_from_arrayidx_to_chunkidx(array_cal_z);
-
-  		System.out.println(chunk_x+","+chunk_z);
-  		System.out.println(array_cal_x+","+array_cal_z);
-  		System.out.println(chunk_cal_x+","+chunk_cal_z);
   	}
 
 }
