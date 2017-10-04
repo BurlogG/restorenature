@@ -28,14 +28,12 @@ public class RestoreNatureCommand implements CommandExecutor {
     	rnplugin = plugin;
     }
     public void restoreChunk(World currentWorld,MapChunkInfo map_chunk_info,int chunk_x, int chunk_z, CommandSender sender){
-    	Chunk tmp = currentWorld.getChunkAt(1000000+chunk_x, 1000000+chunk_z);
+    	
     	Chunk player_chunk = currentWorld.getChunkAt(chunk_x, chunk_z);
     	if(RestoreNaturePlugin.ONLY_RESTORE_AIR==true){
-    		pasteChunk(tmp,player_chunk,null,this.restoreType_RestoreAll,sender);
+    		SimpleChunk tmp = new SimpleChunk(player_chunk);
         	currentWorld.regenerateChunk(player_chunk.getX(), player_chunk.getZ());
         	pasteChunk(player_chunk,tmp,map_chunk_info,this.restoreType_OnlyRestoreNotAir,sender);
-        	
-        	currentWorld.regenerateChunk(1000000, 1000000);
     	}
     	else{
     		currentWorld.regenerateChunk(player_chunk.getX(), player_chunk.getZ());
@@ -177,16 +175,16 @@ public class RestoreNatureCommand implements CommandExecutor {
     }
 	
     @SuppressWarnings("deprecation")
-	public void pasteChunk(Chunk replaced_chunk, Chunk pasted_chunk, MapChunkInfo chunk_info, int restore_type, CommandSender sender){
+	public void pasteChunk(Chunk replaced_chunk, SimpleChunk pasted_chunk, MapChunkInfo chunk_info, int restore_type, CommandSender sender){
     	for(int x=0;x<16;x++){
             for(int y=0;y<256;y++){
                 for(int z=0;z<16;z++){
                 	if(restore_type==this.restoreType_OnlyRestoreAir){
                     	if(replaced_chunk.getBlock(x, y, z).getType().equals(Material.AIR)){
 
-                    		replaced_chunk.getBlock(x, y, z).setTypeId(pasted_chunk.getBlock(x, y, z).getTypeId());
-                        	replaced_chunk.getBlock(x, y, z).setData(pasted_chunk.getBlock(x, y, z).getData());
-                        	if(pasted_chunk.getBlock(x, y, z).getType().equals(Material.MOB_SPAWNER)){
+                    		replaced_chunk.getBlock(x, y, z).setType(pasted_chunk.block_type[x][y][z]);
+                        	replaced_chunk.getBlock(x, y, z).setData(pasted_chunk.block_data[x][y][z]);
+                        	if(pasted_chunk.block_type[x][y][z].equals(Material.MOB_SPAWNER)){
                         		processMobSpawner(replaced_chunk, pasted_chunk, x, y, z);
                             }
                     	}
@@ -195,9 +193,9 @@ public class RestoreNatureCommand implements CommandExecutor {
                 	}
                 	else if(restore_type==this.restoreType_RestoreAll){
 
-                		replaced_chunk.getBlock(x, y, z).setTypeId(pasted_chunk.getBlock(x, y, z).getTypeId());
-                    	replaced_chunk.getBlock(x, y, z).setData(pasted_chunk.getBlock(x, y, z).getData());
-                		if(pasted_chunk.getBlock(x, y, z).getType().equals(Material.MOB_SPAWNER)){
+                		replaced_chunk.getBlock(x, y, z).setType(pasted_chunk.block_type[x][y][z]);
+                    	replaced_chunk.getBlock(x, y, z).setData(pasted_chunk.block_data[x][y][z]);
+                    	if(pasted_chunk.block_type[x][y][z].equals(Material.MOB_SPAWNER)){
                 			processMobSpawner(replaced_chunk, pasted_chunk, x, y, z);
 
                 		}
@@ -205,10 +203,9 @@ public class RestoreNatureCommand implements CommandExecutor {
                 	}
                 	else if(restore_type==this.restoreType_OnlyRestoreNotAir){
                 		if(!replaced_chunk.getBlock(x, y, z).getType().equals(Material.AIR)){
-                			
-                			replaced_chunk.getBlock(x, y, z).setTypeId(pasted_chunk.getBlock(x, y, z).getTypeId());
-                        	replaced_chunk.getBlock(x, y, z).setData(pasted_chunk.getBlock(x, y, z).getData());
-                    		if(pasted_chunk.getBlock(x, y, z).getType().equals(Material.MOB_SPAWNER)){
+                			replaced_chunk.getBlock(x, y, z).setType(pasted_chunk.block_type[x][y][z]);
+                        	replaced_chunk.getBlock(x, y, z).setData(pasted_chunk.block_data[x][y][z]);
+                    		if(pasted_chunk.block_type[x][y][z].equals(Material.MOB_SPAWNER)){
                     			processMobSpawner(replaced_chunk, pasted_chunk, x, y, z);
 
                     		}
@@ -236,10 +233,10 @@ public class RestoreNatureCommand implements CommandExecutor {
     	}
     }
 
-	private void processMobSpawner(Chunk replaced_chunk, Chunk pasted_chunk, int x,int y,int z){
+	private void processMobSpawner(Chunk replaced_chunk, SimpleChunk pasted_chunk, int x,int y,int z){
 		rnplugin.getServer().getConsoleSender().sendMessage("[RestoreNature] : restoring mobspawner");
     	
-		CreatureSpawner restored_spawner = ((CreatureSpawner)pasted_chunk.getBlock(x, y, z).getState());                			
+		CreatureSpawner restored_spawner = (CreatureSpawner) pasted_chunk.block_state[x][y][z];
 		restored_spawner.setSpawnedType(restored_spawner.getSpawnedType());
 		replaced_chunk.getBlock(x, y, z).getState().update();
 	}	
