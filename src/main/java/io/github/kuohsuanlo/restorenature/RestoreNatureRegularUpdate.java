@@ -136,21 +136,9 @@ class RestoreNatureRegularUpdate implements Runnable {
 	    	int chunk_z = RestoreNaturePlugin.transformation_from_arrayidx_to_chunkidx(array_z,chunksInfo.chunk_radius);
 	    	
 	    	World currentWorld = rnplugin.getServer().getWorld(chunksInfo.world_name);
-	    	boolean allUnclaimed = true;
-	    	for(int x=0;x<RestoreNaturePlugin.IDX_MAX+2;x++){
-	    		for(int z=0;z<RestoreNaturePlugin.IDX_MAX+2;z++){
-	    			Chunk checkedChunk = currentWorld.getChunkAt(chunk_x+RestoreNaturePlugin.i2v[x], chunk_z+RestoreNaturePlugin.i2v[z]);
-	    			if(checkLocationClaimed(checkedChunk)){
-	    				allUnclaimed = false;
-	    				rnplugin.getServer().getConsoleSender().sendMessage("[RestoreNature] : Passed : "+chunk_x+","+chunk_z+" / Land Claimed : "+(chunk_x+RestoreNaturePlugin.i2v[x])+","+(chunk_z+RestoreNaturePlugin.i2v[z]));
-	    			}
-	    			
-	    		}
-	    		
-	    	}
 	    	
 	    	Chunk centerChunk = currentWorld.getChunkAt(chunk_x, chunk_z);
-	    	if(allUnclaimed){
+	    	if(checkLocationClaimed(centerChunk)){
 	    		if(chunksInfo.chunk_untouchedtime[array_x][array_z]>=max_time_in_seconds){
 					//System.out.println("MaxReached : world"+chunksInfo.world_name+", chunk : "+chunksInfo.now_min_x+","+chunksInfo.now_min_z);
 		    		

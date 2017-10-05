@@ -34,31 +34,28 @@ public class RestoreNatureCommand implements CommandExecutor {
     	rnplugin = plugin;
     }
     public void restoreChunk(World currentWorld,MapChunkInfo map_chunk_info,int chunk_x, int chunk_z, CommandSender sender){
-    	Chunk player_chunk ;
+    	
     	if(RestoreNaturePlugin.BLOCK_EVENT_EFFECTING_RADIUS<2) {
     		sender.sendMessage("[RestoreNature] : BLOCK_EVENT_EFFECTING_RADIUS must >=2");	
     		return;
     	}
-    	for(int i=0;i<RestoreNaturePlugin.IDX_MAX;i++){
-    		for(int j=0;j<RestoreNaturePlugin.IDX_MAX;j++){
-    			player_chunk = currentWorld.getChunkAt(chunk_x+RestoreNaturePlugin.i2v[i], chunk_z+RestoreNaturePlugin.i2v[j]);
-    			if(i!=0 || j!=0) map_chunk_info = null;//avoid the timer of p{+1,-1} being set to 0
-    			
-        		//bug:  why x-1, z-1 help the issue?
-        		
-            	if(RestoreNaturePlugin.ONLY_RESTORE_AIR==true){
-            		SimpleChunk tmp = new SimpleChunk(player_chunk);
-                	currentWorld.regenerateChunk(player_chunk.getX(), player_chunk.getZ());
-                	populateChunk(player_chunk);
-                	pasteChunk(player_chunk,tmp,map_chunk_info,this.restoreType_OnlyRestoreNotAir,sender);
-            	}
-            	else{
-                	currentWorld.regenerateChunk(player_chunk.getX(), player_chunk.getZ());
-                	populateChunk(player_chunk);
-            	}
-    		}
-    		
+    	
+    	Chunk player_chunk  = currentWorld.getChunkAt(chunk_x, chunk_z);
+		
+		//bug:  why x-1, z-1 help the issue?
+		
+    	if(RestoreNaturePlugin.ONLY_RESTORE_AIR==true){
+        	currentWorld.regenerateChunk(player_chunk.getX(), player_chunk.getZ());
+        	populateChunk(player_chunk);
+        	
+        	pasteChunk(player_chunk, // ,map_chunk_info,this.restoreType_OnlyRestoreNotAir,sender);
+        	
     	}
+    	else{
+        	currentWorld.regenerateChunk(player_chunk.getX(), player_chunk.getZ());
+        	populateChunk(player_chunk);
+    	}
+    
     	
     	sender.sendMessage("[RestoreNature] : Chunk successfully restored on world chunk : "+currentWorld.getName()+" "+chunk_x+" ; "+chunk_z);	
         
@@ -225,16 +222,16 @@ public class RestoreNatureCommand implements CommandExecutor {
     	}
     }
 	@SuppressWarnings("deprecation")
-	private void pasteChunk(Chunk replaced_chunk, SimpleChunk pasted_chunk, MapChunkInfo chunk_info, int restore_type, CommandSender sender){
+	private void pasteChunk(Chunk replaced_chunk, Chunk pasted_chunk, MapChunkInfo chunk_info, int restore_type, CommandSender sender){
     	for(int x=0;x<16;x++){
             for(int y=0;y<256;y++){
                 for(int z=0;z<16;z++){
                 	if(restore_type==this.restoreType_OnlyRestoreAir){
                     	if(replaced_chunk.getBlock(x, y, z).getType().equals(Material.AIR)){
 
-                    		replaced_chunk.getBlock(x, y, z).setType(pasted_chunk.block_type[x][y][z]);
-                        	replaced_chunk.getBlock(x, y, z).setData(pasted_chunk.block_data[x][y][z]);
-                        	if(pasted_chunk.block_type[x][y][z].equals(Material.MOB_SPAWNER)){
+                    		replaced_chunk.getBlock(x, y, z).setType(pasted_chunk.getBlock(x, y, z).getType());
+                        	replaced_chunk.getBlock(x, y, z).setData(pasted_chunk.getBlock(x, y, z).getData());
+                        	if(pasted_chunk.getBlock(x, y, z).getType().equals(Material.MOB_SPAWNER)){
                         		processMobSpawner(replaced_chunk, pasted_chunk, x, y, z);
                             }
                     	}
@@ -243,19 +240,19 @@ public class RestoreNatureCommand implements CommandExecutor {
                 	}
                 	else if(restore_type==this.restoreType_RestoreAll){
 
-                		replaced_chunk.getBlock(x, y, z).setType(pasted_chunk.block_type[x][y][z]);
-                    	replaced_chunk.getBlock(x, y, z).setData(pasted_chunk.block_data[x][y][z]);
-                    	if(pasted_chunk.block_type[x][y][z].equals(Material.MOB_SPAWNER)){
+                		replaced_chunk.getBlock(x, y, z).setType(pasted_chunk.getBlock(x, y, z).getType());
+                    	replaced_chunk.getBlock(x, y, z).setData(pasted_chunk.getBlock(x, y, z).getData());
+                    	if(pasted_chunk.getBlock(x, y, z).getType().equals(Material.MOB_SPAWNER)){
                 			processMobSpawner(replaced_chunk, pasted_chunk, x, y, z);
 
                 		}
 
                 	}
                 	else if(restore_type==this.restoreType_OnlyRestoreNotAir){
-                		if(!pasted_chunk.block_type[x][y][z].equals(Material.AIR)){
-                			replaced_chunk.getBlock(x, y, z).setType(pasted_chunk.block_type[x][y][z]);
-                        	replaced_chunk.getBlock(x, y, z).setData(pasted_chunk.block_data[x][y][z]);
-                    		if(pasted_chunk.block_type[x][y][z].equals(Material.MOB_SPAWNER)){
+                		if(!pasted_chunk.getBlock(x, y, z).getType().equals(Material.AIR)){
+                			replaced_chunk.getBlock(x, y, z).setType(pasted_chunk.getBlock(x, y, z).getType());
+                        	replaced_chunk.getBlock(x, y, z).setData(pasted_chunk.getBlock(x, y, z).getData());
+                    		if(pasted_chunk.getBlock(x, y, z).getType().equals(Material.MOB_SPAWNER)){
                     			processMobSpawner(replaced_chunk, pasted_chunk, x, y, z);
 
                     		}
@@ -301,10 +298,10 @@ public class RestoreNatureCommand implements CommandExecutor {
     private void rnworld(Player player){
     	rnworld(player.getWorld());
     }
-	private void processMobSpawner(Chunk replaced_chunk, SimpleChunk pasted_chunk, int x,int y,int z){
+	private void processMobSpawner(Chunk replaced_chunk, Chunk pasted_chunk, int x,int y,int z){
 		rnplugin.getServer().getConsoleSender().sendMessage("[RestoreNature] : restoring mobspawner");
     	
-		CreatureSpawner restored_spawner = (CreatureSpawner) pasted_chunk.block_state[x][y][z];
+		CreatureSpawner restored_spawner = (CreatureSpawner) pasted_chunk.getBlock(x, y, z);
 		restored_spawner.setSpawnedType(restored_spawner.getSpawnedType());
 		replaced_chunk.getBlock(x, y, z).getState().update();
 	}	
