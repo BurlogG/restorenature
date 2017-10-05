@@ -6,6 +6,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockCanBuildEvent;
+import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockEvent;
 import org.bukkit.event.block.BlockFormEvent;
 import org.bukkit.event.block.BlockFromToEvent;
@@ -20,10 +21,12 @@ import org.bukkit.event.inventory.FurnaceSmeltEvent;
 
 public class RestoreNatureBlockListener implements Listener {
     private final RestoreNaturePlugin rnplugin;
+    
     public RestoreNatureBlockListener(RestoreNaturePlugin plugin){
     	rnplugin  = plugin;
     }
 
+    
     @EventHandler
     public void onFurnaceSmeltEvent(FurnaceSmeltEvent event) {
         Block block = event.getBlock();
@@ -40,8 +43,6 @@ public class RestoreNatureBlockListener implements Listener {
         rnplugin.BukkitSchedulerSuck.setWorldsChunkUntouchedTime(block);
     }      
     
-    
-    
     @EventHandler
     public void onBlockRedstoneEvent(BlockRedstoneEvent event) {
         Block block = event.getBlock();
@@ -51,24 +52,15 @@ public class RestoreNatureBlockListener implements Listener {
     public void onBlockIgniteEvent(BlockIgniteEvent event) {
         Block block = event.getBlock();
         rnplugin.BukkitSchedulerSuck.setWorldsChunkUntouchedTime(block);
-    }     
-    @EventHandler
-    public void onBlockGrowEvent(BlockGrowEvent event) {
-        Block block = event.getBlock();
-        rnplugin.BukkitSchedulerSuck.setWorldsChunkUntouchedTime(block);
-    }   
-    @EventHandler
-    public void onBlockFormEvent(BlockFormEvent event) {
-        Block block = event.getBlock();
-        rnplugin.BukkitSchedulerSuck.setWorldsChunkUntouchedTime(block);
-    }    
-    @EventHandler
-    public void onBlockFromToEvent(BlockFromToEvent event) {
-        Block block = event.getBlock();
-        rnplugin.BukkitSchedulerSuck.setWorldsChunkUntouchedTime(block);
-    }    
+    } 
     @EventHandler
     public void onBlockBreakEvent(BlockBreakEvent event) {
+        Block block = event.getBlock();
+        rnplugin.BukkitSchedulerSuck.setWorldsChunkUntouchedTime(block);
+    }
+
+    @EventHandler
+    public void onBlockDamageEvent(BlockDamageEvent event) {
         Block block = event.getBlock();
         rnplugin.BukkitSchedulerSuck.setWorldsChunkUntouchedTime(block);
     }
@@ -77,5 +69,11 @@ public class RestoreNatureBlockListener implements Listener {
         Block block = event.getBlock();
         rnplugin.BukkitSchedulerSuck.setWorldsChunkUntouchedTime(block);
     }
+    @EventHandler
+    public void onBlockGrowEvent(BlockGrowEvent event) {
+        Block block = event.getBlock();
+        rnplugin.BukkitSchedulerSuck.setWorldsChunkUntouchedTime(block);
+    }  
+
     
 }

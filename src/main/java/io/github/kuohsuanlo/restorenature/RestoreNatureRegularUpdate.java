@@ -57,11 +57,11 @@ class RestoreNatureRegularUpdate implements Runnable {
     	
         	Location location = checkedChunk.getBlock(chunk_center_x, chunk_center_y, chunk_center_z).getLocation();
         	
-        	if(rnplugin.USING_FEATURE_FACTION){
+        	if(RestoreNaturePlugin.USING_FEATURE_FACTION){
             	faction = BoardColl.get().getFactionAt(PS.valueOf(location));
         	}
         	
-        	if(rnplugin.USING_FEATURE_GRIEFPREVENTION){
+        	if(RestoreNaturePlugin.USING_FEATURE_GRIEFPREVENTION){
         		gp = GriefPrevention.instance;
         	}
         	
@@ -117,10 +117,7 @@ class RestoreNatureRegularUpdate implements Runnable {
     		return gp_claimed || fc_claimed ;
 
     }
-
     public void run() {
-    	//rnplugin.getServer().getConsoleSender().sendMessage("[RestoreNature] : Total # worlds : "+maintained_worlds.size());
-    	int restore_chunks_number =0;
     	long now_time = Instant.now().getEpochSecond();
     	for(int i=0;i<maintained_worlds.size();i++){
     		MapChunkInfo chunksInfo = maintained_worlds.get(i);
@@ -133,29 +130,44 @@ class RestoreNatureRegularUpdate implements Runnable {
     		}
     		
 	    
-        	int x = chunksInfo.now_min_x;
-        	int z = chunksInfo.now_min_z;
-	    	int chunk_x = rnplugin.transformation_from_arrayidx_to_chunkidx(x,chunksInfo.chunk_radius);
-	    	int chunk_z = rnplugin.transformation_from_arrayidx_to_chunkidx(z,chunksInfo.chunk_radius);
-	    	Chunk checked_chunk = rnplugin.getServer().getWorld(chunksInfo.world_name).getChunkAt(chunk_x, chunk_z);
-			if(!checkLocationClaimed(checked_chunk)){ // Land not claimed
-				if(chunksInfo.chunk_untouchedtime[x][z]>=max_time_in_seconds){
-
-					if(rnplugin.RestoringTaskQueue.addTask(checked_chunk)){
-						restore_chunks_number++;
+        	int array_x = chunksInfo.now_min_x;
+        	int array_z = chunksInfo.now_min_z;
+	    	int chunk_x = RestoreNaturePlugin.transformation_from_arrayidx_to_chunkidx(array_x,chunksInfo.chunk_radius);
+	    	int chunk_z = RestoreNaturePlugin.transformation_from_arrayidx_to_chunkidx(array_z,chunksInfo.chunk_radius);
+	    	
+	    	World currentWorld = rnplugin.getServer().getWorld(chunksInfo.world_name);
+	    	boolean allUnclaimed = true;
+	    	for(int x=0;x<RestoreNaturePlugin.IDX_MAX+2;x++){
+	    		for(int z=0;z<RestoreNaturePlugin.IDX_MAX+2;z++){
+	    			Chunk checkedChunk = currentWorld.getChunkAt(chunk_x+RestoreNaturePlugin.i2v[x], chunk_z+RestoreNaturePlugin.i2v[z]);
+	    			if(checkLocationClaimed(checkedChunk)){
+	    				allUnclaimed = false;
+	    				rnplugin.getServer().getConsoleSender().sendMessage("[RestoreNature] : Passed : "+chunk_x+","+chunk_z+" / Land Claimed : "+(chunk_x+RestoreNaturePlugin.i2v[x])+","+(chunk_z+RestoreNaturePlugin.i2v[z]));
+	    			}
+	    			
+	    		}
+	    		
+	    	}
+	    	
+	    	Chunk centerChunk = currentWorld.getChunkAt(chunk_x, chunk_z);
+	    	if(allUnclaimed){
+	    		if(chunksInfo.chunk_untouchedtime[array_x][array_z]>=max_time_in_seconds){
+					//System.out.println("MaxReached : world"+chunksInfo.world_name+", chunk : "+chunksInfo.now_min_x+","+chunksInfo.now_min_z);
+		    		
+					if(rnplugin.RestoringTaskQueue.addTask(centerChunk)){
 					}
 					else{
 						rnplugin.getServer().getConsoleSender().sendMessage("[RestoreNature] : Maximum number of tasks in TaskQueue reached. Please increase CHECK_PERIOD_IN_SECONDS" );
 					}
 
 				}
-			}
+	    	}
 			
-
+			//System.out.println("Updater : world"+chunksInfo.world_name+", chunk : "+chunksInfo.now_min_x+","+chunksInfo.now_min_z);
     		chunksInfo.now_min_z++;
     		if(chunksInfo.now_min_z>=chunksInfo.max_z){
-    			chunksInfo.now_min_z=0;
         		chunksInfo.now_min_x++;
+    			chunksInfo.now_min_z=0;
     		}
     		if(chunksInfo.now_min_x>=chunksInfo.max_x){
     			chunksInfo.now_min_x=0;
@@ -170,21 +182,15 @@ class RestoreNatureRegularUpdate implements Runnable {
     	
     	
     }
-	private void sleep(int i) {
-		// TODO Auto-generated method stub
-		
-	}
 	public void setWorldsChunkUntouchedTime(Block touched_block){
-		
-
 		for(int i=0;i<maintained_worlds.size();i++){
     		if(maintained_worlds.get(i).world_name.equals(touched_block.getWorld().getName())){
     			MapChunkInfo chunksInfo = maintained_worlds.get(i);
-    			int x = rnplugin.transformation_from_chunkidx_to_arrayidx( touched_block.getChunk().getX(),chunksInfo.chunk_radius);
-    			int z = rnplugin.transformation_from_chunkidx_to_arrayidx( touched_block.getChunk().getZ(),chunksInfo.chunk_radius);
+    			int x = RestoreNaturePlugin.transformation_from_chunkidx_to_arrayidx( touched_block.getChunk().getX(),chunksInfo.chunk_radius);
+    			int z = RestoreNaturePlugin.transformation_from_chunkidx_to_arrayidx( touched_block.getChunk().getZ(),chunksInfo.chunk_radius);
     			if(		chunksInfo.isLegalArrayXZ(x, z)){
     				
-        			int R = rnplugin.BLOCK_EVENT_EFFECTING_RADIUS-1;
+        			int R = RestoreNaturePlugin.BLOCK_EVENT_EFFECTING_RADIUS-1;
         			for(int r_x=(-1)*R;r_x<=R;r_x++){
             			for(int r_z=(-1)*R;r_z<=R;r_z++){
             				if((x+r_x)>=0  &&  (x+r_x)<=maintained_worlds.get(i).max_x  &&  (z+r_z)>=0  &&  (z+r_z)<=maintained_worlds.get(i).max_z){
