@@ -22,16 +22,5 @@ class MapChunkInfo implements Serializable {
 		now_min_x = new_now_min_x;
 		now_min_z = new_now_min_z;
 	}
-	public boolean isLegalChunkXZ(int x,int z){
-		int array_x = RestoreNaturePlugin.transformation_from_chunkidx_to_arrayidx(x, chunk_radius);
-		int array_z = RestoreNaturePlugin.transformation_from_chunkidx_to_arrayidx(z, chunk_radius);
-		return isLegalArrayXZ(array_x,array_z);
-	}
-	public boolean isLegalArrayXZ(int x, int z){
-		return x<this.max_x  &&
-				z<this.max_z  &&
-				x>=0  &&
-				z>=0; 
-	}
 
 } 
