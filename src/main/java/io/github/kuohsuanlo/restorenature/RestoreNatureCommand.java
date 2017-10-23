@@ -1,6 +1,7 @@
 
 package io.github.kuohsuanlo.restorenature;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -33,7 +34,7 @@ public class RestoreNatureCommand implements CommandExecutor {
 		    if (args.length == 3 ) {
 		    	if (sender instanceof Player) {
 		    		 if (!sender.hasPermission("restorenature.manualrestore")){
-						 sender.sendMessage("¡±cYou don't have the permission.");
+						 sender.sendMessage("ï¿½ï¿½cYou don't have the permission.");
 		    			 return false;
 		    		 }
 		    	}
@@ -61,12 +62,12 @@ public class RestoreNatureCommand implements CommandExecutor {
 				        	
 				        	restoreChunk(player_chunk,restoring_chunk,null,-1,-1);
 				        	
-				        	sender.sendMessage("¡±eChunk successfully restored on world chunk : "+player_world_name+" "+restoring_chunk.getX()+" ; "+restoring_chunk.getZ());	
+				        	sender.sendMessage(ChatColor.YELLOW+"Chunk successfully restored on world chunk : "+player_world_name+" "+restoring_chunk.getX()+" ; "+restoring_chunk.getZ());	
 				            return true;    
 			    			
 			    		}
 				        else{
-							sender.sendMessage("¡±cYou don't have the permission.");
+							sender.sendMessage("ï¿½ï¿½cYou don't have the permission.");
 							return false;
 						}
 			        	
@@ -77,7 +78,7 @@ public class RestoreNatureCommand implements CommandExecutor {
 		    				 return true;
 		    			 }
 		    			 else{
-							 sender.sendMessage("¡±cYou don't have the permission.");
+							 sender.sendMessage("ï¿½ï¿½cYou don't have the permission.");
 							 return false;
 		    			 }
 		    		}
@@ -102,26 +103,26 @@ public class RestoreNatureCommand implements CommandExecutor {
 							    		if(chunksInfo.chunk_untouchedtime[x][z]>=rnplugin.MAX_SECONDS_UNTOUCHED){
 							    			restoreChunk(player_chunk,restoring_chunk,chunksInfo,x,z);
 								        	
-								        	sender.sendMessage("¡±eChunk successfully restored on world chunk : "+player_world_name+" "+restoring_chunk.getX()+" ; "+restoring_chunk.getZ());	
+								        	sender.sendMessage(ChatColor.YELLOW+"Chunk successfully restored on world chunk : "+player_world_name+" "+restoring_chunk.getX()+" ; "+restoring_chunk.getZ());	
 								            return true;    
 							    			
 
 										}
 							    		else{
-							    			sender.sendMessage("¡±eChunk untouch time not enough : "+chunksInfo.chunk_untouchedtime[x][z]+" < "+rnplugin.MAX_SECONDS_UNTOUCHED);	
+							    			sender.sendMessage(ChatColor.YELLOW+"Chunk untouch time not enough : "+chunksInfo.chunk_untouchedtime[x][z]+" < "+rnplugin.MAX_SECONDS_UNTOUCHED);	
 								            return true; 
 							    		}
 						     		}
 						     	}
 		 					}
 		 					else{
-				    			sender.sendMessage("¡±eChunk claimed");	
+				    			sender.sendMessage(ChatColor.YELLOW+"Chunk claimed");	
 					            return true; 
 		 					}
 		 					
 		    			 }
 		    			 else{
-								sender.sendMessage("¡±cYou don't have the permission.");
+								sender.sendMessage("ï¿½ï¿½cYou don't have the permission.");
 								return false;
 		    			 }
 		    		}
@@ -141,12 +142,12 @@ public class RestoreNatureCommand implements CommandExecutor {
 			CreatureSpawner restored_spawner = (CreatureSpawner) player_chunk.getBlock(x, y, z).getState();  
 			
 			restored_spawner.setSpawnedType(restoring_spawner.getSpawnedType());
-			rnplugin.getServer().getConsoleSender().sendMessage("¡±e[RestoreNature] : restoring mobspawner "+restored_spawner.getSpawnedType().name());
+			rnplugin.getServer().getConsoleSender().sendMessage(ChatColor.YELLOW+"[RestoreNature] : restoring mobspawner "+restored_spawner.getSpawnedType().name());
 			
 			restored_spawner.update();
 		}
 		else if(restoring_chunk.getBlock(x, y, z).getType().equals(Material.CHEST)){
-			rnplugin.getServer().getConsoleSender().sendMessage("¡±e[RestoreNature] : restoring chest");
+			rnplugin.getServer().getConsoleSender().sendMessage(ChatColor.YELLOW+"[RestoreNature] : restoring chest");
 			Chest restoring_chest = (Chest) restoring_chunk.getBlock(x, y, z).getState();
 			Chest restored_chest = (Chest) player_chunk.getBlock(x, y, z).getState();
 			
@@ -155,12 +156,12 @@ public class RestoreNatureCommand implements CommandExecutor {
 			int ntmp;
 			for(int i=0;i<itemNum;i++){
 				if(restoring_chest.getBlockInventory().getItem(i) ==null){
-					//rnplugin.getServer().getConsoleSender().sendMessage("¡±e[RestoreNature] : null "+i);
+					//rnplugin.getServer().getConsoleSender().sendMessage(ChatColor.YELLOW+"[RestoreNature] : null "+i);
 				}
 				else{
 					mtmp = restoring_chest.getBlockInventory().getItem(i).getType();
 					ntmp = restoring_chest.getBlockInventory().getItem(i).getAmount();
-					//rnplugin.getServer().getConsoleSender().sendMessage("¡±e[RestoreNature] : restoring "+mtmp.name()+","+ntmp);
+					//rnplugin.getServer().getConsoleSender().sendMessage(ChatColor.YELLOW+"[RestoreNature] : restoring "+mtmp.name()+","+ntmp);
 					restored_chest.getInventory().addItem(new ItemStack(mtmp,ntmp));
 				}
 				
@@ -169,47 +170,67 @@ public class RestoreNatureCommand implements CommandExecutor {
 			restored_chest.update();
 		}
 	}
-	private void restoreChunkEntity(Chunk restoring_chunk, Chunk player_chunk){
+	private void restoreChunkEntity(Chunk restoring_chunk, Chunk restored_chunk){
 		if(!restoring_chunk.isLoaded()) restoring_chunk.load();
-		if(!player_chunk.isLoaded()) 	player_chunk.load();
+		if(!restored_chunk.isLoaded()) 	restored_chunk.load();
 		
-		Entity[] entities = restoring_chunk.getEntities();
-		for(int e=0;e<entities.length;e++){
-			World world = player_chunk.getWorld();
-			Location eLoc = entities[e].getLocation();
+		Entity[] entitiesRestoring = restoring_chunk.getEntities();
+		Entity[] entitiesRestored  = restored_chunk.getEntities();
+		
+		//calculating current entities in restored chunk
+		int[] entityNum = new int[Short.MAX_VALUE];
+		for(int e=0;e<entitiesRestored.length;e++){
+			if(entitiesRestored[e].getType().getTypeId()>=0){
+				int entityTypeID = entitiesRestored[e].getType().getTypeId();
+				entityNum[entityTypeID]++;
+			}
+		}
+		
+		//restoring missing entities in restored chunk from restoring chunk
+		for(int e=0;e<entitiesRestoring.length;e++){
+			World world = restored_chunk.getWorld();
+			Location eLoc = entitiesRestoring[e].getLocation();
 			Location newLoc = new Location(world, eLoc.getX(),  eLoc.getY(),  eLoc.getZ());
 			
 			//System.out.println(entities[e].getType().name()+" at "+newLoc.toString());
 			
-			if( entities[e].getType().equals(EntityType.BAT)  || 
-				entities[e].getType().equals(EntityType.BLAZE)  ||
-				entities[e].getType().equals(EntityType.CAVE_SPIDER)  ||
-				entities[e].getType().equals(EntityType.CHICKEN)  ||
-				entities[e].getType().equals(EntityType.COW)  ||
-				entities[e].getType().equals(EntityType.DONKEY)  ||
-				entities[e].getType().equals(EntityType.HORSE)  ||
-				entities[e].getType().equals(EntityType.GUARDIAN)  ||
-				entities[e].getType().equals(EntityType.ELDER_GUARDIAN)  ||
-				entities[e].getType().equals(EntityType.MULE)  ||
-				entities[e].getType().equals(EntityType.MUSHROOM_COW)  ||
-				entities[e].getType().equals(EntityType.OCELOT)  ||
-				entities[e].getType().equals(EntityType.PIG)  ||
-				entities[e].getType().equals(EntityType.PARROT)  ||
-				entities[e].getType().equals(EntityType.POLAR_BEAR)  ||
-				entities[e].getType().equals(EntityType.RABBIT)  ||
-				entities[e].getType().equals(EntityType.SHEEP)  ||
-				entities[e].getType().equals(EntityType.SHULKER)  ||
-				entities[e].getType().equals(EntityType.VILLAGER) ){
+			if( entitiesRestoring[e].getType().equals(EntityType.BAT)  || 
+				entitiesRestoring[e].getType().equals(EntityType.BLAZE)  ||
+				entitiesRestoring[e].getType().equals(EntityType.CAVE_SPIDER)  ||
+				entitiesRestoring[e].getType().equals(EntityType.CHICKEN)  ||
+				entitiesRestoring[e].getType().equals(EntityType.COW)  ||
+				entitiesRestoring[e].getType().equals(EntityType.DONKEY)  ||
+				entitiesRestoring[e].getType().equals(EntityType.HORSE)  ||
+				entitiesRestoring[e].getType().equals(EntityType.GUARDIAN)  ||
+				entitiesRestoring[e].getType().equals(EntityType.ELDER_GUARDIAN)  ||
+				entitiesRestoring[e].getType().equals(EntityType.MULE)  ||
+				entitiesRestoring[e].getType().equals(EntityType.MUSHROOM_COW)  ||
+				entitiesRestoring[e].getType().equals(EntityType.OCELOT)  ||
+				entitiesRestoring[e].getType().equals(EntityType.PIG)  ||
+				entitiesRestoring[e].getType().equals(EntityType.PARROT)  ||
+				entitiesRestoring[e].getType().equals(EntityType.POLAR_BEAR)  ||
+				entitiesRestoring[e].getType().equals(EntityType.RABBIT)  ||
+				entitiesRestoring[e].getType().equals(EntityType.SHEEP)  ||
+				entitiesRestoring[e].getType().equals(EntityType.SHULKER)  ||
+				entitiesRestoring[e].getType().equals(EntityType.VILLAGER) ){
 				
-				rnplugin.getServer().getConsoleSender().sendMessage("¡±e[RestoreNature] : restoring entitiy : "+entities[e].getType().name());
-				player_chunk.getWorld().spawnEntity(newLoc, entities[e].getType());
+				int entityTypeID = entitiesRestoring[e].getType().getTypeId();
+				if(entityNum[entityTypeID]>0){
+					entityNum[entityTypeID]--;
+				}
+				else{
+					rnplugin.getServer().getConsoleSender().sendMessage(ChatColor.YELLOW+"[RestoreNature] : restoring entitiy : "+entitiesRestoring[e].getType().name());
+					restored_chunk.getWorld().spawnEntity(newLoc, entitiesRestoring[e].getType());
+				}
+				
+				
 			}
 			
 			
 		}
 		
 		if(restoring_chunk.isLoaded()) restoring_chunk.unload();
-		if(player_chunk.isLoaded()) 	player_chunk.unload();
+		if(restored_chunk.isLoaded()) 	restored_chunk.unload();
 	
 	}
     @SuppressWarnings("deprecation")
