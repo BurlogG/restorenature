@@ -3,7 +3,7 @@ package io.github.kuohsuanlo.restorenature;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-class MapChunkInfo implements Serializable {
+public class MapChunkInfo implements Serializable {
 	public int[][] chunk_untouchedtime;
 	public String world_name;
 	public ArrayList<String> factions_name;

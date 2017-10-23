@@ -49,7 +49,7 @@ class Maintained_World{
 
 public class RestoreNaturePlugin extends JavaPlugin {
 
-
+	public static String PLUGIN_PREFIX = "[RestoreNature] : ";
     public static final String WORLD_SUFFIX = "_rs";
     private static final Logger log = Logger.getLogger("Minecraft");
     public static final int DEFAULT_MAX_SECONDS_UNTOUCHED = 864000;
@@ -210,7 +210,7 @@ public class RestoreNaturePlugin extends JavaPlugin {
     	  	   	
     	  	   	
     	  	   	if(file.exists()){
-    	  	   		this.getServer().getConsoleSender().sendMessage("[RestoreNature] : successfully load from "+"./plugins/RestoreNature/worlds_chunk_info/"+world_name+".chunkinfo");	
+    	  	   		this.getServer().getConsoleSender().sendMessage(PLUGIN_PREFIX+"successfully load from "+"./plugins/RestoreNature/worlds_chunk_info/"+world_name+".chunkinfo");	
     	  	   		
     				FileInputStream fis;
     				fis = new FileInputStream("./plugins/RestoreNature/worlds_chunk_info/"+world_name+".chunkinfo");
@@ -219,7 +219,7 @@ public class RestoreNaturePlugin extends JavaPlugin {
     		    	ois.close();
     	  	   	}
     	  	   	else{
-    	  	   		this.getServer().getConsoleSender().sendMessage("[RestoreNature] : no existing file, creating new chunk info");
+    	  	   		this.getServer().getConsoleSender().sendMessage(PLUGIN_PREFIX+"no existing file, creating new chunk info");
     				world_chunk_info = createMapChunkInfo(world_name,radius, this.config_maintain_worlds.get(i).nature_factions);
 
     	  	   	}

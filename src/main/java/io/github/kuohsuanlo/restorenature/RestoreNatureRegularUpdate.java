@@ -122,12 +122,12 @@ class RestoreNatureRegularUpdate implements Runnable {
     }
 
     public void run() {
-    	//rnplugin.getServer().getConsoleSender().sendMessage("[RestoreNature] : Total # worlds : "+maintained_worlds.size());
+    	//rnplugin.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"Total # worlds : "+maintained_worlds.size());
     	int restore_chunks_number =0;
     	long now_time = Instant.now().getEpochSecond();
     	for(int i=0;i<maintained_worlds.size();i++){
     		MapChunkInfo chunksInfo = maintained_worlds.get(i);
-    		//rnplugin.getServer().getConsoleSender().sendMessage("[RestoreNature] : Checking world "+chunksInfo.world_name+" "+chunksInfo.now_min_x+" ; "+chunksInfo.now_min_z);
+    		//rnplugin.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"Checking world "+chunksInfo.world_name+" "+chunksInfo.now_min_x+" ; "+chunksInfo.now_min_z);
     		
     		for(int x=0; x < chunksInfo.max_x; x++){
     		    for(int z=0; z < chunksInfo.max_z; z++){
@@ -152,7 +152,7 @@ class RestoreNatureRegularUpdate implements Runnable {
 								//chunksInfo.chunk_untouchedtime[x][z]=0;
 							}
 							else{
-								rnplugin.getServer().getConsoleSender().sendMessage("[RestoreNature] : Maximum number of tasks in TaskQueue reached. Please increase CHECK_PERIOD_IN_SECONDS" );
+								rnplugin.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"Maximum number of tasks in TaskQueue reached. Please increase CHECK_PERIOD_IN_SECONDS" );
 							}
 
 						}
@@ -164,7 +164,7 @@ class RestoreNatureRegularUpdate implements Runnable {
     			}
  
     		}
-        	//rnplugin.getServer().getConsoleSender().sendMessage("[RestoreNature] : Add "+restore_chunks_number+" chunks into queue, in world :"+maintained_worlds.get(i).world_name);	
+        	//rnplugin.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"Add "+restore_chunks_number+" chunks into queue, in world :"+maintained_worlds.get(i).world_name);	
         	restore_chunks_number = 0;
 
         	chunksInfo.now_min_z +=+rnplugin.CHECK_RADIUS_PER_PERIOD;
