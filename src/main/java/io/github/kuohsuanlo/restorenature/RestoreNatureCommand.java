@@ -200,6 +200,7 @@ public class RestoreNatureCommand implements CommandExecutor {
 				entitiesRestoring[e].getType().equals(EntityType.CHICKEN)  ||
 				entitiesRestoring[e].getType().equals(EntityType.COW)  ||
 				entitiesRestoring[e].getType().equals(EntityType.DONKEY)  ||
+				entitiesRestoring[e].getType().equals(EntityType.LLAMA)  ||
 				entitiesRestoring[e].getType().equals(EntityType.HORSE)  ||
 				entitiesRestoring[e].getType().equals(EntityType.GUARDIAN)  ||
 				entitiesRestoring[e].getType().equals(EntityType.ELDER_GUARDIAN)  ||
@@ -211,8 +212,13 @@ public class RestoreNatureCommand implements CommandExecutor {
 				entitiesRestoring[e].getType().equals(EntityType.POLAR_BEAR)  ||
 				entitiesRestoring[e].getType().equals(EntityType.RABBIT)  ||
 				entitiesRestoring[e].getType().equals(EntityType.SHEEP)  ||
+				entitiesRestoring[e].getType().equals(EntityType.SQUID)  ||
 				entitiesRestoring[e].getType().equals(EntityType.SHULKER)  ||
-				entitiesRestoring[e].getType().equals(EntityType.VILLAGER) ){
+				entitiesRestoring[e].getType().equals(EntityType.WOLF)  ||
+				entitiesRestoring[e].getType().equals(EntityType.VILLAGER) ||
+				entitiesRestoring[e].getType().equals(EntityType.VINDICATOR)  ||
+				entitiesRestoring[e].getType().equals(EntityType.EVOKER)  ||
+				entitiesRestoring[e].getType().equals(EntityType.WITCH) ){
 				
 				int entityTypeID = entitiesRestoring[e].getType().getTypeId();
 				if(entityNum[entityTypeID]>0){
