@@ -4,14 +4,21 @@ package io.github.kuohsuanlo.restorenature;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.Chest;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
+
  
 public class RestoreNatureCommand implements CommandExecutor {
     @SuppressWarnings("deprecation")
@@ -128,7 +135,83 @@ public class RestoreNatureCommand implements CommandExecutor {
 
     }
 
+	private void restoreChunkDetails(Chunk restoring_chunk, Chunk player_chunk, int x, int y, int z ){
+		if(restoring_chunk.getBlock(x, y, z).getType().equals(Material.MOB_SPAWNER)){
+    		CreatureSpawner restoring_spawner = (CreatureSpawner) restoring_chunk.getBlock(x, y, z).getState();
+			CreatureSpawner restored_spawner = (CreatureSpawner) player_chunk.getBlock(x, y, z).getState();  
 			
+			restored_spawner.setSpawnedType(restoring_spawner.getSpawnedType());
+			rnplugin.getServer().getConsoleSender().sendMessage("¡±e[RestoreNature] : restoring mobspawner "+restored_spawner.getSpawnedType().name());
+			
+			restored_spawner.update();
+		}
+		else if(restoring_chunk.getBlock(x, y, z).getType().equals(Material.CHEST)){
+			rnplugin.getServer().getConsoleSender().sendMessage("¡±e[RestoreNature] : restoring chest");
+			Chest restoring_chest = (Chest) restoring_chunk.getBlock(x, y, z).getState();
+			Chest restored_chest = (Chest) player_chunk.getBlock(x, y, z).getState();
+			
+			int itemNum = restoring_chest.getBlockInventory().getSize();
+			Material mtmp;
+			int ntmp;
+			for(int i=0;i<itemNum;i++){
+				if(restoring_chest.getBlockInventory().getItem(i) ==null){
+					//rnplugin.getServer().getConsoleSender().sendMessage("¡±e[RestoreNature] : null "+i);
+				}
+				else{
+					mtmp = restoring_chest.getBlockInventory().getItem(i).getType();
+					ntmp = restoring_chest.getBlockInventory().getItem(i).getAmount();
+					//rnplugin.getServer().getConsoleSender().sendMessage("¡±e[RestoreNature] : restoring "+mtmp.name()+","+ntmp);
+					restored_chest.getInventory().addItem(new ItemStack(mtmp,ntmp));
+				}
+				
+			}
+			//restoring_chest.update();
+			restored_chest.update();
+		}
+	}
+	private void restoreChunkEntity(Chunk restoring_chunk, Chunk player_chunk){
+		if(!restoring_chunk.isLoaded()) restoring_chunk.load();
+		if(!player_chunk.isLoaded()) 	player_chunk.load();
+		
+		Entity[] entities = restoring_chunk.getEntities();
+		for(int e=0;e<entities.length;e++){
+			World world = player_chunk.getWorld();
+			Location eLoc = entities[e].getLocation();
+			Location newLoc = new Location(world, eLoc.getX(),  eLoc.getY(),  eLoc.getZ());
+			
+			//System.out.println(entities[e].getType().name()+" at "+newLoc.toString());
+			
+			if( entities[e].getType().equals(EntityType.BAT)  || 
+				entities[e].getType().equals(EntityType.BLAZE)  ||
+				entities[e].getType().equals(EntityType.CAVE_SPIDER)  ||
+				entities[e].getType().equals(EntityType.CHICKEN)  ||
+				entities[e].getType().equals(EntityType.COW)  ||
+				entities[e].getType().equals(EntityType.DONKEY)  ||
+				entities[e].getType().equals(EntityType.HORSE)  ||
+				entities[e].getType().equals(EntityType.GUARDIAN)  ||
+				entities[e].getType().equals(EntityType.ELDER_GUARDIAN)  ||
+				entities[e].getType().equals(EntityType.MULE)  ||
+				entities[e].getType().equals(EntityType.MUSHROOM_COW)  ||
+				entities[e].getType().equals(EntityType.OCELOT)  ||
+				entities[e].getType().equals(EntityType.PIG)  ||
+				entities[e].getType().equals(EntityType.PARROT)  ||
+				entities[e].getType().equals(EntityType.POLAR_BEAR)  ||
+				entities[e].getType().equals(EntityType.RABBIT)  ||
+				entities[e].getType().equals(EntityType.SHEEP)  ||
+				entities[e].getType().equals(EntityType.SHULKER)  ||
+				entities[e].getType().equals(EntityType.VILLAGER) ){
+				
+				rnplugin.getServer().getConsoleSender().sendMessage("¡±e[RestoreNature] : restoring entitiy : "+entities[e].getType().name());
+				player_chunk.getWorld().spawnEntity(newLoc, entities[e].getType());
+			}
+			
+			
+		}
+		
+		if(restoring_chunk.isLoaded()) restoring_chunk.unload();
+		if(player_chunk.isLoaded()) 	player_chunk.unload();
+	
+	}
     @SuppressWarnings("deprecation")
 	public void restoreChunk(Chunk player_chunk, Chunk restoring_chunk, MapChunkInfo chunk_info,int array_x,int array_z){
     	for(int x=0;x<16;x++){
@@ -138,36 +221,21 @@ public class RestoreNatureCommand implements CommandExecutor {
                     	if(player_chunk.getBlock(x, y, z).getType().equals(Material.AIR)){
                     		player_chunk.getBlock(x, y, z).setTypeId(restoring_chunk.getBlock(x, y, z).getTypeId());
                         	player_chunk.getBlock(x, y, z).setData(restoring_chunk.getBlock(x, y, z).getData());
-                        	if(restoring_chunk.getBlock(x, y, z).getType().equals(Material.MOB_SPAWNER)){
-
-                        		rnplugin.getServer().getConsoleSender().sendMessage("¡±e[RestoreNature] : restoring mobspawner");
-                    			CreatureSpawner restoring_spawner = ((CreatureSpawner)restoring_chunk.getBlock(x, y, z).getState());
-                    			CreatureSpawner restored_spawner = ((CreatureSpawner)player_chunk.getBlock(x, y, z).getState());                			
-                    			restored_spawner.setSpawnedType(restoring_spawner.getSpawnedType());
-                    			player_chunk.getBlock(x, y, z).getState().update();
-                            }
+                        	restoreChunkDetails(restoring_chunk,player_chunk,x,y,z);
+                  
                     	}
-
-                    	
                 	}
                 	else{
                 		player_chunk.getBlock(x, y, z).setTypeId(restoring_chunk.getBlock(x, y, z).getTypeId());
                     	player_chunk.getBlock(x, y, z).setData(restoring_chunk.getBlock(x, y, z).getData());
-                		if(restoring_chunk.getBlock(x, y, z).getType().equals(Material.MOB_SPAWNER)){
-
-                    		rnplugin.getServer().getConsoleSender().sendMessage("¡±e[RestoreNature] : restoring mobspawner");
-                			CreatureSpawner restoring_spawner = ((CreatureSpawner)restoring_chunk.getBlock(x, y, z).getState());
-                			CreatureSpawner restored_spawner = ((CreatureSpawner)player_chunk.getBlock(x, y, z).getState());                			
-                			restored_spawner.setSpawnedType(restoring_spawner.getSpawnedType());
-                			player_chunk.getBlock(x, y, z).getState().update();
-
-                		}
-
+                    	restoreChunkDetails(restoring_chunk,player_chunk,x,y,z);
+                    	
                 	}
-                	
         		}
         	}
     	}
+    	restoreChunkEntity(restoring_chunk, player_chunk);
+    	
     	if(chunk_info  !=null){
         	chunk_info.chunk_untouchedtime[array_x][array_z]=0;
     	}

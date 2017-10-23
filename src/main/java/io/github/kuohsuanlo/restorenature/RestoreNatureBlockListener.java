@@ -40,7 +40,7 @@ public class RestoreNatureBlockListener implements Listener {
         rnplugin.BukkitSchedulerSuck.setWorldsChunkUntouchedTime(block);
     }      
     
-    
+  
     
     @EventHandler
     public void onBlockRedstoneEvent(BlockRedstoneEvent event) {
