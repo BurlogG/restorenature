@@ -27,8 +27,9 @@ This plugin is a minecraft server-side spigot plugin in order to enhance the exp
          Not a problem either. This plugin will maintain a maximum task queue. 
 It will drop the upcoming tasks if the queue is temporarily filled.
 
-The progress will be saved in restorenature/world_chunk_info/... 
-You are free to stop the server and proceed the progress at any time :)
+###### The progress will be saved in restorenature/world_chunk_info/... 
+###### You are free to stop the server and proceed the progress at any time :)
+
 ---------
 ### Environment 
 This build is compiled and tested on these environments.
