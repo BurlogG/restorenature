@@ -97,7 +97,21 @@ restorenature.trymr : node fore /restorenature trymr
 ----
 ### Todos
  - Your suggestions are welcome at any time.
-
+ - Towny API support
+ - FactionUUID support
+ - WorldGuard support
+----
+### Technical FAQ 
+The event that make the chunks untouched time to zero (won't be restored) when the following events are fired in its area : 
+1. FurnaceSmeltEvent event
+2. BrewEvent event
+3. BlockRedstoneEvent event
+4. BlockIgniteEvent event
+5. BlockGrowEvent event
+6. BlockFormEvent event
+7. BlockFromToEvent event
+8. BlockBreakEvent event
+9. BlockPlaceEvent event
 ----
 ### License
 
