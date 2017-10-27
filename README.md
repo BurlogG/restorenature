@@ -19,6 +19,16 @@ This plugin is a minecraft server-side spigot plugin in order to enhance the exp
     2. Restore-All (Mode 2): all of the world would become the same as it first generated. Removing players' buildings and blocks.
   - Supporting [faction], [griefprevention] claim system.
   - High flexibility on the configuration
+  - Well-designed plugin performance :
+      1. Not enough power of CPU? Performance could be tuned to fit the server's computing power. 
+      2. Freeze issue? 
+         Don't worry. This plugin will cut the tasks into tiny pieces for your server to consume. 
+      3. Memory issue? 
+         Not a problem either. This plugin will maintain a maximum task queue. 
+It will drop the upcoming tasks if the queue is temporarily filled.
+
+The progress will be saved in restorenature/world_chunk_info/... 
+You are free to stop the server and proceed the progress at any time :)
 ---------
 ### Environment 
 This build is compiled and tested on these environments.
