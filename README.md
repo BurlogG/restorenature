@@ -133,3 +133,4 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
    [spigot]: <https://spigotmc.org>
    [java]: <https://java.com/zh_TW/>
    [license]: <https://opensource.org/licenses/MIT>
+   [gpsource]: <http://www.javased.com/index.php?source_dir=GriefPrevention/src/me/ryanhamshire/GriefPrevention/Claim.java>
