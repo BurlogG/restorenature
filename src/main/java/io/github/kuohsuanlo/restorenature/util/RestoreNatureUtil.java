@@ -6,17 +6,26 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import io.github.kuohsuanlo.restorenature.MapChunkInfo;
 import io.github.kuohsuanlo.restorenature.RestoreNaturePlugin;
 
 public class RestoreNatureUtil {
-
+	@SuppressWarnings("deprecation")
+	private static void restoreChunkBlock(Chunk restoring_chunk, Chunk restored_chunk, int x, int y, int z ){
+		Block restoringBlock = restoring_chunk.getBlock(x, y, z);
+		Block restoredBlock  = restored_chunk.getBlock(x, y, z);
+		restoredBlock.setType(restoringBlock.getType());
+		restoredBlock.setData(restoringBlock.getData());
+    	
+	}
 	private static void restoreChunkDetails(Chunk restoring_chunk, Chunk player_chunk, int x, int y, int z ){
 		if(restoring_chunk.getBlock(x, y, z).getType().equals(Material.MOB_SPAWNER)){
     		CreatureSpawner restoring_spawner = (CreatureSpawner) restoring_chunk.getBlock(x, y, z).getState();
@@ -42,70 +51,81 @@ public class RestoreNatureUtil {
 				else{
 					mtmp = restoring_chest.getBlockInventory().getItem(i).getType();
 					ntmp = restoring_chest.getBlockInventory().getItem(i).getAmount();
-					//RestoreNaturePlugin.getServer().getConsoleSender().sendMessage(ChatColor.YELLOW+RestoreNaturePlugin.PLUGIN_PREFIX+"restoring "+mtmp.name()+","+ntmp);
 					restored_chest.getInventory().addItem(new ItemStack(mtmp,ntmp));
 				}
 				
 			}
-			//restoring_chest.update();
 			restored_chest.update();
 		}
+	}
+	private static int[] calculateChunkEntityTypesNumber(Chunk chunk){
+		Entity[] entitiesRestored  = chunk.getEntities();
+		int[] entityNum = new int[EntityType.values().length];
+		for(int e=0;e<entitiesRestored.length;e++){
+			int entityTypeID = convertEntityTypeToIdx(entitiesRestored[e].getType());
+			if(entityTypeID>=0){
+				entityNum[entityTypeID]++;
+			}
+		}
+		return entityNum;
+	}
+	private static int convertEntityTypeToIdx(EntityType et){
+		for(int i=0;i<EntityType.values().length;i++){
+			if(EntityType.values()[i].equals(et)) return i;
+		}
+		return -1;
+	}
+	private static boolean isValidRestoredEntityType(EntityType e){
+		return 
+		e.equals(EntityType.BAT)  || 
+		e.equals(EntityType.BLAZE)  ||
+		e.equals(EntityType.CAVE_SPIDER)  ||
+		e.equals(EntityType.CHICKEN)  ||
+		e.equals(EntityType.COW)  ||
+		e.equals(EntityType.DONKEY)  ||
+		e.equals(EntityType.LLAMA)  ||
+		e.equals(EntityType.HORSE)  ||
+		e.equals(EntityType.GUARDIAN)  ||
+		e.equals(EntityType.ELDER_GUARDIAN)  ||
+		e.equals(EntityType.MULE)  ||
+		e.equals(EntityType.MUSHROOM_COW)  ||
+		e.equals(EntityType.OCELOT)  ||
+		e.equals(EntityType.PIG)  ||
+		e.equals(EntityType.PARROT)  ||
+		e.equals(EntityType.POLAR_BEAR)  ||
+		e.equals(EntityType.RABBIT)  ||
+		e.equals(EntityType.SHEEP)  ||
+		e.equals(EntityType.SQUID)  ||
+		e.equals(EntityType.SHULKER)  ||
+		e.equals(EntityType.WOLF)  ||
+		e.equals(EntityType.VILLAGER) ||
+		e.equals(EntityType.VINDICATOR)  ||
+		e.equals(EntityType.EVOKER)  ||
+		e.equals(EntityType.WITCH);
+	}
+	private static Location getCorrespondingLocation(World world, Location eLoc){
+		return new Location(world, eLoc.getX(),  eLoc.getY(),  eLoc.getZ());
 	}
 	private static void restoreChunkEntity(Chunk restoring_chunk, Chunk restored_chunk){
 		if(!restoring_chunk.isLoaded()) restoring_chunk.load();
 		if(!restored_chunk.isLoaded()) 	restored_chunk.load();
 		
-		Entity[] entitiesRestoring = restoring_chunk.getEntities();
-		Entity[] entitiesRestored  = restored_chunk.getEntities();
 		
-		//calculating current entities in restored chunk
-		int[] entityNum = new int[Short.MAX_VALUE];
-		for(int e=0;e<entitiesRestored.length;e++){
-			if(entitiesRestored[e].getType().getTypeId()>=0){
-				int entityTypeID = entitiesRestored[e].getType().getTypeId();
-				entityNum[entityTypeID]++;
-			}
-		}
+		int[] entityNum = calculateChunkEntityTypesNumber(restored_chunk);
 		
 		//restoring missing entities in restored chunk from restoring chunk
+		Entity[] entitiesRestoring = restoring_chunk.getEntities();
 		for(int e=0;e<entitiesRestoring.length;e++){
-			World world = restored_chunk.getWorld();
-			Location eLoc = entitiesRestoring[e].getLocation();
-			Location newLoc = new Location(world, eLoc.getX(),  eLoc.getY(),  eLoc.getZ());
-			
-			//System.out.println(entities[e].getType().name()+" at "+newLoc.toString());
-			
-			if( entitiesRestoring[e].getType().equals(EntityType.BAT)  || 
-				entitiesRestoring[e].getType().equals(EntityType.BLAZE)  ||
-				entitiesRestoring[e].getType().equals(EntityType.CAVE_SPIDER)  ||
-				entitiesRestoring[e].getType().equals(EntityType.CHICKEN)  ||
-				entitiesRestoring[e].getType().equals(EntityType.COW)  ||
-				entitiesRestoring[e].getType().equals(EntityType.DONKEY)  ||
-				entitiesRestoring[e].getType().equals(EntityType.LLAMA)  ||
-				entitiesRestoring[e].getType().equals(EntityType.HORSE)  ||
-				entitiesRestoring[e].getType().equals(EntityType.GUARDIAN)  ||
-				entitiesRestoring[e].getType().equals(EntityType.ELDER_GUARDIAN)  ||
-				entitiesRestoring[e].getType().equals(EntityType.MULE)  ||
-				entitiesRestoring[e].getType().equals(EntityType.MUSHROOM_COW)  ||
-				entitiesRestoring[e].getType().equals(EntityType.OCELOT)  ||
-				entitiesRestoring[e].getType().equals(EntityType.PIG)  ||
-				entitiesRestoring[e].getType().equals(EntityType.PARROT)  ||
-				entitiesRestoring[e].getType().equals(EntityType.POLAR_BEAR)  ||
-				entitiesRestoring[e].getType().equals(EntityType.RABBIT)  ||
-				entitiesRestoring[e].getType().equals(EntityType.SHEEP)  ||
-				entitiesRestoring[e].getType().equals(EntityType.SQUID)  ||
-				entitiesRestoring[e].getType().equals(EntityType.SHULKER)  ||
-				entitiesRestoring[e].getType().equals(EntityType.WOLF)  ||
-				entitiesRestoring[e].getType().equals(EntityType.VILLAGER) ||
-				entitiesRestoring[e].getType().equals(EntityType.VINDICATOR)  ||
-				entitiesRestoring[e].getType().equals(EntityType.EVOKER)  ||
-				entitiesRestoring[e].getType().equals(EntityType.WITCH) ){
+			Entity currentEntity = entitiesRestoring[e];
+		
+			if( isValidRestoredEntityType(currentEntity.getType()) ){
 				
-				int entityTypeID = entitiesRestoring[e].getType().getTypeId();
+				int entityTypeID = convertEntityTypeToIdx(entitiesRestoring[e].getType());
 				if(entityNum[entityTypeID]>0){
 					entityNum[entityTypeID]--;
 				}
 				else{
+					Location newLoc = getCorrespondingLocation(restored_chunk.getWorld(),currentEntity.getLocation());
 					Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.YELLOW+RestoreNaturePlugin.PLUGIN_PREFIX+"restoring entitiy : "+entitiesRestoring[e].getType().name());
 					restored_chunk.getWorld().spawnEntity(newLoc, entitiesRestoring[e].getType());
 				}
@@ -127,15 +147,13 @@ public class RestoreNatureUtil {
                 for(int z=0;z<16;z++){
                 	if(RestoreNaturePlugin.ONLY_RESTORE_AIR){
                     	if(player_chunk.getBlock(x, y, z).getType().equals(Material.AIR)){
-                    		player_chunk.getBlock(x, y, z).setTypeId(restoring_chunk.getBlock(x, y, z).getTypeId());
-                        	player_chunk.getBlock(x, y, z).setData(restoring_chunk.getBlock(x, y, z).getData());
+                    		restoreChunkBlock(restoring_chunk,player_chunk,x,y,z);
                         	restoreChunkDetails(restoring_chunk,player_chunk,x,y,z);
                   
                     	}
                 	}
                 	else{
-                		player_chunk.getBlock(x, y, z).setTypeId(restoring_chunk.getBlock(x, y, z).getTypeId());
-                    	player_chunk.getBlock(x, y, z).setData(restoring_chunk.getBlock(x, y, z).getData());
+                		restoreChunkBlock(restoring_chunk,player_chunk,x,y,z);
                     	restoreChunkDetails(restoring_chunk,player_chunk,x,y,z);
                     	
                 	}
@@ -148,4 +166,46 @@ public class RestoreNatureUtil {
         	chunk_info.chunk_untouchedtime[array_x][array_z]=0;
     	}
     }
+    
+    public static void setWholeWorldToMaxUntouchedTime(World world){
+    	for(int i=0;i<RestoreNaturePlugin.maintain_world_chunk_info.size();i++){
+    		MapChunkInfo mcinfo = RestoreNaturePlugin.maintain_world_chunk_info.get(i);
+        	if(world.getName().equals(mcinfo.world_name)){
+        		mcinfo.now_min_x=0;
+        		mcinfo.now_min_z=0;
+        		for(int x=0;x<mcinfo.max_x;x++){
+        			for(int z=0;z<mcinfo.max_z;z++){
+        				mcinfo.chunk_untouchedtime[x][z] = RestoreNaturePlugin.MAX_SECONDS_UNTOUCHED+1;
+        			}
+        		}
+        	}
+    	}
+    }
+
+    public static int convertArrayIdxToChunkIdx(int x){
+	    int chunk_x =0;
+	    int bool_mod_2;
+	    if(x%2==1){
+	    	bool_mod_2 = -1;
+	    }
+	    else{
+	      bool_mod_2 = 1;
+	    }
+	    chunk_x = (-1)*bool_mod_2*((x+1)/2);
+	    return chunk_x;
+
+  	}
+	public static int convertChunkIdxToArrayIdx(int chunk_x){
+	    int x=0;
+	    int bool_gtz;
+	    if(chunk_x>0){
+	        bool_gtz = -1;
+	    }
+	    else{
+	      bool_gtz = 0;
+	    }
+	    x = Math.abs(chunk_x)*2+bool_gtz;
+	    return x;
+
+	}
 }

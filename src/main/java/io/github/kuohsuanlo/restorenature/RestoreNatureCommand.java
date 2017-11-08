@@ -25,9 +25,9 @@ import io.github.kuohsuanlo.restorenature.util.RestoreNatureUtil;
  
 public class RestoreNatureCommand implements CommandExecutor {
     @SuppressWarnings("deprecation")
-    private RestoreNaturePlugin rnplugin;
+    private RestoreNaturePlugin RestoreNaturePlugin;
     public RestoreNatureCommand(RestoreNaturePlugin plugin){
-    	rnplugin = plugin;
+    	RestoreNaturePlugin = plugin;
     }
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 
@@ -76,7 +76,7 @@ public class RestoreNatureCommand implements CommandExecutor {
 			    	}
 		    		else if (args[0].equals("rnworld")){
 		    			 if (sender.hasPermission("restorenature.rnworld")){
-		    				 rnplugin.rnworld(player);
+		    				 RestoreNatureUtil.setWholeWorldToMaxUntouchedTime(player.getWorld());
 		    				 return true;
 		    			 }
 		    			 else{
@@ -93,16 +93,16 @@ public class RestoreNatureCommand implements CommandExecutor {
 					         Chunk player_chunk = player.getWorld().getChunkAt(player_location);
 					         Chunk restoring_chunk = sender.getServer().getWorld(player_world_name+RestoreNaturePlugin.WORLD_SUFFIX).getChunkAt(player_location) ;
 
-		 					if(!rnplugin.BukkitSchedulerSuck.checkLocationClaimed(player_chunk)){ // Land not claimed
+		 					if(!RestoreNaturePlugin.BukkitSchedulerSuck.checkLocationClaimed(player_chunk)){ // Land not claimed
 						         
-						     	for(int i=0;i<rnplugin.maintain_world_chunk_info.size();i++){
-						     		if(player_world_name.equals( rnplugin.maintain_world_chunk_info.get(i).world_name)){
+						     	for(int i=0;i<RestoreNaturePlugin.maintain_world_chunk_info.size();i++){
+						     		if(player_world_name.equals( RestoreNaturePlugin.maintain_world_chunk_info.get(i).world_name)){
 
-							    		MapChunkInfo chunksInfo = rnplugin.maintain_world_chunk_info.get(i);
-							    		int x = rnplugin.transformation_from_chunkidx_to_arrayidx(player_chunk.getX());
-							    		int z = rnplugin.transformation_from_chunkidx_to_arrayidx(player_chunk.getZ());
+							    		MapChunkInfo chunksInfo = RestoreNaturePlugin.maintain_world_chunk_info.get(i);
+							    		int x = RestoreNatureUtil.convertChunkIdxToArrayIdx(player_chunk.getX());
+							    		int z = RestoreNatureUtil.convertChunkIdxToArrayIdx(player_chunk.getZ());
 
-							    		if(chunksInfo.chunk_untouchedtime[x][z]>=rnplugin.MAX_SECONDS_UNTOUCHED){
+							    		if(chunksInfo.chunk_untouchedtime[x][z]>=RestoreNaturePlugin.MAX_SECONDS_UNTOUCHED){
 							    			RestoreNatureUtil.restoreChunk(player_chunk,restoring_chunk,chunksInfo,x,z);
 								        	
 								        	sender.sendMessage(ChatColor.YELLOW+"Chunk successfully restored on world chunk : "+player_world_name+" "+restoring_chunk.getX()+" ; "+restoring_chunk.getZ());	
@@ -111,7 +111,7 @@ public class RestoreNatureCommand implements CommandExecutor {
 
 										}
 							    		else{
-							    			sender.sendMessage(ChatColor.YELLOW+"Chunk untouch time not enough : "+chunksInfo.chunk_untouchedtime[x][z]+" < "+rnplugin.MAX_SECONDS_UNTOUCHED);	
+							    			sender.sendMessage(ChatColor.YELLOW+"Chunk untouch time not enough : "+chunksInfo.chunk_untouchedtime[x][z]+" < "+RestoreNaturePlugin.MAX_SECONDS_UNTOUCHED);	
 								            return true; 
 							    		}
 						     		}

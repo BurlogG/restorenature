@@ -53,7 +53,7 @@ public class RestoreNatureTaskQueue implements Runnable {
     	if(TaskQueue.size()>0){
         	Chunk restored = TaskQueue.poll();
         	Chunk natrue = rnplugin.getServer().getWorld( restored.getWorld().getName()+RestoreNaturePlugin.WORLD_SUFFIX).getChunkAt(restored.getX(),restored.getZ());
-        	RestoreNatureUtil.restoreChunk(restored,natrue,rnplugin.getMapChunkInfo(restored.getWorld().getName()),rnplugin.transformation_from_chunkidx_to_arrayidx(restored.getX()),rnplugin.transformation_from_chunkidx_to_arrayidx(restored.getZ()));
+        	RestoreNatureUtil.restoreChunk(restored,natrue,rnplugin.getMapChunkInfoFromWorldName(restored.getWorld().getName()),RestoreNatureUtil.convertChunkIdxToArrayIdx(restored.getX()),RestoreNatureUtil.convertChunkIdxToArrayIdx(restored.getZ()));
         	rnplugin.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"TaskQueue done task : "+restored.getWorld().getName()+" "+restored.getX()+" "+restored.getZ());
 
 			
