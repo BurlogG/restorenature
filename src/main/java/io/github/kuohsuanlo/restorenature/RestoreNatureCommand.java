@@ -56,7 +56,8 @@ public class RestoreNatureCommand implements CommandExecutor {
 
 		    		if (args[0].equals("mr")){
 				        if (sender.hasPermission("restorenature.manualrestore")){
-			    			Location player_location = player.getLocation();
+
+				        	Location player_location = player.getLocation();
 				        	String player_world_name = player.getWorld().getName();
 				        	
 				        	Chunk player_chunk = player.getWorld().getChunkAt(player_location);
@@ -93,12 +94,13 @@ public class RestoreNatureCommand implements CommandExecutor {
 					         Chunk player_chunk = player.getWorld().getChunkAt(player_location);
 					         Chunk restoring_chunk = sender.getServer().getWorld(player_world_name+RestoreNaturePlugin.WORLD_SUFFIX).getChunkAt(player_location) ;
 
-		 					if(!RestoreNaturePlugin.BukkitSchedulerSuck.checkLocationClaimed(player_chunk)){ // Land not claimed
+		 					if(!RestoreNaturePlugin.ChunkUpdater.checkLocationClaimed(player_chunk)){ // Land not claimed
 						         
 						     	for(int i=0;i<RestoreNaturePlugin.maintain_world_chunk_info.size();i++){
 						     		if(player_world_name.equals( RestoreNaturePlugin.maintain_world_chunk_info.get(i).world_name)){
-
-							    		MapChunkInfo chunksInfo = RestoreNaturePlugin.maintain_world_chunk_info.get(i);
+						     			if(!RestoreNatureUtil.isValidLocation(player_chunk, RestoreNaturePlugin.maintain_world_chunk_info.get(i))) continue;
+							    		
+						     			MapChunkInfo chunksInfo = RestoreNaturePlugin.maintain_world_chunk_info.get(i);
 							    		int x = RestoreNatureUtil.convertChunkIdxToArrayIdx(player_chunk.getX());
 							    		int z = RestoreNatureUtil.convertChunkIdxToArrayIdx(player_chunk.getZ());
 
@@ -128,7 +130,49 @@ public class RestoreNatureCommand implements CommandExecutor {
 								return false;
 		    			 }
 		    		}
+		    		else if (args[0].equals("check")){
+		    			 if (sender.hasPermission("restorenature.rnworld")){
+		    				 
+		    				 Location player_location = player.getLocation();
+					         String player_world_name = player.getWorld().getName();
+					        	
+					         Chunk player_chunk = player.getWorld().getChunkAt(player_location);
+					         
+		 					if(!RestoreNaturePlugin.ChunkUpdater.checkLocationClaimed(player_chunk)){ // Land not claimed
+						         
+						     	for(int i=0;i<RestoreNaturePlugin.maintain_world_chunk_info.size();i++){
+						     		if(player_world_name.equals( RestoreNaturePlugin.maintain_world_chunk_info.get(i).world_name)){
+						     			if(!RestoreNatureUtil.isValidLocation(player_chunk, RestoreNaturePlugin.maintain_world_chunk_info.get(i))) continue;
+							    		
+							    		MapChunkInfo chunksInfo = RestoreNaturePlugin.maintain_world_chunk_info.get(i);
+							    		int x = RestoreNatureUtil.convertChunkIdxToArrayIdx(player_chunk.getX());
+							    		int z = RestoreNatureUtil.convertChunkIdxToArrayIdx(player_chunk.getZ());
 
+							    		if(chunksInfo.chunk_untouchedtime[x][z]>=RestoreNaturePlugin.MAX_SECONDS_UNTOUCHED){
+							    			sender.sendMessage(ChatColor.YELLOW+"Chunk untouch time : "+chunksInfo.chunk_untouchedtime[x][z]+" >= "+RestoreNaturePlugin.MAX_SECONDS_UNTOUCHED);	
+								            return true;    
+							    			
+
+										}
+							    		else{
+							    			sender.sendMessage(ChatColor.YELLOW+"Chunk untouch time : "+chunksInfo.chunk_untouchedtime[x][z]+" < "+RestoreNaturePlugin.MAX_SECONDS_UNTOUCHED);	
+								            return true; 
+							    		}
+						     		}
+						     	}
+		 					}
+		 					else{
+				    			sender.sendMessage(ChatColor.YELLOW+"Chunk claimed");	
+					            return true; 
+		 					}
+		 					
+		    			 }
+		    			 else{
+								sender.sendMessage(ChatColor.RED+"You don't have the permission.");
+								return false;
+		    			 }
+		    		}
+		    		
 		        }
 		        
 	        }

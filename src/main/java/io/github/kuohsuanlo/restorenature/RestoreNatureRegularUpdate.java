@@ -30,7 +30,6 @@ import java.time.Instant;
 
 class RestoreNatureRegularUpdate implements Runnable {
 	private int max_time_in_seconds;
-	private int period_in_seconds;
 	private RestoreNaturePlugin RestoreNaturePlugin;
 	public ArrayList<MapChunkInfo> maintained_worlds = new ArrayList<MapChunkInfo>();
 
@@ -46,9 +45,8 @@ class RestoreNatureRegularUpdate implements Runnable {
 	public static final int chunk_center_y = 64;
 	public static final int chunk_center_z = 8;
 	public long last_time=Instant.now().getEpochSecond(); 
-    public RestoreNatureRegularUpdate(int period,int max_time,ArrayList<MapChunkInfo> existing_worlds,RestoreNaturePlugin plugin) {
+    public RestoreNatureRegularUpdate(int max_time,ArrayList<MapChunkInfo> existing_worlds,RestoreNaturePlugin plugin) {
     	max_time_in_seconds = max_time;
-    	period_in_seconds = period;
     	RestoreNaturePlugin= plugin;
 	
     	maintained_worlds = existing_worlds;
@@ -141,14 +139,15 @@ class RestoreNatureRegularUpdate implements Runnable {
         	for(int x=chunksInfo.now_min_x; x < chunksInfo.now_min_x+RestoreNaturePlugin.CHECK_RADIUS_PER_PERIOD; x++){
     		    for(int z=chunksInfo.now_min_z; z < chunksInfo.now_min_z+RestoreNaturePlugin.CHECK_RADIUS_PER_PERIOD; z++){
     		    
-
+    		    	if(!RestoreNatureUtil.isInRadius(x, z, chunksInfo.chunk_radius)) continue;
+    		    	
     		    	int chunk_x = RestoreNatureUtil.convertArrayIdxToChunkIdx(x);
     		    	int chunk_z = RestoreNatureUtil.convertArrayIdxToChunkIdx(z);
     		    	Chunk checked_chunk = RestoreNaturePlugin.getServer().getWorld(chunksInfo.world_name).getChunkAt(chunk_x, chunk_z);
 					if(!checkLocationClaimed(checked_chunk)){ // Land not claimed
 						if(chunksInfo.chunk_untouchedtime[x][z]>=max_time_in_seconds){
 
-							if(RestoreNaturePlugin.RestoringTaskQueue.addTask(checked_chunk)){
+							if(RestoreNaturePlugin.ChunkTimeTicker.addTask(checked_chunk)){
 								restore_chunks_number++;
 								//chunksInfo.chunk_untouchedtime[x][z]=0;
 							}

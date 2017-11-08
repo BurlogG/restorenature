@@ -26,6 +26,15 @@ public class RestoreNatureUtil {
 		restoredBlock.setData(restoringBlock.getData());
     	
 	}
+	public static boolean isInRadius(int chunkx, int chunkz, int radius){
+		return chunkx*chunkx+chunkz*chunkz<=radius*radius;
+	}
+	public static boolean isValidLocation(Chunk chunk,MapChunkInfo cinfo){
+		int x = RestoreNatureUtil.convertChunkIdxToArrayIdx(chunk.getX());
+		int z = RestoreNatureUtil.convertChunkIdxToArrayIdx(chunk.getZ());
+		if(x>cinfo.max_x  ||  z>cinfo.max_z) return false;
+		return true;
+	}
 	private static void restoreChunkDetails(Chunk restoring_chunk, Chunk player_chunk, int x, int y, int z ){
 		if(restoring_chunk.getBlock(x, y, z).getType().equals(Material.MOB_SPAWNER)){
     		CreatureSpawner restoring_spawner = (CreatureSpawner) restoring_chunk.getBlock(x, y, z).getState();
