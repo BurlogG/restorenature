@@ -94,7 +94,7 @@ public class RestoreNatureCommand implements CommandExecutor {
 					         Chunk player_chunk = player.getWorld().getChunkAt(player_location);
 					         Chunk restoring_chunk = sender.getServer().getWorld(player_world_name+RestoreNaturePlugin.WORLD_SUFFIX).getChunkAt(player_location) ;
 
-		 					if(!RestoreNaturePlugin.ChunkUpdater.checkLocationClaimed(player_chunk)){ // Land not claimed
+		 					if(!RestoreNaturePlugin.ChunkUpdater.checkLocationClaimed(player_location)){ // Land not claimed
 						         
 						     	for(int i=0;i<RestoreNaturePlugin.maintain_world_chunk_info.size();i++){
 						     		if(player_world_name.equals( RestoreNaturePlugin.maintain_world_chunk_info.get(i).world_name)){
@@ -138,7 +138,7 @@ public class RestoreNatureCommand implements CommandExecutor {
 					        	
 					         Chunk player_chunk = player.getWorld().getChunkAt(player_location);
 					         
-		 					if(!RestoreNaturePlugin.ChunkUpdater.checkLocationClaimed(player_chunk)){ // Land not claimed
+		 					if(!RestoreNaturePlugin.ChunkUpdater.checkLocationClaimed(player_location)){ // Land not claimed
 						         
 						     	for(int i=0;i<RestoreNaturePlugin.maintain_world_chunk_info.size();i++){
 						     		if(player_world_name.equals( RestoreNaturePlugin.maintain_world_chunk_info.get(i).world_name)){

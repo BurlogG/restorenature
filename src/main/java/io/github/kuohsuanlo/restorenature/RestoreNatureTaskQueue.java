@@ -27,7 +27,7 @@ import io.github.kuohsuanlo.restorenature.util.RestoreNatureUtil;
 
 public class RestoreNatureTaskQueue implements Runnable {
 
-	public Queue<Chunk> TaskQueue = new LinkedList<Chunk>();
+	public Queue<Location> TaskQueue = new LinkedList<Location>();
 	public RestoreNaturePlugin rnplugin;
 	public int MAX_TASK_IN_QUEUE ;
 
@@ -36,22 +36,23 @@ public class RestoreNatureTaskQueue implements Runnable {
     	MAX_TASK_IN_QUEUE=0;
     	for(int i=0;i<rnplugin.config_maintain_worlds.size();i++){
     		int cr = rnplugin.config_maintain_worlds.get(i).chunk_radius;
-    		MAX_TASK_IN_QUEUE+= (2*cr+1)*(2*cr+1);
+    		MAX_TASK_IN_QUEUE+= Math.round(cr*cr*Math.PI);
     	}
     	rnplugin.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"Maximum number of tasks could be in TaskQueue : "+MAX_TASK_IN_QUEUE);
 
 		
     }
-	public boolean addTask(Chunk newTask){
+	public boolean addTask(Location ChunkMid){
 		if(TaskQueue.size()<MAX_TASK_IN_QUEUE){
-			TaskQueue.add(newTask);
+			TaskQueue.add(ChunkMid);
 			return true;
 		}
 		return false;
 	}
     public void run() {
     	if(TaskQueue.size()>0){
-        	Chunk restored = TaskQueue.poll();
+    		Location location = TaskQueue.poll();
+        	Chunk restored = location.getChunk();
         	Chunk natrue = rnplugin.getServer().getWorld( restored.getWorld().getName()+RestoreNaturePlugin.WORLD_SUFFIX).getChunkAt(restored.getX(),restored.getZ());
         	RestoreNatureUtil.restoreChunk(restored,natrue,rnplugin.getMapChunkInfoFromWorldName(restored.getWorld().getName()),RestoreNatureUtil.convertChunkIdxToArrayIdx(restored.getX()),RestoreNatureUtil.convertChunkIdxToArrayIdx(restored.getZ()));
         	rnplugin.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"TaskQueue done task : "+restored.getWorld().getName()+" "+restored.getX()+" "+restored.getZ());

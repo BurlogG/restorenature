@@ -55,7 +55,7 @@ public class RestoreNaturePlugin extends JavaPlugin {
 
     public static int BLOCK_EVENT_EFFECTING_RADIUS = 1;
 	public static int CHECK_RADIUS_PER_PERIOD = 1;
-    public static int RESTORING_PERIOD_SECONDS = 1;
+    public static int RESTORING_PERIOD_TICKS = 5;
     
     public static boolean USING_FEATURE_FACTION = true;
     public static boolean USING_FEATURE_GRIEFPREVENTION = true;
@@ -131,7 +131,7 @@ public class RestoreNaturePlugin extends JavaPlugin {
     	config.addDefault("MAX_SECONDS_UNTOUCHED",MAX_SECONDS_UNTOUCHED);
     	config.addDefault("BLOCK_EVENT_EFFECTING_RADIUS",BLOCK_EVENT_EFFECTING_RADIUS);
     	config.addDefault("CHECK_RADIUS_PER_PERIOD",CHECK_RADIUS_PER_PERIOD);
-    	config.addDefault("RESTORING_PERIOD_SECONDS",RESTORING_PERIOD_SECONDS);
+    	config.addDefault("RESTORING_PERIOD_TICKS",RESTORING_PERIOD_TICKS);
     	config.addDefault("USING_FEATURE_FACTION",USING_FEATURE_FACTION);
     	config.addDefault("USING_FEATURE_GRIEFPREVENTION",USING_FEATURE_GRIEFPREVENTION);
     	config.addDefault("ONLY_RESTORE_AIR",ONLY_RESTORE_AIR);
@@ -145,7 +145,7 @@ public class RestoreNaturePlugin extends JavaPlugin {
     	config.addDefault("MAX_SECONDS_UNTOUCHED",MAX_SECONDS_UNTOUCHED);
     	config.addDefault("BLOCK_EVENT_EFFECTING_RADIUS",1);
     	config.addDefault("CHECK_RADIUS_PER_PERIOD",CHECK_RADIUS_PER_PERIOD);
-    	config.addDefault("RESTORING_PERIOD_SECONDS",RESTORING_PERIOD_SECONDS);
+    	config.addDefault("RESTORING_PERIOD_TICKS",RESTORING_PERIOD_TICKS);
     	config.addDefault("USING_FEATURE_FACTION",USING_FEATURE_FACTION);
     	config.addDefault("USING_FEATURE_GRIEFPREVENTION",USING_FEATURE_GRIEFPREVENTION);
     	config.addDefault("ONLY_RESTORE_AIR",ONLY_RESTORE_AIR);
@@ -153,7 +153,7 @@ public class RestoreNaturePlugin extends JavaPlugin {
     	MAX_SECONDS_UNTOUCHED 			= config.getInt("MAX_SECONDS_UNTOUCHED");
     	BLOCK_EVENT_EFFECTING_RADIUS 	= config.getInt("BLOCK_EVENT_EFFECTING_RADIUS");
     	CHECK_RADIUS_PER_PERIOD 		= config.getInt("CHECK_RADIUS_PER_PERIOD");
-    	RESTORING_PERIOD_SECONDS 		= config.getInt("RESTORING_PERIOD_SECONDS");
+    	RESTORING_PERIOD_TICKS 		= config.getInt("RESTORING_PERIOD_TICKS");
     	USING_FEATURE_FACTION 			= config.getBoolean("USING_FEATURE_FACTION");
     	USING_FEATURE_GRIEFPREVENTION 	= config.getBoolean("USING_FEATURE_GRIEFPREVENTION");
     	ONLY_RESTORE_AIR 				= config.getBoolean("ONLY_RESTORE_AIR");
@@ -260,11 +260,12 @@ public class RestoreNaturePlugin extends JavaPlugin {
     private void startUpdaterRoutine(){
     	Bukkit.getServer().getScheduler().cancelTask(UpdaterId);
     	ChunkUpdater = new RestoreNatureRegularUpdate(MAX_SECONDS_UNTOUCHED,maintain_world_chunk_info,this);
-        UpdaterId = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, ChunkUpdater, 0, 20);
+        //UpdaterId = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, ChunkUpdater, 0, RESTORING_PERIOD_TICKS);
+        UpdaterId = Bukkit.getServer().getScheduler().scheduleAsyncRepeatingTask(this, ChunkUpdater, 0, RESTORING_PERIOD_TICKS);
         
     	Bukkit.getServer().getScheduler().cancelTask(TickerId);
         ChunkTimeTicker = new RestoreNatureTaskQueue(this);
-        TickerId = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, ChunkTimeTicker, 0, 20*RESTORING_PERIOD_SECONDS);
+        TickerId = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, ChunkTimeTicker, 0, RESTORING_PERIOD_TICKS);
 
     }
     public MapChunkInfo getMapChunkInfoFromWorldName(String world_name){
