@@ -261,7 +261,7 @@ public class RestoreNaturePlugin extends JavaPlugin {
     	Bukkit.getServer().getScheduler().cancelTask(UpdaterId);
     	ChunkUpdater = new RestoreNatureRegularUpdate(MAX_SECONDS_UNTOUCHED,maintain_world_chunk_info,this);
         //UpdaterId = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, ChunkUpdater, 0, RESTORING_PERIOD_TICKS);
-        UpdaterId = Bukkit.getServer().getScheduler().scheduleAsyncRepeatingTask(this, ChunkUpdater, 0, RESTORING_PERIOD_TICKS);
+        UpdaterId = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, ChunkUpdater, 0, RESTORING_PERIOD_TICKS);
         
     	Bukkit.getServer().getScheduler().cancelTask(TickerId);
         ChunkTimeTicker = new RestoreNatureTaskQueue(this);

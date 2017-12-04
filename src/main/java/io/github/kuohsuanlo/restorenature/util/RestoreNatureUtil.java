@@ -26,8 +26,8 @@ public class RestoreNatureUtil {
 		restoredBlock.setData(restoringBlock.getData());
     	
 	}
-	public static boolean isInRadius(int chunkx, int chunkz, int radius){
-		return chunkx*chunkx+chunkz*chunkz<=radius*radius;
+	public static boolean isInRadius(int x,int z, int radius){
+		return x*x+z*z<=radius*radius;
 	}
 	public static boolean isValidLocation(Chunk chunk,MapChunkInfo cinfo){
 		int x = RestoreNatureUtil.convertChunkIdxToArrayIdx(chunk.getX());

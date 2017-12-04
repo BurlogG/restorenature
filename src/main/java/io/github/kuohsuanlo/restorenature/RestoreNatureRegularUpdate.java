@@ -1,5 +1,3 @@
-
-
 package io.github.kuohsuanlo.restorenature;
 
 import java.io.Serializable;
@@ -191,14 +189,12 @@ class RestoreNatureRegularUpdate implements Runnable {
 	    	Location ChunkMid = new Location(Bukkit.getServer().getWorld(chunksInfo.world_name),chunk_x*16+8,60,chunk_z*16+8);
 			if(!checkLocationClaimed(ChunkMid)){ // Land not claimed
 				if(chunksInfo.chunk_untouchedtime[x][z]>=max_time_in_seconds){
-
 					if(RestoreNaturePlugin.ChunkTimeTicker.addTask(ChunkMid)){
 						//chunksInfo.chunk_untouchedtime[x][z]=0;
 					}
 					else{
 						RestoreNaturePlugin.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"Maximum number of tasks in TaskQueue reached. Please increase CHECK_PERIOD_IN_SECONDS" );
 						}
-
 					}
 				}
 				
