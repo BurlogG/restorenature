@@ -34,6 +34,11 @@ public class RestoreNatureDequeuer implements Runnable {
 	public int MAX_TASK_IN_QUEUE ;
 	public int processCount = 1;
 	public int currentCount = 0;
+	
+	public double lastSecondTPS = 20;
+	public int tpsCount = 20;
+	public int tpsCurrentCount = 0;
+	
     public RestoreNatureDequeuer(RestoreNaturePlugin plugin) {
     	rnplugin = plugin;
     	MAX_TASK_IN_QUEUE=0;
@@ -53,6 +58,12 @@ public class RestoreNatureDequeuer implements Runnable {
 		return false;
 	}
     public void run() {
+    	tpsCurrentCount++;
+    	if(tpsCurrentCount>=tpsCount){
+    		tpsCurrentCount=0;
+    		lastSecondTPS = Lag.getTPS();
+    	}
+    	
     	currentCount++;
     	processCount = calculateProcessCount();
     	if(currentCount>=processCount){
@@ -63,23 +74,23 @@ public class RestoreNatureDequeuer implements Runnable {
 
     }
     private int calculateProcessCount(){
-    	if(Lag.getTPS()>=19){
+    	if(lastSecondTPS>=19){
     		return 1;
     	}
-    	else if(Lag.getTPS()>=18){
+    	else if(lastSecondTPS>=18){
     		return 4;
     	}
-    	else if(Lag.getTPS()>=17){
-    		return 12;
-    	}
-    	else if(Lag.getTPS()>=16){
+    	else if(lastSecondTPS>=17){
     		return 20;
     	}
-    	else if(Lag.getTPS()>=15){
+    	else if(lastSecondTPS>=16){
     		return 40;
     	}
-    	else if(Lag.getTPS()>=14){
-    		return 80;
+    	else if(lastSecondTPS>=15){
+    		return 160;
+    	}
+    	else if(lastSecondTPS>=14){
+    		return 400;
     	}
     	else{
     		return 1000;

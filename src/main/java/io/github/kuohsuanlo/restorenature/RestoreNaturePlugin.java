@@ -157,7 +157,8 @@ public class RestoreNaturePlugin extends JavaPlugin {
     	OUT_OF_BOUND = config.getString("OUT_OF_BOUND");
     	CLAIMED = config.getString("CLAIMED");
     	
-    	
+
+		Verbosity = config.getInt("Verbosity");
     	MAX_SECONDS_UNTOUCHED 			= config.getInt("MAX_SECONDS_UNTOUCHED");
     	BLOCK_EVENT_EFFECTING_RADIUS 	= config.getInt("BLOCK_EVENT_EFFECTING_RADIUS");
     	USING_FEATURE_FACTION 			= config.getBoolean("USING_FEATURE_FACTION");

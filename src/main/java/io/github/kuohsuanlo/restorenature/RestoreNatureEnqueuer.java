@@ -47,6 +47,11 @@ class RestoreNatureEnqueuer implements Runnable {
 	public int processCount = 1;
 	public int currentCount = 0;
 	
+	public double lastSecondTPS = 20;
+	public int tpsCount = 20;
+	public int tpsCurrentCount = 0;
+	
+	
 	public long last_time=Instant.now().getEpochSecond(); 
     public RestoreNatureEnqueuer(int max_time,ArrayList<MapChunkInfo> existing_worlds,RestoreNaturePlugin plugin) {
     	max_time_in_seconds = max_time;
@@ -57,6 +62,12 @@ class RestoreNatureEnqueuer implements Runnable {
     }
     
     public void run() {
+    	tpsCurrentCount++;
+    	if(tpsCurrentCount>=tpsCount){
+    		tpsCurrentCount=0;
+    		lastSecondTPS = Lag.getTPS();
+    	}
+    	
     	currentCount++;
     	processCount = calculateProcessCount();
     	if(currentCount>=processCount){
@@ -94,8 +105,8 @@ class RestoreNatureEnqueuer implements Runnable {
     	    	if(!checkLocationClaimed(ChunkMid)){ // Land not claimed
     				if(chunksInfo.chunk_untouchedtime[x][z]>=max_time_in_seconds){
     					if(RestoreNaturePlugin.ChunkTimeTicker.addTask(ChunkMid)){
-    						Bukkit.getServer().getConsoleSender().sendMessage(
-    		    					RestoreNaturePlugin.PLUGIN_PREFIX+"TaskQueue add task : "+ ChunkMid.getWorld().getName()+" "+
+    						if(RestoreNaturePlugin.Verbosity>=1)
+    							Bukkit.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"TaskQueue add task : "+ ChunkMid.getWorld().getName()+" "+
     		    			RestoreNatureUtil.convertArrayIdxToChunkIdx(x)+" "+
     		    			RestoreNatureUtil.convertArrayIdxToChunkIdx(z));
 
@@ -171,28 +182,28 @@ class RestoreNatureEnqueuer implements Runnable {
 	
 		
 	}
-   private int calculateProcessCount(){
-    	if(Lag.getTPS()>=19){
-    		return 1;
-    	}
-    	else if(Lag.getTPS()>=18){
-    		return 4;
-    	}
-    	else if(Lag.getTPS()>=17){
-    		return 12;
-    	}
-    	else if(Lag.getTPS()>=16){
-    		return 20;
-    	}
-    	else if(Lag.getTPS()>=15){
-    		return 40;
-    	}
-    	else if(Lag.getTPS()>=14){
-    		return 80;
-    	}
-    	else{
-    		return 1000;
-    	}
+	private int calculateProcessCount(){
+	   	if(lastSecondTPS>=19){
+			return 1;
+		}
+		else if(lastSecondTPS>=18){
+			return 4;
+		}
+		else if(lastSecondTPS>=17){
+			return 20;
+		}
+		else if(lastSecondTPS>=16){
+			return 40;
+		}
+		else if(lastSecondTPS>=15){
+			return 160;
+		}
+		else if(lastSecondTPS>=14){
+			return 400;
+		}
+		else{
+			return 1000;
+		}
     }
 	public boolean checkLocationClaimed(Location location){
     	
