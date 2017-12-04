@@ -164,7 +164,7 @@ public class RestoreNatureCommand implements CommandExecutor {
 						     	}
 		 					}
 		 					else{
-				    			sender.sendMessage(ChatColor.YELLOW+"Chunk claimed");	
+		 						sender.sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+RestoreNaturePlugin.CLAIMED);
 					            return true; 
 		 					}
 		 					
