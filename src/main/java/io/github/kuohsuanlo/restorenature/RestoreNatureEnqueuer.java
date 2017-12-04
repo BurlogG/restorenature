@@ -19,6 +19,7 @@ import com.massivecraft.factions.entity.Faction;
 import com.massivecraft.factions.entity.FactionColl;
 import com.massivecraft.massivecore.ps.PS;
 
+import io.github.kuohsuanlo.restorenature.util.Lag;
 import io.github.kuohsuanlo.restorenature.util.RestoreNatureUtil;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
@@ -27,7 +28,7 @@ import java.time.Instant;
 
 
 
-class RestoreNatureRegularUpdate implements Runnable {
+class RestoreNatureEnqueuer implements Runnable {
 	private int max_time_in_seconds;
 	private RestoreNaturePlugin RestoreNaturePlugin;
 	public ArrayList<MapChunkInfo> maintained_worlds = new ArrayList<MapChunkInfo>();
@@ -43,82 +44,31 @@ class RestoreNatureRegularUpdate implements Runnable {
 	public static final int chunk_center_x = 8;
 	public static final int chunk_center_y = 64;
 	public static final int chunk_center_z = 8;
+	public int processCount = 1;
+	public int currentCount = 0;
+	
 	public long last_time=Instant.now().getEpochSecond(); 
-    public RestoreNatureRegularUpdate(int max_time,ArrayList<MapChunkInfo> existing_worlds,RestoreNaturePlugin plugin) {
+    public RestoreNatureEnqueuer(int max_time,ArrayList<MapChunkInfo> existing_worlds,RestoreNaturePlugin plugin) {
     	max_time_in_seconds = max_time;
     	RestoreNaturePlugin= plugin;
 	
     	maintained_worlds = existing_worlds;
 
     }
-    public boolean checkLocationClaimed(Location location){
-    	
-        	
-        	if(RestoreNaturePlugin.USING_FEATURE_FACTION){
-            	faction = BoardColl.get().getFactionAt(PS.valueOf(location));
-        	}
-        	
-        	if(RestoreNaturePlugin.USING_FEATURE_GRIEFPREVENTION){
-        		gp = GriefPrevention.instance;
-        	}
-        	
-        	boolean fc_claimed = true;
-        	boolean gp_claimed = true;
-        	for(int i=0;i<maintained_worlds.size();i++){
-        		if(location.getWorld().getName().equals(maintained_worlds.get(i).world_name)){
-            		if(maintained_worlds.get(i).factions_name.size()==0){
-            			fc_claimed = false;
-            		}
-            		else{
-                		for(int j=0;j<maintained_worlds.get(i).factions_name.size();j++){
-                        	if(faction==null){
-                        		fc_claimed = false;
-                        	}else if(faction.getName().equals(maintained_worlds.get(i).factions_name.get(j))){
-                        		fc_claimed = false;
-                        		
-                        	}
-                        	
-                        	if(gp==null){
-                        		gp_claimed = false;
-                        	}
-                        	else{
-                        		boolean isOthersLand = false;
-                        		for(int x=-8;x<8;x++){
-                        			for(int z=-8;z<8;z++){
-                        				Claim claim = gp.dataStore.getClaimAt(
-                        						location.clone().add(x, 0, z), true, null
-												);
-                        				
-                        				//no one's land
-                        				if(claim==null){
-                        					
-                        				}
-                        				//someone's land
-                        				else{
-                        					//System.out.println(claim.getOwnerName());
-                            				isOthersLand = isOthersLand  ||  ( !claim.getOwnerName().equals(notClaimedOwner) );
-                            				
-                        				}
-                        				
-                        				if(isOthersLand) break;
-                        			}
-                        			if(isOthersLand) break;
-                        		}
-                        		gp_claimed = isOthersLand;
-                        		//System.out.println(gp_claimed);
-                        	}
-                			
-                		}
-            		}         		
-            	}
-        	}        	
-        	
-        	
-    		return gp_claimed || fc_claimed ;
-
-    }
-
+    
     public void run() {
+    	currentCount++;
+    	processCount = calculateProcessCount();
+    	if(currentCount>=processCount){
+    		currentCount=0;
+    		processRequest();
+    	}
+    	
+    	
+    	
+    	
+    }
+    private void processRequest(){
     	//RestoreNaturePlugin.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"Total # worlds : "+maintained_worlds.size());
     	long now_time = Instant.now().getEpochSecond();
     	for(int i=0;i<maintained_worlds.size();i++){
@@ -151,7 +101,8 @@ class RestoreNatureRegularUpdate implements Runnable {
 
     					}
     					else{
-    						RestoreNaturePlugin.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"Maximum number of tasks in TaskQueue reached. Please increase CHECK_PERIOD_IN_SECONDS" );
+    						if(RestoreNaturePlugin.Verbosity>=1)
+    							RestoreNaturePlugin.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"Maximum number of tasks in TaskQueue reached. Please increase CHECK_PERIOD_IN_SECONDS" );
     					}
 
     				}
@@ -177,33 +128,7 @@ class RestoreNatureRegularUpdate implements Runnable {
         	}
         	
         	
-	    	
-        	
-	    	/*
-	    	if(!RestoreNatureUtil.isInRadius(x, z, chunksInfo.chunk_radius)) continue;
-	    	
-	    	int chunk_x = RestoreNatureUtil.convertArrayIdxToChunkIdx(x);
-	    	int chunk_z = RestoreNatureUtil.convertArrayIdxToChunkIdx(z);
-	    	
-	    	
-	    	Location ChunkMid = new Location(Bukkit.getServer().getWorld(chunksInfo.world_name),chunk_x*16+8,60,chunk_z*16+8);
-			if(!checkLocationClaimed(ChunkMid)){ // Land not claimed
-				if(chunksInfo.chunk_untouchedtime[x][z]>=max_time_in_seconds){
-					if(RestoreNaturePlugin.ChunkTimeTicker.addTask(ChunkMid)){
-						//chunksInfo.chunk_untouchedtime[x][z]=0;
-					}
-					else{
-						RestoreNaturePlugin.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"Maximum number of tasks in TaskQueue reached. Please increase CHECK_PERIOD_IN_SECONDS" );
-						}
-					}
-				}
-				
-    		chunksInfo.now_min_z+=1;
-    		
-    		chunksInfo.now_min_x +=1;
-        	if(chunksInfo.now_min_x >=chunksInfo.max_x){
-        		chunksInfo.now_min_x=0;
-        	}*/
+	    
         	
     	}
     	last_time = Instant.now().getEpochSecond();
@@ -211,8 +136,6 @@ class RestoreNatureRegularUpdate implements Runnable {
 
 
   	
-    	
-    	
     }
 	public void setWorldsChunkUntouchedTime(Block touched_block){
 		
@@ -248,4 +171,94 @@ class RestoreNatureRegularUpdate implements Runnable {
 	
 		
 	}
+   private int calculateProcessCount(){
+    	if(Lag.getTPS()>=19){
+    		return 1;
+    	}
+    	else if(Lag.getTPS()>=18){
+    		return 4;
+    	}
+    	else if(Lag.getTPS()>=17){
+    		return 12;
+    	}
+    	else if(Lag.getTPS()>=16){
+    		return 20;
+    	}
+    	else if(Lag.getTPS()>=15){
+    		return 40;
+    	}
+    	else if(Lag.getTPS()>=14){
+    		return 80;
+    	}
+    	else{
+    		return 1000;
+    	}
+    }
+	public boolean checkLocationClaimed(Location location){
+    	
+    	
+    	if(RestoreNaturePlugin.USING_FEATURE_FACTION){
+        	faction = BoardColl.get().getFactionAt(PS.valueOf(location));
+    	}
+    	
+    	if(RestoreNaturePlugin.USING_FEATURE_GRIEFPREVENTION){
+    		gp = GriefPrevention.instance;
+    	}
+    	
+    	boolean fc_claimed = true;
+    	boolean gp_claimed = true;
+    	for(int i=0;i<maintained_worlds.size();i++){
+    		if(location.getWorld().getName().equals(maintained_worlds.get(i).world_name)){
+        		if(maintained_worlds.get(i).factions_name.size()==0){
+        			fc_claimed = false;
+        		}
+        		else{
+            		for(int j=0;j<maintained_worlds.get(i).factions_name.size();j++){
+                    	if(faction==null){
+                    		fc_claimed = false;
+                    	}else if(faction.getName().equals(maintained_worlds.get(i).factions_name.get(j))){
+                    		fc_claimed = false;
+                    		
+                    	}
+                    	
+                    	if(gp==null){
+                    		gp_claimed = false;
+                    	}
+                    	else{
+                    		boolean isOthersLand = false;
+                    		for(int x=-8;x<8;x++){
+                    			for(int z=-8;z<8;z++){
+                    				Claim claim = gp.dataStore.getClaimAt(
+                    						location.clone().add(x, 0, z), true, null
+											);
+                    				
+                    				//no one's land
+                    				if(claim==null){
+                    					
+                    				}
+                    				//someone's land
+                    				else{
+                    					//System.out.println(claim.getOwnerName());
+                        				isOthersLand = isOthersLand  ||  ( !claim.getOwnerName().equals(notClaimedOwner) );
+                        				
+                    				}
+                    				
+                    				if(isOthersLand) break;
+                    			}
+                    			if(isOthersLand) break;
+                    		}
+                    		gp_claimed = isOthersLand;
+                    		//System.out.println(gp_claimed);
+                    	}
+            			
+            		}
+        		}         		
+        	}
+    	}        	
+    	
+    	
+		return gp_claimed || fc_claimed ;
+
+	}
+
 }

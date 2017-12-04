@@ -148,14 +148,16 @@ public class RestoreNatureCommand implements CommandExecutor {
 							    		int x = RestoreNatureUtil.convertChunkIdxToArrayIdx(player_chunk.getX());
 							    		int z = RestoreNatureUtil.convertChunkIdxToArrayIdx(player_chunk.getZ());
 
-							    		if(chunksInfo.chunk_untouchedtime[x][z]>=RestoreNaturePlugin.MAX_SECONDS_UNTOUCHED){
-							    			sender.sendMessage(ChatColor.YELLOW+"Chunk untouch time : "+chunksInfo.chunk_untouchedtime[x][z]+" >= "+RestoreNaturePlugin.MAX_SECONDS_UNTOUCHED);	
-								            return true;    
-							    			
-
+							    		if (x>chunksInfo.max_x ||  z>chunksInfo.max_z){
+							    			sender.sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+RestoreNaturePlugin.OUT_OF_BOUND+chunksInfo.chunk_radius*16);
+							    		}
+							    		else if(chunksInfo.chunk_untouchedtime[x][z]>=RestoreNaturePlugin.MAX_SECONDS_UNTOUCHED){
+							    			sender.sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+RestoreNaturePlugin.UNTOUCHED_TIME_ENOUGH+chunksInfo.chunk_untouchedtime[x][z]+" >= "+RestoreNaturePlugin.MAX_SECONDS_UNTOUCHED);	
+							    			sender.sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+RestoreNaturePlugin.WILL_BE_RESTORED_SOON);	
+							    			return true;  
 										}
 							    		else{
-							    			sender.sendMessage(ChatColor.YELLOW+"Chunk untouch time : "+chunksInfo.chunk_untouchedtime[x][z]+" < "+RestoreNaturePlugin.MAX_SECONDS_UNTOUCHED);	
+							    			sender.sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+RestoreNaturePlugin.UNTOUCHED_TIME_NOT_ENOUGH+chunksInfo.chunk_untouchedtime[x][z]+" < "+RestoreNaturePlugin.MAX_SECONDS_UNTOUCHED);	
 								            return true; 
 							    		}
 						     		}

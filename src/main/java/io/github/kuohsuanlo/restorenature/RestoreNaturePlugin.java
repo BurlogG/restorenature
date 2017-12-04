@@ -35,6 +35,8 @@ import com.massivecraft.factions.entity.MPlayer;
 import com.massivecraft.massivecore.ps.PS;
 import com.massivecraft.massivecore.xlib.mongodb.util.JSON;
 
+import io.github.kuohsuanlo.restorenature.util.Lag;
+
 
 class Maintained_World{
 	public String world_name = "";
@@ -49,14 +51,12 @@ class Maintained_World{
 
 public class RestoreNaturePlugin extends JavaPlugin {
 
-	public static String PLUGIN_PREFIX = "[RestoreNature] : ";
+	
     public static final String WORLD_SUFFIX = "_rs";
     public static int MAX_SECONDS_UNTOUCHED = 864000;
 
-    public static int BLOCK_EVENT_EFFECTING_RADIUS = 1;
-	public static int CHECK_RADIUS_PER_PERIOD = 1;
-    public static int RESTORING_PERIOD_TICKS = 5;
-    
+    public static int BLOCK_EVENT_EFFECTING_RADIUS = 2;
+    public static int Verbosity = 0; 
     public static boolean USING_FEATURE_FACTION = true;
     public static boolean USING_FEATURE_GRIEFPREVENTION = true;
     public static boolean ONLY_RESTORE_AIR = true;
@@ -65,13 +65,24 @@ public class RestoreNaturePlugin extends JavaPlugin {
     public static final String VERSION = "1.0.1a";
     public static final String DEFAULT_WORLDS_INFO = "{\"maintained_worlds\":[{\"world_name\": \"my_cool_world\",\"check_radius\": \""+200+"\",\"nature_factions\": [{\"faction_name\": \"Wilderness\"},{\"faction_name\": \"some_resource_area_faction\"}]},{\"world_name\": \"my_wrecked_nether\",\"check_radius\": \""+200+"\",\"nature_factions\": []}]}";
     
+    public static String PLUGIN_PREFIX = "[RestoreNature] : ";
+    public static String UNTOUCHED_TIME_NOT_ENOUGH = "Untouched time not enough. Time in seconds : ";
+    public static String UNTOUCHED_TIME_ENOUGH = "Untouched time enough.  Time in seconds : ";
+    public static String WILL_BE_RESTORED_SOON = "This chunk would be restored soon!";
+    public static String CLAIMED = "This chunk contains claimed lands!";
+    public static String OUT_OF_BOUND = "This chunk is not in maintained radius : ";
+    
+    
     
     public static ArrayList<Maintained_World> config_maintain_worlds = new ArrayList<Maintained_World>();
 	public static ArrayList<MapChunkInfo> maintain_world_chunk_info = new ArrayList<MapChunkInfo>();
-	public static RestoreNatureRegularUpdate ChunkUpdater; 
+	public static RestoreNatureEnqueuer ChunkUpdater; 
     private static int UpdaterId;
-    public static RestoreNatureTaskQueue ChunkTimeTicker;
+    public static RestoreNatureDequeuer ChunkTimeTicker;
     private static int TickerId;
+    public static Lag LagTicker;
+    private static int TpsCounterId;
+    
     private static RestoreNatureBlockListener blockListener = new RestoreNatureBlockListener(); 
     private static RestoreNatureCommand CommandExecutor;
     public static HashMap<String, String> messageData = new HashMap<String, String>();
@@ -108,18 +119,7 @@ public class RestoreNaturePlugin extends JavaPlugin {
         getLogger().info( pdfFile.getName() + " version " + pdfFile.getVersion() + " is enabled!" );
  
     }
-    
-    public void onReload(){
-    	createConfig();
-    	loadConfig();
-    	registerCommands();
-        enableWorlds();
-        startUpdaterRoutine();
-        
-        PluginDescriptionFile pdfFile = this.getDescription();
-        getLogger().info( pdfFile.getName() + " version " + pdfFile.getVersion() + " is reloaded!" );
-    }
-    
+
     
     private void createConfig(){
 
@@ -128,10 +128,18 @@ public class RestoreNaturePlugin extends JavaPlugin {
         
     	config = this.getConfig();
     	config.addDefault("version",VERSION);
+    	config.addDefault("Verbosity",Verbosity);
+    	
+    	config.addDefault("PLUGIN_PREFIX",PLUGIN_PREFIX);
+    	config.addDefault("UNTOUCHED_TIME_NOT_ENOUGH",UNTOUCHED_TIME_NOT_ENOUGH);
+    	config.addDefault("UNTOUCHED_TIME_ENOUGH",UNTOUCHED_TIME_ENOUGH);
+    	config.addDefault("WILL_BE_RESTORED_SOON",WILL_BE_RESTORED_SOON);
+    	config.addDefault("OUT_OF_BOUND",OUT_OF_BOUND);
+    	config.addDefault("CLAIMED",CLAIMED);
+    	
+    	
     	config.addDefault("MAX_SECONDS_UNTOUCHED",MAX_SECONDS_UNTOUCHED);
     	config.addDefault("BLOCK_EVENT_EFFECTING_RADIUS",BLOCK_EVENT_EFFECTING_RADIUS);
-    	config.addDefault("CHECK_RADIUS_PER_PERIOD",CHECK_RADIUS_PER_PERIOD);
-    	config.addDefault("RESTORING_PERIOD_TICKS",RESTORING_PERIOD_TICKS);
     	config.addDefault("USING_FEATURE_FACTION",USING_FEATURE_FACTION);
     	config.addDefault("USING_FEATURE_GRIEFPREVENTION",USING_FEATURE_GRIEFPREVENTION);
     	config.addDefault("ONLY_RESTORE_AIR",ONLY_RESTORE_AIR);
@@ -141,19 +149,17 @@ public class RestoreNaturePlugin extends JavaPlugin {
     }
 
 	private void loadConfig(){
-		
-    	config.addDefault("MAX_SECONDS_UNTOUCHED",MAX_SECONDS_UNTOUCHED);
-    	config.addDefault("BLOCK_EVENT_EFFECTING_RADIUS",1);
-    	config.addDefault("CHECK_RADIUS_PER_PERIOD",CHECK_RADIUS_PER_PERIOD);
-    	config.addDefault("RESTORING_PERIOD_TICKS",RESTORING_PERIOD_TICKS);
-    	config.addDefault("USING_FEATURE_FACTION",USING_FEATURE_FACTION);
-    	config.addDefault("USING_FEATURE_GRIEFPREVENTION",USING_FEATURE_GRIEFPREVENTION);
-    	config.addDefault("ONLY_RESTORE_AIR",ONLY_RESTORE_AIR);
+
+    	PLUGIN_PREFIX = config.getString("PLUGIN_PREFIX");
+    	UNTOUCHED_TIME_NOT_ENOUGH = config.getString("UNTOUCHED_TIME_NOT_ENOUGH");
+    	UNTOUCHED_TIME_ENOUGH = config.getString("UNTOUCHED_TIME_ENOUGH");
+    	WILL_BE_RESTORED_SOON = config.getString("WILL_BE_RESTORED_SOON");
+    	OUT_OF_BOUND = config.getString("OUT_OF_BOUND");
+    	CLAIMED = config.getString("CLAIMED");
+    	
     	
     	MAX_SECONDS_UNTOUCHED 			= config.getInt("MAX_SECONDS_UNTOUCHED");
     	BLOCK_EVENT_EFFECTING_RADIUS 	= config.getInt("BLOCK_EVENT_EFFECTING_RADIUS");
-    	CHECK_RADIUS_PER_PERIOD 		= config.getInt("CHECK_RADIUS_PER_PERIOD");
-    	RESTORING_PERIOD_TICKS 		= config.getInt("RESTORING_PERIOD_TICKS");
     	USING_FEATURE_FACTION 			= config.getBoolean("USING_FEATURE_FACTION");
     	USING_FEATURE_GRIEFPREVENTION 	= config.getBoolean("USING_FEATURE_GRIEFPREVENTION");
     	ONLY_RESTORE_AIR 				= config.getBoolean("ONLY_RESTORE_AIR");
@@ -259,13 +265,16 @@ public class RestoreNaturePlugin extends JavaPlugin {
     }
     private void startUpdaterRoutine(){
     	Bukkit.getServer().getScheduler().cancelTask(UpdaterId);
-    	ChunkUpdater = new RestoreNatureRegularUpdate(MAX_SECONDS_UNTOUCHED,maintain_world_chunk_info,this);
-        //UpdaterId = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, ChunkUpdater, 0, RESTORING_PERIOD_TICKS);
-        UpdaterId = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, ChunkUpdater, 0, RESTORING_PERIOD_TICKS);
+    	ChunkUpdater = new RestoreNatureEnqueuer(MAX_SECONDS_UNTOUCHED,maintain_world_chunk_info,this);
+        UpdaterId = Bukkit.getServer().getScheduler().scheduleAsyncRepeatingTask(this, ChunkUpdater, 0, 1);
         
     	Bukkit.getServer().getScheduler().cancelTask(TickerId);
-        ChunkTimeTicker = new RestoreNatureTaskQueue(this);
-        TickerId = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, ChunkTimeTicker, 0, RESTORING_PERIOD_TICKS);
+        ChunkTimeTicker = new RestoreNatureDequeuer(this);
+        TickerId = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, ChunkTimeTicker, 0, 1);
+        
+        Bukkit.getServer().getScheduler().cancelTask(TpsCounterId);
+        LagTicker = new Lag();
+        TpsCounterId = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, LagTicker, 0, 1);
 
     }
     public MapChunkInfo getMapChunkInfoFromWorldName(String world_name){

@@ -19,3 +19,6 @@ permissions:
     restorenature.trymr:
         description: try to restore the land, if not success, show why.
         default: op
+    restorenature.check:
+        description: check the uncheck time.
+        default: true

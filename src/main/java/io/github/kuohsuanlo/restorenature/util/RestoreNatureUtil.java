@@ -41,12 +41,15 @@ public class RestoreNatureUtil {
 			CreatureSpawner restored_spawner = (CreatureSpawner) player_chunk.getBlock(x, y, z).getState();  
 			
 			restored_spawner.setSpawnedType(restoring_spawner.getSpawnedType());
-			Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.YELLOW+RestoreNaturePlugin.PLUGIN_PREFIX+"restoring mobspawner "+restored_spawner.getSpawnedType().name());
+			
+			if(RestoreNaturePlugin.Verbosity>=1)
+				Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.YELLOW+RestoreNaturePlugin.PLUGIN_PREFIX+"restoring mobspawner "+restored_spawner.getSpawnedType().name());
 			
 			restored_spawner.update();
 		}
 		else if(restoring_chunk.getBlock(x, y, z).getType().equals(Material.CHEST)){
-			Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.YELLOW+RestoreNaturePlugin.PLUGIN_PREFIX+"restoring chest");
+			if(RestoreNaturePlugin.Verbosity>=1)
+				Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.YELLOW+RestoreNaturePlugin.PLUGIN_PREFIX+"restoring chest");
 			Chest restoring_chest = (Chest) restoring_chunk.getBlock(x, y, z).getState();
 			Chest restored_chest = (Chest) player_chunk.getBlock(x, y, z).getState();
 			
@@ -135,7 +138,8 @@ public class RestoreNatureUtil {
 				}
 				else{
 					Location newLoc = getCorrespondingLocation(restored_chunk.getWorld(),currentEntity.getLocation());
-					Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.YELLOW+RestoreNaturePlugin.PLUGIN_PREFIX+"restoring entitiy : "+entitiesRestoring[e].getType().name());
+					if(RestoreNaturePlugin.Verbosity>=1)
+						Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.YELLOW+RestoreNaturePlugin.PLUGIN_PREFIX+"restoring entitiy : "+entitiesRestoring[e].getType().name());
 					restored_chunk.getWorld().spawnEntity(newLoc, entitiesRestoring[e].getType());
 				}
 				

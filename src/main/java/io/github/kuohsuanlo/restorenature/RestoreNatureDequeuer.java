@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import org.bukkit.Server;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -22,16 +23,18 @@ import com.massivecraft.factions.entity.Faction;
 import com.massivecraft.factions.entity.FactionColl;
 import com.massivecraft.massivecore.ps.PS;
 
+import io.github.kuohsuanlo.restorenature.util.Lag;
 import io.github.kuohsuanlo.restorenature.util.RestoreNatureUtil;
 
 
-public class RestoreNatureTaskQueue implements Runnable {
+public class RestoreNatureDequeuer implements Runnable {
 
 	public Queue<Location> TaskQueue = new LinkedList<Location>();
 	public RestoreNaturePlugin rnplugin;
 	public int MAX_TASK_IN_QUEUE ;
-
-    public RestoreNatureTaskQueue(RestoreNaturePlugin plugin) {
+	public int processCount = 1;
+	public int currentCount = 0;
+    public RestoreNatureDequeuer(RestoreNaturePlugin plugin) {
     	rnplugin = plugin;
     	MAX_TASK_IN_QUEUE=0;
     	for(int i=0;i<rnplugin.config_maintain_worlds.size();i++){
@@ -50,16 +53,48 @@ public class RestoreNatureTaskQueue implements Runnable {
 		return false;
 	}
     public void run() {
+    	currentCount++;
+    	processCount = calculateProcessCount();
+    	if(currentCount>=processCount){
+    		currentCount=0;
+    		processRequest();
+    	}
+    	
+
+    }
+    private int calculateProcessCount(){
+    	if(Lag.getTPS()>=19){
+    		return 1;
+    	}
+    	else if(Lag.getTPS()>=18){
+    		return 4;
+    	}
+    	else if(Lag.getTPS()>=17){
+    		return 12;
+    	}
+    	else if(Lag.getTPS()>=16){
+    		return 20;
+    	}
+    	else if(Lag.getTPS()>=15){
+    		return 40;
+    	}
+    	else if(Lag.getTPS()>=14){
+    		return 80;
+    	}
+    	else{
+    		return 1000;
+    	}
+    }
+    private void processRequest(){
     	if(TaskQueue.size()>0){
     		Location location = TaskQueue.poll();
         	Chunk restored = location.getChunk();
         	Chunk natrue = rnplugin.getServer().getWorld( restored.getWorld().getName()+RestoreNaturePlugin.WORLD_SUFFIX).getChunkAt(restored.getX(),restored.getZ());
         	RestoreNatureUtil.restoreChunk(restored,natrue,rnplugin.getMapChunkInfoFromWorldName(restored.getWorld().getName()),RestoreNatureUtil.convertChunkIdxToArrayIdx(restored.getX()),RestoreNatureUtil.convertChunkIdxToArrayIdx(restored.getZ()));
-        	rnplugin.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"TaskQueue done task : "+restored.getWorld().getName()+" "+restored.getX()+" "+restored.getZ());
-
-			
+        	
+        	if(RestoreNaturePlugin.Verbosity>=1)
+        		rnplugin.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"TaskQueue done task : "+restored.getWorld().getName()+" "+restored.getX()+" "+restored.getZ());
     	}
-
     }
 
 }
