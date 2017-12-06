@@ -32,9 +32,7 @@ class RestoreNatureEnqueuer implements Runnable {
 	private int max_time_in_seconds;
 	private RestoreNaturePlugin RestoreNaturePlugin;
 	public ArrayList<MapChunkInfo> maintained_worlds = new ArrayList<MapChunkInfo>();
-
-
-
+	
 	private Faction faction =null;
 	
 	private GriefPrevention gp;

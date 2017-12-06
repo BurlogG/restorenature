@@ -77,11 +77,11 @@ public class RestoreNaturePlugin extends JavaPlugin {
     public static ArrayList<Maintained_World> config_maintain_worlds = new ArrayList<Maintained_World>();
 	public static ArrayList<MapChunkInfo> maintain_world_chunk_info = new ArrayList<MapChunkInfo>();
 	public static RestoreNatureEnqueuer ChunkUpdater; 
-    private static int UpdaterId;
     public static RestoreNatureDequeuer ChunkTimeTicker;
-    private static int TickerId;
     public static Lag LagTicker;
-    private static int TpsCounterId;
+    private static int UpdaterId=-1;
+    private static int TickerId=-1;
+    private static int TpsCounterId=-1;
     
     private static RestoreNatureBlockListener blockListener = new RestoreNatureBlockListener(); 
     private static RestoreNatureCommand CommandExecutor;
@@ -177,7 +177,7 @@ public class RestoreNaturePlugin extends JavaPlugin {
 			e.printStackTrace();
 		}
 		
-
+		this.getServer().getConsoleSender().sendMessage(PLUGIN_PREFIX+"JSON worlds size : "+ J_worlds.size());
     	for(int i=0;i<J_worlds.size();i++){
     		JSONObject world = (JSONObject)J_worlds.get(i);
     		ArrayList<String> n_factions = new ArrayList<String>();
@@ -265,15 +265,15 @@ public class RestoreNaturePlugin extends JavaPlugin {
     	
     }
     private void startUpdaterRoutine(){
-    	Bukkit.getServer().getScheduler().cancelTask(UpdaterId);
+    	if(UpdaterId>=0) Bukkit.getServer().getScheduler().cancelTask(UpdaterId);
     	ChunkUpdater = new RestoreNatureEnqueuer(MAX_SECONDS_UNTOUCHED,maintain_world_chunk_info,this);
         UpdaterId = Bukkit.getServer().getScheduler().scheduleAsyncRepeatingTask(this, ChunkUpdater, 0, 1);
         
-    	Bukkit.getServer().getScheduler().cancelTask(TickerId);
+        if(TickerId>=0)  Bukkit.getServer().getScheduler().cancelTask(TickerId);
         ChunkTimeTicker = new RestoreNatureDequeuer(this);
         TickerId = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, ChunkTimeTicker, 0, 1);
         
-        Bukkit.getServer().getScheduler().cancelTask(TpsCounterId);
+        if(TpsCounterId>=0)  Bukkit.getServer().getScheduler().cancelTask(TpsCounterId);
         LagTicker = new Lag();
         TpsCounterId = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, LagTicker, 0, 1);
 
