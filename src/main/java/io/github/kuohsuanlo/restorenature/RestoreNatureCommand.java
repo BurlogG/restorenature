@@ -24,10 +24,9 @@ import io.github.kuohsuanlo.restorenature.util.RestoreNatureUtil;
 
  
 public class RestoreNatureCommand implements CommandExecutor {
-    @SuppressWarnings("deprecation")
-    private RestoreNaturePlugin RestoreNaturePlugin;
+    private RestoreNaturePlugin rplugin;
     public RestoreNatureCommand(RestoreNaturePlugin plugin){
-    	RestoreNaturePlugin = plugin;
+    	rplugin = plugin;
     }
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 
@@ -77,7 +76,7 @@ public class RestoreNatureCommand implements CommandExecutor {
 			    	}
 		    		else if (args[0].equals("rnworld")){
 		    			 if (sender.hasPermission("restorenature.rnworld")){
-		    				 RestoreNatureUtil.setWholeWorldToMaxUntouchedTime(player.getWorld());
+		    				 setWholeWorldToMaxUntouchedTime(player.getWorld());
 		    				 return true;
 		    			 }
 		    			 else{
@@ -94,13 +93,13 @@ public class RestoreNatureCommand implements CommandExecutor {
 					         Chunk player_chunk = player.getWorld().getChunkAt(player_location);
 					         Chunk restoring_chunk = sender.getServer().getWorld(player_world_name+RestoreNaturePlugin.WORLD_SUFFIX).getChunkAt(player_location) ;
 
-		 					if(!RestoreNaturePlugin.ChunkUpdater.checkLocationClaimed(player_location)){ // Land not claimed
+		 					if(!rplugin.ChunkUpdater.checkLocationClaimed(player_location)){ // Land not claimed
 						         
-						     	for(int i=0;i<RestoreNaturePlugin.maintain_world_chunk_info.size();i++){
-						     		if(player_world_name.equals( RestoreNaturePlugin.maintain_world_chunk_info.get(i).world_name)){
-						     			if(!RestoreNatureUtil.isValidLocation(player_chunk, RestoreNaturePlugin.maintain_world_chunk_info.get(i))) continue;
+						     	for(int i=0;i<rplugin.maintain_world_chunk_info.size();i++){
+						     		if(player_world_name.equals( rplugin.maintain_world_chunk_info.get(i).world_name)){
+						     			if(!RestoreNatureUtil.isValidLocation(player_chunk, rplugin.maintain_world_chunk_info.get(i))) continue;
 							    		
-						     			MapChunkInfo chunksInfo = RestoreNaturePlugin.maintain_world_chunk_info.get(i);
+						     			MapChunkInfo chunksInfo = rplugin.maintain_world_chunk_info.get(i);
 							    		int x = RestoreNatureUtil.convertChunkIdxToArrayIdx(player_chunk.getX());
 							    		int z = RestoreNatureUtil.convertChunkIdxToArrayIdx(player_chunk.getZ());
 
@@ -138,13 +137,13 @@ public class RestoreNatureCommand implements CommandExecutor {
 					        	
 					         Chunk player_chunk = player.getWorld().getChunkAt(player_location);
 					         
-		 					if(!RestoreNaturePlugin.ChunkUpdater.checkLocationClaimed(player_location)){ // Land not claimed
+		 					if(!rplugin.ChunkUpdater.checkLocationClaimed(player_location)){ // Land not claimed
 						         
-						     	for(int i=0;i<RestoreNaturePlugin.maintain_world_chunk_info.size();i++){
-						     		if(player_world_name.equals( RestoreNaturePlugin.maintain_world_chunk_info.get(i).world_name)){
-						     			if(!RestoreNatureUtil.isValidLocation(player_chunk, RestoreNaturePlugin.maintain_world_chunk_info.get(i))) continue;
+						     	for(int i=0;i<rplugin.maintain_world_chunk_info.size();i++){
+						     		if(player_world_name.equals( rplugin.maintain_world_chunk_info.get(i).world_name)){
+						     			if(!RestoreNatureUtil.isValidLocation(player_chunk, rplugin.maintain_world_chunk_info.get(i))) continue;
 							    		
-							    		MapChunkInfo chunksInfo = RestoreNaturePlugin.maintain_world_chunk_info.get(i);
+							    		MapChunkInfo chunksInfo = rplugin.maintain_world_chunk_info.get(i);
 							    		int x = RestoreNatureUtil.convertChunkIdxToArrayIdx(player_chunk.getX());
 							    		int z = RestoreNatureUtil.convertChunkIdxToArrayIdx(player_chunk.getZ());
 
@@ -183,6 +182,19 @@ public class RestoreNatureCommand implements CommandExecutor {
         	
 
     }
-
+    public void setWholeWorldToMaxUntouchedTime(World world){
+    	for(int i=0;i<rplugin.maintain_world_chunk_info.size();i++){
+    		MapChunkInfo mcinfo = rplugin.maintain_world_chunk_info.get(i);
+        	if(world.getName().equals(mcinfo.world_name)){
+        		mcinfo.now_min_x=0;
+        		mcinfo.now_min_z=0;
+        		for(int x=0;x<mcinfo.max_x;x++){
+        			for(int z=0;z<mcinfo.max_z;z++){
+        				mcinfo.chunk_untouchedtime[x][z] = RestoreNaturePlugin.MAX_SECONDS_UNTOUCHED+1;
+        			}
+        		}
+        	}
+    	}
+    }
 
 }

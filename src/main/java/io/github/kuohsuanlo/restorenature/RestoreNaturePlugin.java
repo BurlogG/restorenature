@@ -74,16 +74,17 @@ public class RestoreNaturePlugin extends JavaPlugin {
     
     
     
-    public static ArrayList<Maintained_World> config_maintain_worlds = new ArrayList<Maintained_World>();
-	public static ArrayList<MapChunkInfo> maintain_world_chunk_info = new ArrayList<MapChunkInfo>();
-	public static RestoreNatureEnqueuer ChunkUpdater; 
-    public static RestoreNatureDequeuer ChunkTimeTicker;
-    public static Lag LagTicker;
+    public ArrayList<Maintained_World> config_maintain_worlds = new ArrayList<Maintained_World>();
+	public ArrayList<MapChunkInfo> maintain_world_chunk_info = new ArrayList<MapChunkInfo>();
+	public RestoreNatureEnqueuer ChunkUpdater; 
+    public RestoreNatureDequeuer ChunkTimeTicker;
+    public Lag LagTicker;
     private static int UpdaterId=-1;
     private static int TickerId=-1;
     private static int TpsCounterId=-1;
+
+    private final RestoreNatureBlockListener blockListener = new RestoreNatureBlockListener(this); 
     
-    private static RestoreNatureBlockListener blockListener = new RestoreNatureBlockListener(); 
     private static RestoreNatureCommand CommandExecutor;
     public static HashMap<String, String> messageData = new HashMap<String, String>();
     @Override

@@ -19,21 +19,24 @@ import org.bukkit.event.inventory.BrewEvent;
 import org.bukkit.event.inventory.FurnaceSmeltEvent;
 
 public class RestoreNatureBlockListener implements Listener {
-
+	RestoreNaturePlugin rplugin;
+	public RestoreNatureBlockListener(RestoreNaturePlugin plugin){
+		rplugin = plugin;
+	}
     @EventHandler
     public void onFurnaceSmeltEvent(FurnaceSmeltEvent event) {
         Block block = event.getBlock();
-        RestoreNaturePlugin.ChunkUpdater.setWorldsChunkUntouchedTime(block);
+        rplugin.ChunkUpdater.setWorldsChunkUntouchedTime(block);
     }   
     @EventHandler
     public void onBrewEvent(BrewEvent event) {
         Block block = event.getBlock();
-        RestoreNaturePlugin.ChunkUpdater.setWorldsChunkUntouchedTime(block);
+        rplugin.ChunkUpdater.setWorldsChunkUntouchedTime(block);
     }   
     @EventHandler
     public void onEnchantItemEvent(EnchantItemEvent event) {
         Block block = event.getEnchantBlock();
-        RestoreNaturePlugin.ChunkUpdater.setWorldsChunkUntouchedTime(block);
+        rplugin.ChunkUpdater.setWorldsChunkUntouchedTime(block);
     }      
     
   
@@ -41,37 +44,37 @@ public class RestoreNatureBlockListener implements Listener {
     @EventHandler
     public void onBlockRedstoneEvent(BlockRedstoneEvent event) {
         Block block = event.getBlock();
-        RestoreNaturePlugin.ChunkUpdater.setWorldsChunkUntouchedTime(block);
+        rplugin.ChunkUpdater.setWorldsChunkUntouchedTime(block);
     }     
     @EventHandler
     public void onBlockIgniteEvent(BlockIgniteEvent event) {
         Block block = event.getBlock();
-        RestoreNaturePlugin.ChunkUpdater.setWorldsChunkUntouchedTime(block);
+        rplugin.ChunkUpdater.setWorldsChunkUntouchedTime(block);
     }     
     @EventHandler
     public void onBlockGrowEvent(BlockGrowEvent event) {
         Block block = event.getBlock();
-        RestoreNaturePlugin.ChunkUpdater.setWorldsChunkUntouchedTime(block);
+        rplugin.ChunkUpdater.setWorldsChunkUntouchedTime(block);
     }   
     @EventHandler
     public void onBlockFormEvent(BlockFormEvent event) {
         Block block = event.getBlock();
-        RestoreNaturePlugin.ChunkUpdater.setWorldsChunkUntouchedTime(block);
+        rplugin.ChunkUpdater.setWorldsChunkUntouchedTime(block);
     }    
     @EventHandler
     public void onBlockFromToEvent(BlockFromToEvent event) {
         Block block = event.getBlock();
-        RestoreNaturePlugin.ChunkUpdater.setWorldsChunkUntouchedTime(block);
+        rplugin.ChunkUpdater.setWorldsChunkUntouchedTime(block);
     }    
     @EventHandler
     public void onBlockBreakEvent(BlockBreakEvent event) {
         Block block = event.getBlock();
-        RestoreNaturePlugin.ChunkUpdater.setWorldsChunkUntouchedTime(block);
+        rplugin.ChunkUpdater.setWorldsChunkUntouchedTime(block);
     }
     @EventHandler
     public void onBlockPlaceEvent(BlockPlaceEvent event) {
         Block block = event.getBlock();
-        RestoreNaturePlugin.ChunkUpdater.setWorldsChunkUntouchedTime(block);
+        rplugin.ChunkUpdater.setWorldsChunkUntouchedTime(block);
     }
     
 }
