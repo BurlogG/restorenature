@@ -53,7 +53,7 @@ public class RestoreNaturePlugin extends JavaPlugin {
 
 	
     public static final String WORLD_SUFFIX = "_rs";
-    public static int MAX_SECONDS_UNTOUCHED = 864000;
+    public static int MAX_SECONDS_UNTOUCHED = 43200;
 
     public static int BLOCK_EVENT_EFFECTING_RADIUS = 2;
     public static int Verbosity = 0; 
