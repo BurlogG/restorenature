@@ -49,8 +49,11 @@ class RestoreNatureEnqueuer implements Runnable {
 	public int tpsCount = 20;
 	public int tpsCurrentCount = 0;
 	
+	public int currentTimerLoopX = 0;
 	
+	public int recovered_chunks = 0;
 	public long last_time=Instant.now().getEpochSecond(); 
+	public long now_time = Instant.now().getEpochSecond();
     public RestoreNatureEnqueuer(int max_time,ArrayList<MapChunkInfo> existing_worlds,RestoreNaturePlugin plugin) {
     	max_time_in_seconds = max_time;
     	RestoreNaturePlugin= plugin;
@@ -78,19 +81,10 @@ class RestoreNatureEnqueuer implements Runnable {
     	
     }
     private void processRequest(){
-    	//RestoreNaturePlugin.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"Total # worlds : "+maintained_worlds.size());
-    	long now_time = Instant.now().getEpochSecond();
+    	
     	for(int i=0;i<maintained_worlds.size();i++){
     		MapChunkInfo chunksInfo = maintained_worlds.get(i);
-    		//RestoreNaturePlugin.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"Checking world "+chunksInfo.world_name+" "+chunksInfo.now_min_x+" ; "+chunksInfo.now_min_z);
     		
-    		for(int x=0; x < chunksInfo.max_x; x++){
-    		    for(int z=0; z < chunksInfo.max_z; z++){
-    		    	chunksInfo.chunk_untouchedtime[x][z]+=now_time-last_time;
-    		    }
-    		}
-    		
-	    	
         	int x=chunksInfo.now_min_x;
         	int z=chunksInfo.now_min_z;
 
@@ -102,6 +96,7 @@ class RestoreNatureEnqueuer implements Runnable {
 
     	    	if(!checkLocationClaimed(ChunkMid)){ // Land not claimed
     				if(chunksInfo.chunk_untouchedtime[x][z]>=max_time_in_seconds){
+    					recovered_chunks++;
     					if(RestoreNaturePlugin.ChunkTimeTicker.addTask(ChunkMid)){
     						if(RestoreNaturePlugin.Verbosity>=1)
     							Bukkit.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"TaskQueue add task : "+ ChunkMid.getWorld().getName()+" "+
@@ -122,25 +117,33 @@ class RestoreNatureEnqueuer implements Runnable {
     			chunksInfo.now_min_z =chunksInfo.max_z;
     		}
 	    	
+    		double elapsed = now_time-last_time;
+    		for(int ticker_x=0; ticker_x < chunksInfo.max_x; ticker_x++){
+  		    	chunksInfo.chunk_untouchedtime[ticker_x][chunksInfo.now_min_z]+=elapsed;
+  		    }
         	chunksInfo.now_min_z +=1;
         	if(chunksInfo.now_min_z >=chunksInfo.max_z){
-				
-        		chunksInfo.now_min_z =0;
+        		RestoreNaturePlugin.getServer().getConsoleSender().sendMessage(
+        				ChatColor.LIGHT_PURPLE+RestoreNaturePlugin.PLUGIN_PREFIX+
+        				" progress : "+chunksInfo.now_min_x+" / "+chunksInfo.max_x+" / "+
+        				" elapsed time : "+(now_time-last_time)+" sec(s)"+" / "+
+        				" recovered chunks : "+recovered_chunks);
         		
+        		chunksInfo.now_min_z =0;
         		chunksInfo.now_min_x +=1;
-
-        		RestoreNaturePlugin.getServer().getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE+RestoreNaturePlugin.PLUGIN_PREFIX+" progress : "+chunksInfo.now_min_x+" / "+chunksInfo.max_x);
+        		
     	    	if(chunksInfo.now_min_x >=chunksInfo.max_x){
             		chunksInfo.now_min_x=0;
             	}
-
+    	    	
+    	    	last_time = Instant.now().getEpochSecond();
         	}
         	
         	
 	    
         	
     	}
-    	last_time = Instant.now().getEpochSecond();
+    	now_time = Instant.now().getEpochSecond();
 	
 
 
