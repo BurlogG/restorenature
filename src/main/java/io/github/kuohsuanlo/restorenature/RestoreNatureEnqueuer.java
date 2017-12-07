@@ -118,15 +118,18 @@ class RestoreNatureEnqueuer implements Runnable {
     		}
 	    	
     		double elapsed = now_time-last_time;
-    		for(int ticker_x=0; ticker_x < chunksInfo.max_x; ticker_x++){
-  		    	chunksInfo.chunk_untouchedtime[ticker_x][chunksInfo.now_min_z]+=elapsed;
-  		    }
+    		
         	chunksInfo.now_min_z +=1;
         	if(chunksInfo.now_min_z >=chunksInfo.max_z){
+        		for(int tx=0;tx<chunksInfo.max_x;tx++){
+        			for(int tz=0;tz<chunksInfo.max_z;tz++){
+        				chunksInfo.chunk_untouchedtime[tx][tz]+=elapsed;
+        			}
+        		}
         		RestoreNaturePlugin.getServer().getConsoleSender().sendMessage(
         				ChatColor.LIGHT_PURPLE+RestoreNaturePlugin.PLUGIN_PREFIX+
         				" progress : "+chunksInfo.now_min_x+" / "+chunksInfo.max_x+" / "+
-        				" elapsed time : "+(now_time-last_time)+" sec(s)"+" / "+
+        				" elapsed time : "+elapsed+" sec(s)"+" / "+
         				" recovered chunks : "+recovered_chunks);
         		
         		chunksInfo.now_min_z =0;
@@ -160,8 +163,6 @@ class RestoreNatureEnqueuer implements Runnable {
     					){
     				int x = RestoreNatureUtil.convertChunkIdxToArrayIdx( touched_block.getChunk().getX());
         			int z = RestoreNatureUtil.convertChunkIdxToArrayIdx( touched_block.getChunk().getZ());
-        			//int x = touched_block.getChunk().getX()+maintained_worlds.get(i).chunk_radius;
-        			//int z = touched_block.getChunk().getZ()+maintained_worlds.get(i).chunk_radius;
         			
         			int R = RestoreNaturePlugin.BLOCK_EVENT_EFFECTING_RADIUS-1;
         			for(int r_x=(-1)*R;r_x<=R;r_x++){
@@ -171,11 +172,7 @@ class RestoreNatureEnqueuer implements Runnable {
             				}
             			}
         			}
-    				//RestoreNaturePlugin.getServer().getConsoleSender().sendMessage("��c[RestoreNature] : Array   coor "+ x+" ; "+z);	
-        			//RestoreNaturePlugin.getServer().getConsoleSender().sendMessage("��c[RestoreNature] : Chunk   coor "+ touched_block.getChunk().getX()+" ; "+ touched_block.getChunk().getZ());
-    				//RestoreNaturePlugin.getServer().getConsoleSender().sendMessage("��c[RestoreNature] : T-Chunk coor "+ transformation_from_arrayidx_to_chunkidx(x)+" ; "+transformation_from_arrayidx_to_chunkidx(z));	
-    				//RestoreNaturePlugin.getServer().getConsoleSender().sendMessage("��c[RestoreNature] : T-Array coor "+ transformation_from_chunkidx_to_arrayidx(transformation_from_arrayidx_to_chunkidx(x))+" ; "+transformation_from_chunkidx_to_arrayidx(transformation_from_arrayidx_to_chunkidx(z)));	
-    	    		
+    				
     			} 
     			
     		}
