@@ -130,7 +130,7 @@ public class RestoreNatureCommand implements CommandExecutor {
 		    			 }
 		    		}
 		    		else if (args[0].equals("check")){
-		    			 if (sender.hasPermission("restorenature.rnworld")){
+		    			 if (sender.hasPermission("restorenature.check")){
 		    				 
 		    				 Location player_location = player.getLocation();
 					         String player_world_name = player.getWorld().getName();
