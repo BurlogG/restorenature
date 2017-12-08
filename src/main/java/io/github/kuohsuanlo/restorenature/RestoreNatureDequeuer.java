@@ -24,12 +24,13 @@ import com.massivecraft.factions.entity.FactionColl;
 import com.massivecraft.massivecore.ps.PS;
 
 import io.github.kuohsuanlo.restorenature.util.Lag;
+import io.github.kuohsuanlo.restorenature.util.LocationTask;
 import io.github.kuohsuanlo.restorenature.util.RestoreNatureUtil;
 
 
 public class RestoreNatureDequeuer implements Runnable {
 
-	public Queue<Location> TaskQueue = new LinkedList<Location>();
+	public Queue<LocationTask> TaskQueue = new LinkedList<LocationTask>();
 	public RestoreNaturePlugin rnplugin;
 	public int MAX_TASK_IN_QUEUE ;
 	public int processCount = 1;
@@ -50,9 +51,9 @@ public class RestoreNatureDequeuer implements Runnable {
 
 		
     }
-	public boolean addTask(Location ChunkMid){
+	public boolean addTask(boolean onlyEntity, Location ChunkMid){
 		if(TaskQueue.size()<MAX_TASK_IN_QUEUE){
-			TaskQueue.add(ChunkMid);
+			TaskQueue.add(new LocationTask(onlyEntity,ChunkMid));
 			return true;
 		}
 		return false;
@@ -98,13 +99,27 @@ public class RestoreNatureDequeuer implements Runnable {
     }
     private void processRequest(){
     	if(TaskQueue.size()>0){
-    		Location location = TaskQueue.poll();
-        	Chunk restored = location.getChunk();
-        	Chunk natrue = rnplugin.getServer().getWorld( restored.getWorld().getName()+RestoreNaturePlugin.WORLD_SUFFIX).getChunkAt(restored.getX(),restored.getZ());
-        	RestoreNatureUtil.restoreChunk(restored,natrue,rnplugin.getMapChunkInfoFromWorldName(restored.getWorld().getName()),RestoreNatureUtil.convertChunkIdxToArrayIdx(restored.getX()),RestoreNatureUtil.convertChunkIdxToArrayIdx(restored.getZ()));
+    		TaskQueue.poll();
+    		LocationTask task = TaskQueue.poll();
+    		Location location = task.location;
+    		if(task.onlyEntity==false){
+    			Chunk restored = location.getChunk();
+            	Chunk natrue = rnplugin.getServer().getWorld( restored.getWorld().getName()+RestoreNaturePlugin.WORLD_SUFFIX).getChunkAt(restored.getX(),restored.getZ());
+            	RestoreNatureUtil.restoreChunk(restored,natrue,rnplugin.getMapChunkInfoFromWorldName(restored.getWorld().getName()),RestoreNatureUtil.convertChunkIdxToArrayIdx(restored.getX()),RestoreNatureUtil.convertChunkIdxToArrayIdx(restored.getZ()));
+            	
+            	if(RestoreNaturePlugin.Verbosity>=1)
+            		rnplugin.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"TaskQueue done task : "+restored.getWorld().getName()+" "+restored.getX()+" "+restored.getZ());
+    		}
+    		else{
+    			Chunk restored = location.getChunk();
+            	Chunk natrue = rnplugin.getServer().getWorld( restored.getWorld().getName()+RestoreNaturePlugin.WORLD_SUFFIX).getChunkAt(restored.getX(),restored.getZ());
+            	RestoreNatureUtil.restoreChunkEntity(restored,natrue);
+            	
+            	if(RestoreNaturePlugin.Verbosity>=1)
+            		rnplugin.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"TaskQueue done task : "+restored.getWorld().getName()+" "+restored.getX()+" "+restored.getZ());
+    		
+    		}
         	
-        	if(RestoreNaturePlugin.Verbosity>=1)
-        		rnplugin.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"TaskQueue done task : "+restored.getWorld().getName()+" "+restored.getX()+" "+restored.getZ());
     	}
     }
 

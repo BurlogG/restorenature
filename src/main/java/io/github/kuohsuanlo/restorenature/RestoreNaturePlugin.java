@@ -54,6 +54,7 @@ public class RestoreNaturePlugin extends JavaPlugin {
 	
     public static final String WORLD_SUFFIX = "_rs";
     public static int MAX_SECONDS_UNTOUCHED = 43200;
+    public static int MAX_SECONDS_ENTITYRECOVER = 86400;
 
     public static int BLOCK_EVENT_EFFECTING_RADIUS = 2;
     public static int Verbosity = 0; 
@@ -140,6 +141,8 @@ public class RestoreNaturePlugin extends JavaPlugin {
     	
     	
     	config.addDefault("MAX_SECONDS_UNTOUCHED",MAX_SECONDS_UNTOUCHED);
+    	config.addDefault("MAX_SECONDS_ENTITYRECOVER",MAX_SECONDS_ENTITYRECOVER);
+    	
     	config.addDefault("BLOCK_EVENT_EFFECTING_RADIUS",BLOCK_EVENT_EFFECTING_RADIUS);
     	config.addDefault("USING_FEATURE_FACTION",USING_FEATURE_FACTION);
     	config.addDefault("USING_FEATURE_GRIEFPREVENTION",USING_FEATURE_GRIEFPREVENTION);
@@ -161,6 +164,7 @@ public class RestoreNaturePlugin extends JavaPlugin {
 
 		Verbosity = config.getInt("Verbosity");
     	MAX_SECONDS_UNTOUCHED 			= config.getInt("MAX_SECONDS_UNTOUCHED");
+    	MAX_SECONDS_ENTITYRECOVER 		= config.getInt("MAX_SECONDS_ENTITYRECOVER");
     	BLOCK_EVENT_EFFECTING_RADIUS 	= config.getInt("BLOCK_EVENT_EFFECTING_RADIUS");
     	USING_FEATURE_FACTION 			= config.getBoolean("USING_FEATURE_FACTION");
     	USING_FEATURE_GRIEFPREVENTION 	= config.getBoolean("USING_FEATURE_GRIEFPREVENTION");
