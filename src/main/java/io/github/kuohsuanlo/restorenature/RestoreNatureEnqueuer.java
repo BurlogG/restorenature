@@ -20,6 +20,7 @@ import com.massivecraft.factions.entity.FactionColl;
 import com.massivecraft.massivecore.ps.PS;
 
 import io.github.kuohsuanlo.restorenature.util.Lag;
+import io.github.kuohsuanlo.restorenature.util.LocationTask;
 import io.github.kuohsuanlo.restorenature.util.RestoreNatureUtil;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
@@ -92,11 +93,11 @@ class RestoreNatureEnqueuer implements Runnable {
 	    	
     		if(RestoreNatureUtil.isInRadius(chunk_x, chunk_z, chunksInfo.chunk_radius)) {
     	    	Location ChunkMid = new Location(Bukkit.getServer().getWorld(chunksInfo.world_name),chunk_x*16+8,60,chunk_z*16+8);
-
+    	    	
     	    	if(!checkLocationClaimed(ChunkMid)){ // Land not claimed
     				if(chunksInfo.chunk_untouchedtime[x][z]>=RestoreNaturePlugin.MAX_SECONDS_UNTOUCHED){
     					recovered_chunks++;
-    					if(rnplugin.ChunkTimeTicker.addTask(false, ChunkMid)){
+    					if(rnplugin.ChunkTimeTicker.TaskQueue.add(new LocationTask(false, ChunkMid))){
     						if(rnplugin.Verbosity>=1)
     							Bukkit.getServer().getConsoleSender().sendMessage(rnplugin.PLUGIN_PREFIX+"TaskQueue add task : "+ ChunkMid.getWorld().getName()+" "+
     		    			RestoreNatureUtil.convertArrayIdxToChunkIdx(x)+" "+
@@ -112,7 +113,7 @@ class RestoreNatureEnqueuer implements Runnable {
     				
     				else if(chunksInfo.chunk_untouchedtime[x][z]>=RestoreNaturePlugin.MAX_SECONDS_ENTITYRECOVER){
     					onlyentities_chunks++;
-    					if(rnplugin.ChunkTimeTicker.addTask(true, ChunkMid)){
+    					if(rnplugin.ChunkTimeTicker.TaskQueue.add(new LocationTask(true, ChunkMid))){
     						if(rnplugin.Verbosity>=1)
     							Bukkit.getServer().getConsoleSender().sendMessage(rnplugin.PLUGIN_PREFIX+"TaskQueue add task (only entities): "+ ChunkMid.getWorld().getName()+" "+
     		    			RestoreNatureUtil.convertArrayIdxToChunkIdx(x)+" "+

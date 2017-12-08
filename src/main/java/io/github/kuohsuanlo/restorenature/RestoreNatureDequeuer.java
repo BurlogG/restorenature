@@ -51,13 +51,6 @@ public class RestoreNatureDequeuer implements Runnable {
 
 		
     }
-	public boolean addTask(boolean onlyEntity, Location ChunkMid){
-		if(TaskQueue.size()<MAX_TASK_IN_QUEUE){
-			TaskQueue.add(new LocationTask(onlyEntity,ChunkMid));
-			return true;
-		}
-		return false;
-	}
     public void run() {
     	tpsCurrentCount++;
     	if(tpsCurrentCount>=tpsCount){
@@ -101,6 +94,7 @@ public class RestoreNatureDequeuer implements Runnable {
     	if(TaskQueue.size()>0){
     		TaskQueue.poll();
     		LocationTask task = TaskQueue.poll();
+    	
     		Location location = task.location;
     		if(task.onlyEntity==false){
     			Chunk restored = location.getChunk();
