@@ -24,13 +24,13 @@ import com.massivecraft.factions.entity.FactionColl;
 import com.massivecraft.massivecore.ps.PS;
 
 import io.github.kuohsuanlo.restorenature.util.Lag;
-import io.github.kuohsuanlo.restorenature.util.LocationTask;
 import io.github.kuohsuanlo.restorenature.util.RestoreNatureUtil;
 
 
 public class RestoreNatureDequeuer implements Runnable {
 
-	public Queue<LocationTask> TaskQueue = new LinkedList<LocationTask>();
+	public Queue<Location> FullRestoreQueue = new LinkedList<Location>();
+	public Queue<Location> EntityRestoreQueue = new LinkedList<Location>();
 	public RestoreNaturePlugin rnplugin;
 	public int MAX_TASK_IN_QUEUE ;
 	public int processCount = 1;
@@ -51,6 +51,20 @@ public class RestoreNatureDequeuer implements Runnable {
 
 		
     }
+	public boolean addFullRestoreTask(Location ChunkMid){
+		if(FullRestoreQueue.size()<MAX_TASK_IN_QUEUE){
+			FullRestoreQueue.add(ChunkMid);
+			return true;
+		}
+		return false;
+	}
+	public boolean addEntityRestoreTask(Location ChunkMid){
+		if(EntityRestoreQueue.size()<MAX_TASK_IN_QUEUE){
+			EntityRestoreQueue.add(ChunkMid);
+			return true;
+		}
+		return false;
+	}
     public void run() {
     	tpsCurrentCount++;
     	if(tpsCurrentCount>=tpsCount){
@@ -91,29 +105,23 @@ public class RestoreNatureDequeuer implements Runnable {
     	}
     }
     private void processRequest(){
-    	if(TaskQueue.size()>0){
-    		TaskQueue.poll();
-    		LocationTask task = TaskQueue.poll();
-    	
-    		Location location = task.location;
-    		if(task.onlyEntity==false){
-    			Chunk restored = location.getChunk();
-            	Chunk natrue = rnplugin.getServer().getWorld( restored.getWorld().getName()+RestoreNaturePlugin.WORLD_SUFFIX).getChunkAt(restored.getX(),restored.getZ());
-            	RestoreNatureUtil.restoreChunk(restored,natrue,rnplugin.getMapChunkInfoFromWorldName(restored.getWorld().getName()),RestoreNatureUtil.convertChunkIdxToArrayIdx(restored.getX()),RestoreNatureUtil.convertChunkIdxToArrayIdx(restored.getZ()));
-            	
-            	if(RestoreNaturePlugin.Verbosity>=1)
-            		rnplugin.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"TaskQueue done task : "+restored.getWorld().getName()+" "+restored.getX()+" "+restored.getZ());
-    		}
-    		else{
-    			Chunk restored = location.getChunk();
-            	Chunk natrue = rnplugin.getServer().getWorld( restored.getWorld().getName()+RestoreNaturePlugin.WORLD_SUFFIX).getChunkAt(restored.getX(),restored.getZ());
-            	RestoreNatureUtil.restoreChunkEntity(restored,natrue);
-            	
-            	if(RestoreNaturePlugin.Verbosity>=1)
-            		rnplugin.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"TaskQueue done task : "+restored.getWorld().getName()+" "+restored.getX()+" "+restored.getZ());
-    		
-    		}
+    	if(FullRestoreQueue.size()>0){
+    		Location location = FullRestoreQueue.poll();
+        	Chunk restored = location.getChunk();
+        	Chunk natrue = rnplugin.getServer().getWorld( restored.getWorld().getName()+RestoreNaturePlugin.WORLD_SUFFIX).getChunkAt(restored.getX(),restored.getZ());
+        	RestoreNatureUtil.restoreChunk(restored,natrue,rnplugin.getMapChunkInfoFromWorldName(restored.getWorld().getName()),RestoreNatureUtil.convertChunkIdxToArrayIdx(restored.getX()),RestoreNatureUtil.convertChunkIdxToArrayIdx(restored.getZ()));
         	
+        	if(RestoreNaturePlugin.Verbosity>=1)
+        		rnplugin.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"FullRestoreQueue done task : "+restored.getWorld().getName()+" "+restored.getX()+" "+restored.getZ());
+    	}
+    	if(EntityRestoreQueue.size()>0){
+    		Location location = EntityRestoreQueue.poll();
+        	Chunk restored = location.getChunk();
+        	Chunk restoring = rnplugin.getServer().getWorld( restored.getWorld().getName()+RestoreNaturePlugin.WORLD_SUFFIX).getChunkAt(restored.getX(),restored.getZ());
+        	RestoreNatureUtil.restoreChunkEntity(restored,restoring);
+        	
+        	if(RestoreNaturePlugin.Verbosity>=1)
+        		rnplugin.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"EntityRestoreQueue done task : "+restored.getWorld().getName()+" "+restored.getX()+" "+restored.getZ());
     	}
     }
 

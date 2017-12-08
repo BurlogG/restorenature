@@ -108,19 +108,17 @@ public class RestoreNatureUtil {
 		e.equals(EntityType.RABBIT)  ||
 		e.equals(EntityType.SHEEP)  ||
 		e.equals(EntityType.SQUID)  ||
-		e.equals(EntityType.SLIME)  ||
 		e.equals(EntityType.SHULKER)  ||
 		e.equals(EntityType.WOLF)  ||
 		e.equals(EntityType.VILLAGER) ||
 		e.equals(EntityType.VINDICATOR)  ||
 		e.equals(EntityType.EVOKER)  ||
-		e.equals(EntityType.VEX)  ||
 		e.equals(EntityType.WITCH);
 	}
 	private static Location getCorrespondingLocation(World world, Location eLoc){
 		return new Location(world, eLoc.getX(),  eLoc.getY(),  eLoc.getZ());
 	}
-	public static void restoreChunkEntity(Chunk restoring_chunk, Chunk restored_chunk){
+	public static void restoreChunkEntity(Chunk restored_chunk, Chunk restoring_chunk){
 		if(!restoring_chunk.isLoaded()) restoring_chunk.load();
 		if(!restored_chunk.isLoaded()) 	restored_chunk.load();
 		
@@ -175,7 +173,7 @@ public class RestoreNatureUtil {
         		}
         	}
     	}
-    	restoreChunkEntity(restoring_chunk, player_chunk);
+    	restoreChunkEntity(player_chunk,restoring_chunk);
     	
     	if(chunk_info  !=null){
         	chunk_info.chunk_untouchedtime[array_x][array_z]=0;

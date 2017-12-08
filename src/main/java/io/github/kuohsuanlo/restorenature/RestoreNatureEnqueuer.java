@@ -20,7 +20,6 @@ import com.massivecraft.factions.entity.FactionColl;
 import com.massivecraft.massivecore.ps.PS;
 
 import io.github.kuohsuanlo.restorenature.util.Lag;
-import io.github.kuohsuanlo.restorenature.util.LocationTask;
 import io.github.kuohsuanlo.restorenature.util.RestoreNatureUtil;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
@@ -30,7 +29,7 @@ import java.time.Instant;
 
 
 class RestoreNatureEnqueuer implements Runnable {
-	private RestoreNaturePlugin rnplugin;
+	private RestoreNaturePlugin RestoreNaturePlugin;
 	public ArrayList<MapChunkInfo> maintained_worlds = new ArrayList<MapChunkInfo>();
 	
 	private Faction faction =null;
@@ -55,8 +54,8 @@ class RestoreNatureEnqueuer implements Runnable {
 	public int onlyentities_chunks = 0;
 	public long last_time=Instant.now().getEpochSecond(); 
 	public long now_time = Instant.now().getEpochSecond();
-    public RestoreNatureEnqueuer(int max_time,ArrayList<MapChunkInfo> existing_worlds,RestoreNaturePlugin plugin) {
-    	rnplugin= plugin;
+    public RestoreNatureEnqueuer(ArrayList<MapChunkInfo> existing_worlds,RestoreNaturePlugin plugin) {
+    	RestoreNaturePlugin= plugin;
 	
     	maintained_worlds = existing_worlds;
 
@@ -93,36 +92,34 @@ class RestoreNatureEnqueuer implements Runnable {
 	    	
     		if(RestoreNatureUtil.isInRadius(chunk_x, chunk_z, chunksInfo.chunk_radius)) {
     	    	Location ChunkMid = new Location(Bukkit.getServer().getWorld(chunksInfo.world_name),chunk_x*16+8,60,chunk_z*16+8);
-    	    	
+
     	    	if(!checkLocationClaimed(ChunkMid)){ // Land not claimed
     				if(chunksInfo.chunk_untouchedtime[x][z]>=RestoreNaturePlugin.MAX_SECONDS_UNTOUCHED){
     					recovered_chunks++;
-    					if(rnplugin.ChunkTimeTicker.TaskQueue.add(new LocationTask(false, ChunkMid))){
-    						if(rnplugin.Verbosity>=1)
-    							Bukkit.getServer().getConsoleSender().sendMessage(rnplugin.PLUGIN_PREFIX+"TaskQueue add task : "+ ChunkMid.getWorld().getName()+" "+
+    					if(RestoreNaturePlugin.ChunkTimeTicker.addFullRestoreTask(ChunkMid)){
+    						if(RestoreNaturePlugin.Verbosity>=1)
+    							Bukkit.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"addFullRestoreTask : "+ ChunkMid.getWorld().getName()+" "+
     		    			RestoreNatureUtil.convertArrayIdxToChunkIdx(x)+" "+
     		    			RestoreNatureUtil.convertArrayIdxToChunkIdx(z));
 
     					}
     					else{
-    						if(rnplugin.Verbosity>=1)
-    							rnplugin.getServer().getConsoleSender().sendMessage(rnplugin.PLUGIN_PREFIX+"Maximum number of tasks in TaskQueue reached. Please increase CHECK_PERIOD_IN_SECONDS" );
+    						if(RestoreNaturePlugin.Verbosity>=1)
+    							RestoreNaturePlugin.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"Maximum number of tasks in TaskQueue reached. Please increase CHECK_PERIOD_IN_SECONDS" );
     					}
-
     				}
-    				
     				else if(chunksInfo.chunk_untouchedtime[x][z]>=RestoreNaturePlugin.MAX_SECONDS_ENTITYRECOVER){
     					onlyentities_chunks++;
-    					if(rnplugin.ChunkTimeTicker.TaskQueue.add(new LocationTask(true, ChunkMid))){
-    						if(rnplugin.Verbosity>=1)
-    							Bukkit.getServer().getConsoleSender().sendMessage(rnplugin.PLUGIN_PREFIX+"TaskQueue add task (only entities): "+ ChunkMid.getWorld().getName()+" "+
+    					if(RestoreNaturePlugin.ChunkTimeTicker.addEntityRestoreTask(ChunkMid)){
+    						if(RestoreNaturePlugin.Verbosity>=1)
+    							Bukkit.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"addEntityRestoreTask : "+ ChunkMid.getWorld().getName()+" "+
     		    			RestoreNatureUtil.convertArrayIdxToChunkIdx(x)+" "+
     		    			RestoreNatureUtil.convertArrayIdxToChunkIdx(z));
 
     					}
     					else{
-    						if(rnplugin.Verbosity>=1)
-    							rnplugin.getServer().getConsoleSender().sendMessage(rnplugin.PLUGIN_PREFIX+"Maximum number of tasks in TaskQueue reached. Please increase CHECK_PERIOD_IN_SECONDS" );
+    						if(RestoreNaturePlugin.Verbosity>=1)
+    							RestoreNaturePlugin.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"Maximum number of tasks in TaskQueue reached. Please increase CHECK_PERIOD_IN_SECONDS" );
     					}
     				}
     			}
@@ -141,15 +138,15 @@ class RestoreNatureEnqueuer implements Runnable {
         				chunksInfo.chunk_untouchedtime[tx][tz]+=elapsed;
         			}
         		}
-        		rnplugin.getServer().getConsoleSender().sendMessage(
-        				ChatColor.LIGHT_PURPLE+rnplugin.PLUGIN_PREFIX+
+        		RestoreNaturePlugin.getServer().getConsoleSender().sendMessage(
+        				ChatColor.LIGHT_PURPLE+RestoreNaturePlugin.PLUGIN_PREFIX+
         				" progress : "+chunksInfo.now_min_x+" / "+chunksInfo.max_x+" / "+
         				" elapsed time : "+elapsed+" sec(s)"+" / "+
         				" recovered chunks : "+recovered_chunks+" / "+
         				" onlyentities_chunks : "+onlyentities_chunks);
 
-        		recovered_chunks=0;
-        		onlyentities_chunks=0;
+				recovered_chunks=0;
+				onlyentities_chunks=0;
         		
         		chunksInfo.now_min_z =0;
         		chunksInfo.now_min_x +=1;
@@ -183,7 +180,7 @@ class RestoreNatureEnqueuer implements Runnable {
     				int x = RestoreNatureUtil.convertChunkIdxToArrayIdx( touched_block.getChunk().getX());
         			int z = RestoreNatureUtil.convertChunkIdxToArrayIdx( touched_block.getChunk().getZ());
         			
-        			int R = rnplugin.BLOCK_EVENT_EFFECTING_RADIUS-1;
+        			int R = RestoreNaturePlugin.BLOCK_EVENT_EFFECTING_RADIUS-1;
         			for(int r_x=(-1)*R;r_x<=R;r_x++){
             			for(int r_z=(-1)*R;r_z<=R;r_z++){
             				if((x+r_x)>=0  &&  (x+r_x)<=maintained_worlds.get(i).max_x  &&  (z+r_z)>=0  &&  (z+r_z)<=maintained_worlds.get(i).max_z){
@@ -225,11 +222,11 @@ class RestoreNatureEnqueuer implements Runnable {
 	public boolean checkLocationClaimed(Location location){
     	
     	
-    	if(rnplugin.USING_FEATURE_FACTION){
+    	if(RestoreNaturePlugin.USING_FEATURE_FACTION){
         	faction = BoardColl.get().getFactionAt(PS.valueOf(location));
     	}
     	
-    	if(rnplugin.USING_FEATURE_GRIEFPREVENTION){
+    	if(RestoreNaturePlugin.USING_FEATURE_GRIEFPREVENTION){
     		gp = GriefPrevention.instance;
     	}
     	

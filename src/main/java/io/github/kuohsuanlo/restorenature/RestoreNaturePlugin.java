@@ -1,4 +1,3 @@
-
 package io.github.kuohsuanlo.restorenature;
 
 
@@ -53,7 +52,7 @@ public class RestoreNaturePlugin extends JavaPlugin {
 
 	
     public static final String WORLD_SUFFIX = "_rs";
-    public static int MAX_SECONDS_UNTOUCHED = 43200;
+    public static int MAX_SECONDS_UNTOUCHED = 432000;
     public static int MAX_SECONDS_ENTITYRECOVER = 86400;
 
     public static int BLOCK_EVENT_EFFECTING_RADIUS = 2;
@@ -271,7 +270,7 @@ public class RestoreNaturePlugin extends JavaPlugin {
     }
     private void startUpdaterRoutine(){
     	if(UpdaterId>=0) Bukkit.getServer().getScheduler().cancelTask(UpdaterId);
-    	ChunkUpdater = new RestoreNatureEnqueuer(MAX_SECONDS_UNTOUCHED,maintain_world_chunk_info,this);
+    	ChunkUpdater = new RestoreNatureEnqueuer(maintain_world_chunk_info,this);
         UpdaterId = Bukkit.getServer().getScheduler().scheduleAsyncRepeatingTask(this, ChunkUpdater, 0, 1);
         
         if(TickerId>=0)  Bukkit.getServer().getScheduler().cancelTask(TickerId);
