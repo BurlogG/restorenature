@@ -1,22 +1,15 @@
 package io.github.kuohsuanlo.restorenature;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
 import net.md_5.bungee.api.ChatColor;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 import com.massivecraft.factions.entity.BoardColl;
 import com.massivecraft.factions.entity.Faction;
-import com.massivecraft.factions.entity.FactionColl;
 import com.massivecraft.massivecore.ps.PS;
 
 import io.github.kuohsuanlo.restorenature.util.Lag;
@@ -29,7 +22,8 @@ import java.time.Instant;
 
 
 class RestoreNatureEnqueuer implements Runnable {
-	private RestoreNaturePlugin RestoreNaturePlugin;
+	private RestoreNaturePlugin rsplugin;
+	
 	public ArrayList<MapChunkInfo> maintained_worlds = new ArrayList<MapChunkInfo>();
 	
 	private Faction faction =null;
@@ -50,12 +44,12 @@ class RestoreNatureEnqueuer implements Runnable {
 	
 	public int currentTimerLoopX = 0;
 	
-	public int recovered_chunks = 0;
-	public int onlyentities_chunks = 0;
+	public int currentChunkReqested = 0;
+	public int currentEntityRequested = 0;
 	public long last_time=Instant.now().getEpochSecond(); 
 	public long now_time = Instant.now().getEpochSecond();
     public RestoreNatureEnqueuer(ArrayList<MapChunkInfo> existing_worlds,RestoreNaturePlugin plugin) {
-    	RestoreNaturePlugin= plugin;
+    	rsplugin= plugin;
 	
     	maintained_worlds = existing_worlds;
 
@@ -95,8 +89,8 @@ class RestoreNatureEnqueuer implements Runnable {
 
     	    	if(!checkLocationClaimed(ChunkMid)){ // Land not claimed
     				if(chunksInfo.chunk_untouchedtime[x][z]>=RestoreNaturePlugin.MAX_SECONDS_UNTOUCHED){
-    					recovered_chunks++;
-    					if(RestoreNaturePlugin.ChunkTimeTicker.addFullRestoreTask(ChunkMid)){
+    					currentChunkReqested++;
+    					if(rsplugin.ChunkTimeTicker.addFullRestoreTask(ChunkMid)){
     						if(RestoreNaturePlugin.Verbosity>=1)
     							Bukkit.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"addFullRestoreTask : "+ ChunkMid.getWorld().getName()+" "+
     		    			RestoreNatureUtil.convertArrayIdxToChunkIdx(x)+" "+
@@ -105,12 +99,12 @@ class RestoreNatureEnqueuer implements Runnable {
     					}
     					else{
     						if(RestoreNaturePlugin.Verbosity>=1)
-    							RestoreNaturePlugin.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"Maximum number of tasks in TaskQueue reached. Please increase CHECK_PERIOD_IN_SECONDS" );
+    							rsplugin.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"Maximum number of tasks in TaskQueue reached. Please increase CHECK_PERIOD_IN_SECONDS" );
     					}
     				}
     				else if(chunksInfo.chunk_untouchedtime[x][z]>=RestoreNaturePlugin.MAX_SECONDS_ENTITYRECOVER){
-    					onlyentities_chunks++;
-    					if(RestoreNaturePlugin.ChunkTimeTicker.addEntityRestoreTask(ChunkMid)){
+    					currentEntityRequested++;
+    					if(rsplugin.ChunkTimeTicker.addEntityRestoreTask(ChunkMid)){
     						if(RestoreNaturePlugin.Verbosity>=1)
     							Bukkit.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"addEntityRestoreTask : "+ ChunkMid.getWorld().getName()+" "+
     		    			RestoreNatureUtil.convertArrayIdxToChunkIdx(x)+" "+
@@ -119,7 +113,7 @@ class RestoreNatureEnqueuer implements Runnable {
     					}
     					else{
     						if(RestoreNaturePlugin.Verbosity>=1)
-    							RestoreNaturePlugin.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"Maximum number of tasks in TaskQueue reached. Please increase CHECK_PERIOD_IN_SECONDS" );
+    							rsplugin.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"Maximum number of tasks in TaskQueue reached. Please increase CHECK_PERIOD_IN_SECONDS" );
     					}
     				}
     			}
@@ -138,15 +132,26 @@ class RestoreNatureEnqueuer implements Runnable {
         				chunksInfo.chunk_untouchedtime[tx][tz]+=elapsed;
         			}
         		}
-        		RestoreNaturePlugin.getServer().getConsoleSender().sendMessage(
+        		int lastFullChunkRestored = rsplugin.ChunkTimeTicker.lastFullChunkRestored;
+        		int lastEntityChunkRestored = rsplugin.ChunkTimeTicker.lastEntityChunkRestored;
+        		int lastEntityRespawn = rsplugin.ChunkTimeTicker.lastEntityRespawn;
+        		
+        		rsplugin.getServer().getConsoleSender().sendMessage(
         				ChatColor.LIGHT_PURPLE+RestoreNaturePlugin.PLUGIN_PREFIX+
-        				" progress : "+chunksInfo.now_min_x+" / "+chunksInfo.max_x+" / "+
-        				" elapsed time : "+elapsed+" sec(s)"+" / "+
-        				" recovered chunks : "+recovered_chunks+" / "+
-        				" onlyentities_chunks : "+onlyentities_chunks);
-
-				recovered_chunks=0;
-				onlyentities_chunks=0;
+        				"progress: "+chunksInfo.now_min_x+"/"+chunksInfo.max_x+" | "+
+        				"elapsed: "+elapsed+" sec(s)"+" | "+
+        				"Full Enq/Deq: "+
+        				currentChunkReqested+"/"+lastFullChunkRestored+" | "+
+        				"Entity Enq/Deq: "+
+        				currentEntityRequested+"/"+lastEntityChunkRestored+" | "+
+        				"Entity respawned: "+lastEntityRespawn
+        				);
+        		
+        		rsplugin.ChunkTimeTicker.lastFullChunkRestored = 0;
+        		rsplugin.ChunkTimeTicker.lastEntityChunkRestored = 0;
+        		rsplugin.ChunkTimeTicker.lastEntityRespawn =0;
+				currentChunkReqested=0;
+				currentEntityRequested=0;
         		
         		chunksInfo.now_min_z =0;
         		chunksInfo.now_min_x +=1;

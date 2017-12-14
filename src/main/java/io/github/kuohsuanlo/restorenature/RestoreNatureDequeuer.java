@@ -2,27 +2,10 @@
 
 package io.github.kuohsuanlo.restorenature;
 
-import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
-
-import org.bukkit.Server;
-import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-
-import com.massivecraft.factions.entity.BoardColl;
-import com.massivecraft.factions.entity.Faction;
-import com.massivecraft.factions.entity.FactionColl;
-import com.massivecraft.massivecore.ps.PS;
-
 import io.github.kuohsuanlo.restorenature.util.Lag;
 import io.github.kuohsuanlo.restorenature.util.RestoreNatureUtil;
 
@@ -39,6 +22,10 @@ public class RestoreNatureDequeuer implements Runnable {
 	public double lastSecondTPS = 20;
 	public int tpsCount = 20;
 	public int tpsCurrentCount = 0;
+	
+	public int lastFullChunkRestored =0;
+	public int lastEntityChunkRestored =0;
+	public int lastEntityRespawn =0;
 	
     public RestoreNatureDequeuer(RestoreNaturePlugin plugin) {
     	rnplugin = plugin;
@@ -76,7 +63,8 @@ public class RestoreNatureDequeuer implements Runnable {
     	processCount = calculateProcessCount();
     	if(currentCount>=processCount){
     		currentCount=0;
-    		processRequest();
+    		processFullRequest();
+    		processEntityRequest();
     	}
     	
 
@@ -104,21 +92,26 @@ public class RestoreNatureDequeuer implements Runnable {
     		return 1000;
     	}
     }
-    private void processRequest(){
+    private void processFullRequest(){
     	if(FullRestoreQueue.size()>0){
     		Location location = FullRestoreQueue.poll();
         	Chunk restored = location.getChunk();
         	Chunk natrue = rnplugin.getServer().getWorld( restored.getWorld().getName()+RestoreNaturePlugin.WORLD_SUFFIX).getChunkAt(restored.getX(),restored.getZ());
         	RestoreNatureUtil.restoreChunk(restored,natrue,rnplugin.getMapChunkInfoFromWorldName(restored.getWorld().getName()),RestoreNatureUtil.convertChunkIdxToArrayIdx(restored.getX()),RestoreNatureUtil.convertChunkIdxToArrayIdx(restored.getZ()));
         	
+        	lastFullChunkRestored++;
         	if(RestoreNaturePlugin.Verbosity>=1)
         		rnplugin.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"FullRestoreQueue done task : "+restored.getWorld().getName()+" "+restored.getX()+" "+restored.getZ());
     	}
+    }
+    private void processEntityRequest(){
     	if(EntityRestoreQueue.size()>0){
     		Location location = EntityRestoreQueue.poll();
         	Chunk restored = location.getChunk();
         	Chunk restoring = rnplugin.getServer().getWorld( restored.getWorld().getName()+RestoreNaturePlugin.WORLD_SUFFIX).getChunkAt(restored.getX(),restored.getZ());
-        	RestoreNatureUtil.restoreChunkEntity(restored,restoring);
+
+        	lastEntityChunkRestored++;
+        	lastEntityRespawn += RestoreNatureUtil.restoreChunkEntity(restored,restoring);
         	
         	if(RestoreNaturePlugin.Verbosity>=1)
         		rnplugin.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"EntityRestoreQueue done task : "+restored.getWorld().getName()+" "+restored.getX()+" "+restored.getZ());

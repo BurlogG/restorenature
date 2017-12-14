@@ -11,14 +11,12 @@ import org.bukkit.block.Chest;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import io.github.kuohsuanlo.restorenature.MapChunkInfo;
 import io.github.kuohsuanlo.restorenature.RestoreNaturePlugin;
 
 public class RestoreNatureUtil {
-	@SuppressWarnings("deprecation")
 	private static void restoreChunkBlock(Chunk restoring_chunk, Chunk restored_chunk, int x, int y, int z ){
 		Block restoringBlock = restoring_chunk.getBlock(x, y, z);
 		Block restoredBlock  = restored_chunk.getBlock(x, y, z);
@@ -118,11 +116,11 @@ public class RestoreNatureUtil {
 	private static Location getCorrespondingLocation(World world, Location eLoc){
 		return new Location(world, eLoc.getX(),  eLoc.getY(),  eLoc.getZ());
 	}
-	public static void restoreChunkEntity(Chunk restored_chunk, Chunk restoring_chunk){
+	public static int restoreChunkEntity(Chunk restored_chunk, Chunk restoring_chunk){
 		if(!restoring_chunk.isLoaded()) restoring_chunk.load();
 		if(!restored_chunk.isLoaded()) 	restored_chunk.load();
 		
-		
+		int restoredEntityNumbers=0;
 		int[] entityNum = calculateChunkEntityTypesNumber(restored_chunk);
 		
 		//restoring missing entities in restored chunk from restoring chunk
@@ -141,6 +139,7 @@ public class RestoreNatureUtil {
 					if(RestoreNaturePlugin.Verbosity>=1)
 						Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.YELLOW+RestoreNaturePlugin.PLUGIN_PREFIX+"restoring entitiy : "+entitiesRestoring[e].getType().name());
 					restored_chunk.getWorld().spawnEntity(newLoc, entitiesRestoring[e].getType());
+					restoredEntityNumbers++;
 				}
 				
 				
@@ -151,9 +150,10 @@ public class RestoreNatureUtil {
 		
 		if(restoring_chunk.isLoaded()) restoring_chunk.unload();
 		if(restored_chunk.isLoaded()) 	restored_chunk.unload();
+		
+		return restoredEntityNumbers;
 	
 	}
-    @SuppressWarnings("deprecation")
 	public static void restoreChunk(Chunk player_chunk, Chunk restoring_chunk, MapChunkInfo chunk_info,int array_x,int array_z){
     	for(int x=0;x<16;x++){
             for(int y=0;y<256;y++){
