@@ -68,8 +68,7 @@ public class RestoreNatureUtil {
 			restored_chest.update();
 		}
 	}
-	private static int[] calculateChunkEntityTypesNumber(Chunk chunk){
-		int dm = 1;
+	private static int[] calculateChunkEntityTypesNumber(Chunk chunk, int dm){
 		int[] entityNum = new int[EntityType.values().length];
 		
 		for(int dx=-dm;dx<=dm;dx++){
@@ -129,7 +128,7 @@ public class RestoreNatureUtil {
 		if(!restored_chunk.isLoaded()) 	restored_chunk.load();
 		
 		int restoredEntityNumbers=0;
-		int[] entityNum = calculateChunkEntityTypesNumber(restored_chunk);
+		int[] entityNum = calculateChunkEntityTypesNumber(restored_chunk,1);
 		
 		//restoring missing entities in restored chunk from restoring chunk
 		Entity[] entitiesRestoring = restoring_chunk.getEntities();
