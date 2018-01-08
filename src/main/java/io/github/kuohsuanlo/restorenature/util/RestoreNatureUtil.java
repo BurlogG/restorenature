@@ -69,12 +69,20 @@ public class RestoreNatureUtil {
 		}
 	}
 	private static int[] calculateChunkEntityTypesNumber(Chunk chunk){
-		Entity[] entitiesRestored  = chunk.getEntities();
+		int dm = 1;
 		int[] entityNum = new int[EntityType.values().length];
-		for(int e=0;e<entitiesRestored.length;e++){
-			int entityTypeID = convertEntityTypeToIdx(entitiesRestored[e].getType());
-			if(entityTypeID>=0){
-				entityNum[entityTypeID]++;
+		
+		for(int dx=-dm;dx<=dm;dx++){
+			for(int dz=-dm;dz<=dm;dz++){
+				Chunk currentChunk = chunk.getWorld().getChunkAt(chunk.getX()+dx, chunk.getZ()+dz);
+				Entity[] entitiesRestored  = currentChunk.getEntities();
+				
+				for(int e=0;e<entitiesRestored.length;e++){
+					int entityTypeID = convertEntityTypeToIdx(entitiesRestored[e].getType());
+					if(entityTypeID>=0){
+						entityNum[entityTypeID]++;
+					}
+				}
 			}
 		}
 		return entityNum;
