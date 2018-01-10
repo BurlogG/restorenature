@@ -17,6 +17,8 @@ import io.github.kuohsuanlo.restorenature.MapChunkInfo;
 import io.github.kuohsuanlo.restorenature.RestoreNaturePlugin;
 
 public class RestoreNatureUtil {
+	public static int ENTITY_CAL_RADIUS = 1;
+	public static int ENTITY_CAL_LIMIT = 8;
 	private static void restoreChunkBlock(Chunk restoring_chunk, Chunk restored_chunk, int x, int y, int z ){
 		Block restoringBlock = restoring_chunk.getBlock(x, y, z);
 		Block restoredBlock  = restored_chunk.getBlock(x, y, z);
@@ -69,7 +71,7 @@ public class RestoreNatureUtil {
 		}
 	}
 	private static int[] calculateChunkEntityTypesNumber(Chunk chunk){
-		int dm = 1;
+		int dm = ENTITY_CAL_RADIUS;
 		int[] entityNum = new int[EntityType.values().length];
 		
 		for(int dx=-dm;dx<=dm;dx++){
@@ -79,7 +81,7 @@ public class RestoreNatureUtil {
 				
 				for(int e=0;e<entitiesRestored.length;e++){
 					int entityTypeID = convertEntityTypeToIdx(entitiesRestored[e].getType());
-					if(entityTypeID>=0){
+					if(entityTypeID>=0  &&  entityNum[entityTypeID]<ENTITY_CAL_LIMIT){
 						entityNum[entityTypeID]++;
 					}
 				}
