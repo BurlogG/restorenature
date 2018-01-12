@@ -26,6 +26,7 @@ public class RestoreNatureDequeuer implements Runnable {
 	public int lastFullChunkRestored =0;
 	public int lastEntityChunkRestored =0;
 	public int lastEntityRespawn =0;
+	public int lastBannedBlockRemoved =0;
 	
     public RestoreNatureDequeuer(RestoreNaturePlugin plugin) {
     	rnplugin = plugin;
@@ -112,6 +113,7 @@ public class RestoreNatureDequeuer implements Runnable {
 
         	lastEntityChunkRestored++;
         	lastEntityRespawn += RestoreNatureUtil.restoreChunkEntity(restored,restoring);
+        	lastBannedBlockRemoved+=RestoreNatureUtil.removeBannedBlockedInChunk(restored,restoring);
         	
         	if(RestoreNaturePlugin.Verbosity>=1)
         		rnplugin.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"EntityRestoreQueue done task : "+restored.getWorld().getName()+" "+restored.getX()+" "+restored.getZ());

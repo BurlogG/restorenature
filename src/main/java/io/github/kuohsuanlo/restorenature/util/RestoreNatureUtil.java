@@ -189,16 +189,28 @@ public class RestoreNatureUtil {
         	chunk_info.chunk_untouchedtime[array_x][array_z]=0;
     	}
     }
-    public static void removeBannedBlockedInChunk(Chunk chunk){
+    public static int removeBannedBlockedInChunk(Chunk restored, Chunk restoring){
+    	int removedSnow =0;
     	for(int x=0;x<16;x++){
             for(int z=0;z<16;z++){
-            	for(int y=0;y<256;y++){
-                	if(RestoreNaturePlugin.ONLY_RESTORE_AIR){
-                	
+            	for(int y=128;y>55;y--){
+            		if(	restored.getBlock(x, y, z).getType()==Material.AIR){
+            			continue;
+            		}
+            		else if(restored.getBlock(x, y, z).getType()==Material.SNOW  &&  
+            				restoring.getBlock(x, y, z).getType()!=Material.SNOW){
+        				
+                		restored.getBlock(x, y, z).setType(Material.AIR);
+                		removedSnow++;
+                		break;
                 	}
+            		else{
+            			break;
+            		}
                 }
             }
     	}
+    	return removedSnow;
                 	
     }
 

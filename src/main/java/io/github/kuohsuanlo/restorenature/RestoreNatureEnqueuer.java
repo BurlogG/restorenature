@@ -135,6 +135,7 @@ class RestoreNatureEnqueuer implements Runnable {
         		int lastFullChunkRestored = rsplugin.ChunkTimeTicker.lastFullChunkRestored;
         		int lastEntityChunkRestored = rsplugin.ChunkTimeTicker.lastEntityChunkRestored;
         		int lastEntityRespawn = rsplugin.ChunkTimeTicker.lastEntityRespawn;
+        		int lastBannedBlockRemoved = rsplugin.ChunkTimeTicker.lastBannedBlockRemoved;
         		
         		rsplugin.getServer().getConsoleSender().sendMessage(
         				ChatColor.LIGHT_PURPLE+RestoreNaturePlugin.PLUGIN_PREFIX+
@@ -144,12 +145,14 @@ class RestoreNatureEnqueuer implements Runnable {
         				currentChunkReqested+"/"+lastFullChunkRestored+" | "+
         				"Entity Enq/Deq: "+
         				currentEntityRequested+"/"+lastEntityChunkRestored+" | "+
-        				"Entity respawned: "+lastEntityRespawn
+        				"Entity respawned: "+lastEntityRespawn+" | "+
+        				"Block removed: "+lastBannedBlockRemoved
         				);
         		
         		rsplugin.ChunkTimeTicker.lastFullChunkRestored = 0;
         		rsplugin.ChunkTimeTicker.lastEntityChunkRestored = 0;
         		rsplugin.ChunkTimeTicker.lastEntityRespawn =0;
+        		rsplugin.ChunkTimeTicker.lastBannedBlockRemoved =0;
 				currentChunkReqested=0;
 				currentEntityRequested=0;
         		
