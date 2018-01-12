@@ -189,7 +189,18 @@ public class RestoreNatureUtil {
         	chunk_info.chunk_untouchedtime[array_x][array_z]=0;
     	}
     }
-    
+    public static void removeBannedBlockedInChunk(Chunk chunk){
+    	for(int x=0;x<16;x++){
+            for(int z=0;z<16;z++){
+            	for(int y=0;y<256;y++){
+                	if(RestoreNaturePlugin.ONLY_RESTORE_AIR){
+                	
+                	}
+                }
+            }
+    	}
+                	
+    }
 
 
     public static int convertArrayIdxToChunkIdx(int x){
