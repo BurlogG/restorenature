@@ -164,6 +164,21 @@ public class RestoreNatureUtil {
 		return restoredEntityNumbers;
 	
 	}
+	public static void restoreChunkForce(Chunk player_chunk, Chunk restoring_chunk, MapChunkInfo chunk_info,int array_x,int array_z){
+    	for(int x=0;x<16;x++){
+            for(int y=0;y<256;y++){
+                for(int z=0;z<16;z++){
+            		restoreChunkBlock(restoring_chunk,player_chunk,x,y,z);
+                	restoreChunkDetails(restoring_chunk,player_chunk,x,y,z);
+        		}
+        	}
+    	}
+    	restoreChunkEntity(player_chunk,restoring_chunk);
+    	
+    	if(chunk_info  !=null){
+        	chunk_info.chunk_untouchedtime[array_x][array_z]=0;
+    	}
+    }
 	public static void restoreChunk(Chunk player_chunk, Chunk restoring_chunk, MapChunkInfo chunk_info,int array_x,int array_z){
     	for(int x=0;x<16;x++){
             for(int y=0;y<256;y++){

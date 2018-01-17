@@ -63,6 +63,27 @@ public class RestoreNatureCommand implements CommandExecutor {
 						}
 			        	
 			    	}
+		    		if (args[0].equals("fmr")){
+				        if (sender.hasPermission("restorenature.manualrestore")){
+
+				        	Location player_location = player.getLocation();
+				        	String player_world_name = player.getWorld().getName();
+				        	
+				        	Chunk player_chunk = player.getWorld().getChunkAt(player_location);
+				        	Chunk restoring_chunk = sender.getServer().getWorld(player_world_name+RestoreNaturePlugin.WORLD_SUFFIX).getChunkAt(player_location) ;
+				        	
+				        	RestoreNatureUtil.restoreChunkForce(player_chunk,restoring_chunk,null,-1,-1);
+				        	
+				        	sender.sendMessage(ChatColor.YELLOW+"Chunk successfully forced restored on world chunk : "+player_world_name+" "+restoring_chunk.getX()+" ; "+restoring_chunk.getZ());	
+				            return true;    
+			    			
+			    		}
+				        else{
+							sender.sendMessage(ChatColor.RED+"You don't have the permission.");
+							return false;
+						}
+			        	
+			    	}
 		    		else if (args[0].equals("rnworld")){
 		    			 if (sender.hasPermission("restorenature.rnworld")){
 		    				 setWholeWorldToMaxUntouchedTime(player.getWorld());
