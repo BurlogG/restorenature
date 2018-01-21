@@ -17,7 +17,6 @@ import io.github.kuohsuanlo.restorenature.MapChunkInfo;
 import io.github.kuohsuanlo.restorenature.RestoreNaturePlugin;
 
 public class RestoreNatureUtil {
-	public static int ENTITY_CAL_RADIUS = 1;
 	private static void restoreChunkBlock(Chunk restoring_chunk, Chunk restored_chunk, int x, int y, int z ){
 		Block restoringBlock = restoring_chunk.getBlock(x, y, z);
 		Block restoredBlock  = restored_chunk.getBlock(x, y, z);
@@ -80,7 +79,7 @@ public class RestoreNatureUtil {
 				
 				for(int e=0;e<entitiesRestored.length;e++){
 					int entityTypeID = convertEntityTypeToIdx(entitiesRestored[e].getType());
-					if(entityTypeID>=0  &&  entityNum[entityTypeID]<RestoreNaturePlugin.ENTITY_CAL_LIMIT){
+					if(entityTypeID>=0){
 						entityNum[entityTypeID]++;
 					}
 				}
@@ -130,7 +129,14 @@ public class RestoreNatureUtil {
 		if(!restored_chunk.isLoaded()) 	restored_chunk.load();
 		
 		int restoredEntityNumbers=0;
-		int[] entityNum = calculateChunkEntityTypesNumber(restored_chunk, ENTITY_CAL_RADIUS);
+		int[] entityNum_restored = calculateChunkEntityTypesNumber(restored_chunk, RestoreNaturePlugin.ENTITY_CAL_RADIUS);
+		int[] entityNum_restoring = calculateChunkEntityTypesNumber(restoring_chunk, RestoreNaturePlugin.ENTITY_CAL_RADIUS);
+		
+		for(int i=0;i<entityNum_restoring.length;i++){
+			if(entityNum_restoring[i]>RestoreNaturePlugin.ENTITY_CAL_LIMIT){
+				entityNum_restoring[i]=RestoreNaturePlugin.ENTITY_CAL_LIMIT;
+			}
+		}
 		
 		//restoring missing entities in restored chunk from restoring chunk
 		Entity[] entitiesRestoring = restoring_chunk.getEntities();
@@ -140,17 +146,15 @@ public class RestoreNatureUtil {
 			if( isValidRestoredEntityType(currentEntity.getType()) ){
 				
 				int entityTypeID = convertEntityTypeToIdx(entitiesRestoring[e].getType());
-				if(entityNum[entityTypeID]>0){
-					entityNum[entityTypeID]--;
-				}
-				else{
+				if(entityNum_restored[entityTypeID]<entityNum_restoring[entityTypeID]){
+					entityNum_restored[entityTypeID]++;
+					
 					Location newLoc = getCorrespondingLocation(restored_chunk.getWorld(),currentEntity.getLocation());
 					if(RestoreNaturePlugin.Verbosity>=1)
 						Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.YELLOW+RestoreNaturePlugin.PLUGIN_PREFIX+"restoring entitiy : "+entitiesRestoring[e].getType().name());
 					restored_chunk.getWorld().spawnEntity(newLoc, entitiesRestoring[e].getType());
 					restoredEntityNumbers++;
 				}
-				
 				
 			}
 			

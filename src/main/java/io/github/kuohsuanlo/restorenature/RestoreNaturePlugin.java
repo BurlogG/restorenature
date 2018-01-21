@@ -60,6 +60,7 @@ public class RestoreNaturePlugin extends JavaPlugin {
     public static String OUT_OF_BOUND = "This chunk is not in maintained radius : ";
 
 	public static int ENTITY_CAL_LIMIT = 4;
+	public static int ENTITY_CAL_RADIUS = 1;
     
     public ArrayList<Maintained_World> config_maintain_worlds = new ArrayList<Maintained_World>();
 	public ArrayList<MapChunkInfo> maintain_world_chunk_info = new ArrayList<MapChunkInfo>();
@@ -130,6 +131,8 @@ public class RestoreNaturePlugin extends JavaPlugin {
     	config.addDefault("MAX_SECONDS_ENTITYRECOVER",MAX_SECONDS_ENTITYRECOVER);
     	
     	config.addDefault("ENTITY_CAL_LIMIT",ENTITY_CAL_LIMIT);
+    	config.addDefault("ENTITY_CAL_RADIUS",ENTITY_CAL_RADIUS);
+    	
     	config.addDefault("BLOCK_EVENT_EFFECTING_RADIUS",BLOCK_EVENT_EFFECTING_RADIUS);
     	config.addDefault("USING_FEATURE_FACTION",USING_FEATURE_FACTION);
     	config.addDefault("USING_FEATURE_GRIEFPREVENTION",USING_FEATURE_GRIEFPREVENTION);
@@ -158,7 +161,8 @@ public class RestoreNaturePlugin extends JavaPlugin {
     	ONLY_RESTORE_AIR 				= config.getBoolean("ONLY_RESTORE_AIR");
 
     	ENTITY_CAL_LIMIT 	= config.getInt("ENTITY_CAL_LIMIT");
-    	
+    	ENTITY_CAL_RADIUS 	= config.getInt("ENTITY_CAL_RADIUS");
+
 		JSONParser parser = new JSONParser();
 		JSONObject J_maintained_worlds = null;
 		JSONArray J_worlds = null ;
