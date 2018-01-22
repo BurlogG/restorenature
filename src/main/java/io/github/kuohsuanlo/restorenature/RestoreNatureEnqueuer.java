@@ -132,28 +132,23 @@ class RestoreNatureEnqueuer implements Runnable {
         				chunksInfo.chunk_untouchedtime[tx][tz]+=elapsed;
         			}
         		}
-        		int lastFullChunkRestored = rsplugin.ChunkDequeuer.lastFullChunkRestored;
-        		int lastEntityChunkRestored = rsplugin.ChunkDequeuer.lastEntityChunkRestored;
-        		int lastEntityRespawn = rsplugin.ChunkDequeuer.lastEntityRespawn;
-        		int lastBannedBlockRemoved = rsplugin.ChunkDequeuer.lastBannedBlockRemoved;
-        		rsplugin.ChunkDequeuer.resetCounter();
-        		
         		rsplugin.getServer().getConsoleSender().sendMessage(
         				ChatColor.LIGHT_PURPLE+RestoreNaturePlugin.PLUGIN_PREFIX+
         				"progress: "+chunksInfo.now_min_x+"/"+chunksInfo.max_x+" | "+
         				"elapsed: "+elapsed+" sec(s)"+" | "+
         				"Full Enq/Deq: "+
-        				currentChunkReqested+"/"+lastFullChunkRestored+" | "+
+        				currentChunkReqested+"/"+rsplugin.ChunkDequeuer.lastFullChunkRestored+" | "+
         				"Entity Enq/Deq: "+
-        				currentEntityRequested+"/"+lastEntityChunkRestored+" | "+
-        				"Entity respawned: "+lastEntityRespawn+" | "+
-        				"Block removed: "+lastBannedBlockRemoved
+        				currentEntityRequested+"/"+rsplugin.ChunkDequeuer.lastEntityChunkRestored+" | "+
+        				"Entity respawned: "+rsplugin.ChunkDequeuer.lastEntityRespawn+" | "+
+        				"Block removed: "+rsplugin.ChunkDequeuer.lastBannedBlockRemoved
         				);
-        		
         		
 				currentChunkReqested=0;
 				currentEntityRequested=0;
-        		
+				
+				rsplugin.ChunkDequeuer.resetCounter();
+				
         		chunksInfo.now_min_z =0;
         		chunksInfo.now_min_x +=1;
         		
