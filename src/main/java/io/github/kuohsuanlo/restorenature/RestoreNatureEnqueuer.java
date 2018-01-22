@@ -90,7 +90,7 @@ class RestoreNatureEnqueuer implements Runnable {
     	    	if(!checkLocationClaimed(ChunkMid)){ // Land not claimed
     				if(chunksInfo.chunk_untouchedtime[x][z]>=RestoreNaturePlugin.MAX_SECONDS_UNTOUCHED){
     					currentChunkReqested++;
-    					if(rsplugin.ChunkTimeTicker.addFullRestoreTask(ChunkMid)){
+    					if(rsplugin.ChunkDequeuer.addFullRestoreTask(ChunkMid)){
     						if(RestoreNaturePlugin.Verbosity>=1)
     							Bukkit.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"addFullRestoreTask : "+ ChunkMid.getWorld().getName()+" "+
     		    			RestoreNatureUtil.convertArrayIdxToChunkIdx(x)+" "+
@@ -104,7 +104,7 @@ class RestoreNatureEnqueuer implements Runnable {
     				}
     				else if(chunksInfo.chunk_untouchedtime[x][z]>=RestoreNaturePlugin.MAX_SECONDS_ENTITYRECOVER){
     					currentEntityRequested++;
-    					if(rsplugin.ChunkTimeTicker.addEntityRestoreTask(ChunkMid)){
+    					if(rsplugin.ChunkDequeuer.addEntityRestoreTask(ChunkMid)){
     						if(RestoreNaturePlugin.Verbosity>=1)
     							Bukkit.getServer().getConsoleSender().sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+"addEntityRestoreTask : "+ ChunkMid.getWorld().getName()+" "+
     		    			RestoreNatureUtil.convertArrayIdxToChunkIdx(x)+" "+
@@ -132,10 +132,11 @@ class RestoreNatureEnqueuer implements Runnable {
         				chunksInfo.chunk_untouchedtime[tx][tz]+=elapsed;
         			}
         		}
-        		int lastFullChunkRestored = rsplugin.ChunkTimeTicker.lastFullChunkRestored;
-        		int lastEntityChunkRestored = rsplugin.ChunkTimeTicker.lastEntityChunkRestored;
-        		int lastEntityRespawn = rsplugin.ChunkTimeTicker.lastEntityRespawn;
-        		int lastBannedBlockRemoved = rsplugin.ChunkTimeTicker.lastBannedBlockRemoved;
+        		int lastFullChunkRestored = rsplugin.ChunkDequeuer.lastFullChunkRestored;
+        		int lastEntityChunkRestored = rsplugin.ChunkDequeuer.lastEntityChunkRestored;
+        		int lastEntityRespawn = rsplugin.ChunkDequeuer.lastEntityRespawn;
+        		int lastBannedBlockRemoved = rsplugin.ChunkDequeuer.lastBannedBlockRemoved;
+        		rsplugin.ChunkDequeuer.resetCounter();
         		
         		rsplugin.getServer().getConsoleSender().sendMessage(
         				ChatColor.LIGHT_PURPLE+RestoreNaturePlugin.PLUGIN_PREFIX+
@@ -149,10 +150,7 @@ class RestoreNatureEnqueuer implements Runnable {
         				"Block removed: "+lastBannedBlockRemoved
         				);
         		
-        		rsplugin.ChunkTimeTicker.lastFullChunkRestored = 0;
-        		rsplugin.ChunkTimeTicker.lastEntityChunkRestored = 0;
-        		rsplugin.ChunkTimeTicker.lastEntityRespawn =0;
-        		rsplugin.ChunkTimeTicker.lastBannedBlockRemoved =0;
+        		
 				currentChunkReqested=0;
 				currentEntityRequested=0;
         		

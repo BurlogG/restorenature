@@ -64,8 +64,8 @@ public class RestoreNaturePlugin extends JavaPlugin {
     
     public ArrayList<Maintained_World> config_maintain_worlds = new ArrayList<Maintained_World>();
 	public ArrayList<MapChunkInfo> maintain_world_chunk_info = new ArrayList<MapChunkInfo>();
-	public RestoreNatureEnqueuer ChunkUpdater; 
-    public RestoreNatureDequeuer ChunkTimeTicker;
+	public RestoreNatureEnqueuer ChunkEnqueuer; 
+    public RestoreNatureDequeuer ChunkDequeuer;
     public Lag LagTicker;
     private static int UpdaterId=-1;
     private static int TickerId=-1;
@@ -77,12 +77,12 @@ public class RestoreNaturePlugin extends JavaPlugin {
     public static HashMap<String, String> messageData = new HashMap<String, String>();
     @Override
     public void onDisable() {
-    	for(int i=0;i<ChunkUpdater.maintained_worlds.size();i++){
+    	for(int i=0;i<ChunkEnqueuer.maintained_worlds.size();i++){
 			try {
 	        	FileOutputStream fos;
-				fos = new FileOutputStream("./plugins/RestoreNature/worlds_chunk_info/"+ChunkUpdater.maintained_worlds.get(i).world_name+".chunkinfo");
+				fos = new FileOutputStream("./plugins/RestoreNature/worlds_chunk_info/"+ChunkEnqueuer.maintained_worlds.get(i).world_name+".chunkinfo");
 	        	ObjectOutputStream oos = new ObjectOutputStream(fos);
-	        	oos.writeObject(ChunkUpdater.maintained_worlds.get(i));
+	        	oos.writeObject(ChunkEnqueuer.maintained_worlds.get(i));
 	        	oos.close();
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
@@ -263,12 +263,12 @@ public class RestoreNaturePlugin extends JavaPlugin {
     }
     private void startUpdaterRoutine(){
     	if(UpdaterId>=0) Bukkit.getServer().getScheduler().cancelTask(UpdaterId);
-    	ChunkUpdater = new RestoreNatureEnqueuer(maintain_world_chunk_info,this);
-        UpdaterId = Bukkit.getServer().getScheduler().scheduleAsyncRepeatingTask(this, ChunkUpdater, 0, 1);
+    	ChunkEnqueuer = new RestoreNatureEnqueuer(maintain_world_chunk_info,this);
+        UpdaterId = Bukkit.getServer().getScheduler().scheduleAsyncRepeatingTask(this, ChunkEnqueuer, 0, 1);
         
         if(TickerId>=0)  Bukkit.getServer().getScheduler().cancelTask(TickerId);
-        ChunkTimeTicker = new RestoreNatureDequeuer(this);
-        TickerId = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, ChunkTimeTicker, 0, 1);
+        ChunkDequeuer = new RestoreNatureDequeuer(this);
+        TickerId = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, ChunkDequeuer, 0, 1);
         
         if(TpsCounterId>=0)  Bukkit.getServer().getScheduler().cancelTask(TpsCounterId);
         LagTicker = new Lag();

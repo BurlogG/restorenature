@@ -39,6 +39,12 @@ public class RestoreNatureDequeuer implements Runnable {
 
 		
     }
+    public void resetCounter(){
+    	lastFullChunkRestored =0;
+    	lastEntityChunkRestored =0;
+    	lastEntityRespawn =0;
+    	lastBannedBlockRemoved =0;
+    }
 	public boolean addFullRestoreTask(Location ChunkMid){
 		if(FullRestoreQueue.size()<MAX_TASK_IN_QUEUE){
 			FullRestoreQueue.add(ChunkMid);
