@@ -11,7 +11,10 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import net.md_5.bungee.api.ChatColor;
+
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
@@ -59,6 +62,9 @@ public class RestoreNaturePlugin extends JavaPlugin {
     public static String CLAIMED = "This chunk contains claimed lands!";
     public static String OUT_OF_BOUND = "This chunk is not in maintained radius : ";
 
+    public static String REGARDED_AS_AIR = "AIR,TORCH,WATER,STATIONARY_WATER,LAVA,STATIONARY_LAVA";
+    public static ArrayList<Material> RegardedAsAirList = new ArrayList<Material>();
+    
 	public static int ENTITY_CAL_LIMIT = 4;
 	public static int ENTITY_CAL_RADIUS = 1;
     
@@ -137,6 +143,8 @@ public class RestoreNaturePlugin extends JavaPlugin {
     	config.addDefault("USING_FEATURE_FACTION",USING_FEATURE_FACTION);
     	config.addDefault("USING_FEATURE_GRIEFPREVENTION",USING_FEATURE_GRIEFPREVENTION);
     	config.addDefault("ONLY_RESTORE_AIR",ONLY_RESTORE_AIR);
+    	config.addDefault("REGARDED_AS_AIR",REGARDED_AS_AIR);
+    	
     	config.addDefault("WORLDS_INFO",DEFAULT_WORLDS_INFO);
        	config.options().copyDefaults(true);
     	saveConfig();
@@ -163,6 +171,14 @@ public class RestoreNaturePlugin extends JavaPlugin {
     	ENTITY_CAL_LIMIT 	= config.getInt("ENTITY_CAL_LIMIT");
     	ENTITY_CAL_RADIUS 	= config.getInt("ENTITY_CAL_RADIUS");
 
+    	RegardedAsAirList = new ArrayList<Material>();
+    	String[] REGARDED_AS_AIR_string = config.getString("REGARDED_AS_AIR").split(",");
+    	for(int i=0;i<REGARDED_AS_AIR_string.length;i++){
+    		Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.RED+PLUGIN_PREFIX+"regarded as air - "+REGARDED_AS_AIR_string[i]+" added!");
+    		Material m = Material.getMaterial(REGARDED_AS_AIR_string[i]);
+    		if(m!=null) RegardedAsAirList.add(m);
+    	}
+    	
 		JSONParser parser = new JSONParser();
 		JSONObject J_maintained_worlds = null;
 		JSONArray J_worlds = null ;

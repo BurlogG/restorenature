@@ -187,10 +187,9 @@ public class RestoreNatureUtil {
             for(int y=0;y<256;y++){
                 for(int z=0;z<16;z++){
                 	if(RestoreNaturePlugin.ONLY_RESTORE_AIR){
-                    	if(player_chunk.getBlock(x, y, z).getType().equals(Material.AIR)){
+                    	if(RestoreNaturePlugin.RegardedAsAirList.contains( player_chunk.getBlock(x, y, z).getType())){
                     		restoreChunkBlock(restoring_chunk,player_chunk,x,y,z);
                         	restoreChunkDetails(restoring_chunk,player_chunk,x,y,z);
-                  
                     	}
                 	}
                 	else{
