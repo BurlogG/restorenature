@@ -123,26 +123,29 @@ public class RestoreNatureUtil {
 		Entity[] entitiesRestored = restored_chunk.getEntities();
 		for(int e=0;e<entitiesRestored.length;e++){
 			Entity currentEntity = entitiesRestored[e];
-		
-			if( isValidRemovedEntityType(currentEntity.getType()) ){
-				
+			//System.out.println(currentEntity.getType().name());
+			if( isValidRestoredEntityType(currentEntity.getType()) ){
 				int entityTypeID = convertEntityTypeToIdx(entitiesRestored[e].getType());
 				if(entityNum_restored[entityTypeID]<=entityNum_restoring[entityTypeID]){
 					entityNum_restored[entityTypeID]++;
-					
 				}
 				else{
-					currentEntity.remove();
-				}
+					if(currentEntity.getCustomName()==null) currentEntity.remove();
+				} 
+			}
+			else if(currentEntity.getType()==EntityType.DROPPED_ITEM){
+				currentEntity.remove();
 			}
 		}
 		
 		
 		//restoring missing entities in restored chunk from restoring chunk
+		entityNum_restored = calculateChunkEntityTypesNumber(restored_chunk, RestoreNaturePlugin.ENTITY_CAL_RADIUS);
+		entityNum_restoring = calculateChunkEntityTypesNumber(restoring_chunk, RestoreNaturePlugin.ENTITY_CAL_RADIUS);
+		
 		Entity[] entitiesRestoring = restoring_chunk.getEntities();
 		for(int e=0;e<entitiesRestoring.length;e++){
 			Entity currentEntity = entitiesRestoring[e];
-		
 			if( isValidRestoredEntityType(currentEntity.getType()) ){
 				
 				int entityTypeID = convertEntityTypeToIdx(entitiesRestoring[e].getType());
@@ -163,17 +166,6 @@ public class RestoreNatureUtil {
 		
 		return restoredEntityNumbers;
 	
-	}
-	private static void removeChunkEntity(Chunk chunk){
-		//remove existing entities
-		Entity[] entitiesRestored = chunk.getEntities();
-		for(int e=0;e<entitiesRestored.length;e++){
-			Entity currentEntity = entitiesRestored[e];
-			if(currentEntity.getCustomName()!=null) continue;
-			if( isValidRemovedEntityType(currentEntity.getType()) ){
-				currentEntity.remove();
-			}
-		}
 	}
 	public static void restoreChunkForce(Chunk player_chunk, Chunk restoring_chunk, MapChunkInfo chunk_info,int array_x,int array_z){
     	for(int x=0;x<16;x++){
