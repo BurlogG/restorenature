@@ -1,5 +1,8 @@
 package io.github.kuohsuanlo.restorenature.util;
 
+import java.util.Arrays;
+import java.util.Iterator;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
@@ -93,34 +96,6 @@ public class RestoreNatureUtil {
 		}
 		return -1;
 	}
-	private static boolean isValidRestoredEntityType(EntityType e){
-		return 
-		e.equals(EntityType.BAT)  || 
-		e.equals(EntityType.BLAZE)  ||
-		e.equals(EntityType.CAVE_SPIDER)  ||
-		e.equals(EntityType.CHICKEN)  ||
-		e.equals(EntityType.COW)  ||
-		e.equals(EntityType.DONKEY)  ||
-		e.equals(EntityType.LLAMA)  ||
-		e.equals(EntityType.HORSE)  ||
-		e.equals(EntityType.GUARDIAN)  ||
-		e.equals(EntityType.ELDER_GUARDIAN)  ||
-		e.equals(EntityType.MULE)  ||
-		e.equals(EntityType.MUSHROOM_COW)  ||
-		e.equals(EntityType.OCELOT)  ||
-		e.equals(EntityType.PIG)  ||
-		e.equals(EntityType.PARROT)  ||
-		e.equals(EntityType.POLAR_BEAR)  ||
-		e.equals(EntityType.RABBIT)  ||
-		e.equals(EntityType.SHEEP)  ||
-		e.equals(EntityType.SQUID)  ||
-		e.equals(EntityType.SHULKER)  ||
-		e.equals(EntityType.WOLF)  ||
-		e.equals(EntityType.VILLAGER) ||
-		e.equals(EntityType.VINDICATOR)  ||
-		e.equals(EntityType.EVOKER)  ||
-		e.equals(EntityType.WITCH);
-	}
 	private static Location getCorrespondingLocation(World world, Location eLoc){
 		return new Location(world, eLoc.getX(),  eLoc.getY(),  eLoc.getZ());
 	}
@@ -129,14 +104,39 @@ public class RestoreNatureUtil {
 		if(!restored_chunk.isLoaded()) 	restored_chunk.load();
 		
 		int restoredEntityNumbers=0;
-		int[] entityNum_restored = calculateChunkEntityTypesNumber(restored_chunk, RestoreNaturePlugin.ENTITY_CAL_RADIUS);
-		int[] entityNum_restoring = calculateChunkEntityTypesNumber(restoring_chunk, RestoreNaturePlugin.ENTITY_CAL_RADIUS);
+		int[] entityNum_restored;
+		int[] entityNum_restoring;
+		
+		entityNum_restored = calculateChunkEntityTypesNumber(restored_chunk, RestoreNaturePlugin.ENTITY_CAL_RADIUS);
+		entityNum_restoring = calculateChunkEntityTypesNumber(restoring_chunk, RestoreNaturePlugin.ENTITY_CAL_RADIUS);
 		
 		for(int i=0;i<entityNum_restoring.length;i++){
 			if(entityNum_restoring[i]>RestoreNaturePlugin.ENTITY_CAL_LIMIT){
 				entityNum_restoring[i]=RestoreNaturePlugin.ENTITY_CAL_LIMIT;
 			}
 		}
+		
+		//removing excessive mobs on restored chunk
+		entityNum_restored = calculateChunkEntityTypesNumber(restored_chunk, RestoreNaturePlugin.ENTITY_CAL_RADIUS);
+		entityNum_restoring = calculateChunkEntityTypesNumber(restoring_chunk, RestoreNaturePlugin.ENTITY_CAL_RADIUS);
+		
+		Entity[] entitiesRestored = restored_chunk.getEntities();
+		for(int e=0;e<entitiesRestored.length;e++){
+			Entity currentEntity = entitiesRestored[e];
+		
+			if( isValidRemovedEntityType(currentEntity.getType()) ){
+				
+				int entityTypeID = convertEntityTypeToIdx(entitiesRestored[e].getType());
+				if(entityNum_restored[entityTypeID]<=entityNum_restoring[entityTypeID]){
+					entityNum_restored[entityTypeID]++;
+					
+				}
+				else{
+					currentEntity.remove();
+				}
+			}
+		}
+		
 		
 		//restoring missing entities in restored chunk from restoring chunk
 		Entity[] entitiesRestoring = restoring_chunk.getEntities();
@@ -155,10 +155,7 @@ public class RestoreNatureUtil {
 					restored_chunk.getWorld().spawnEntity(newLoc, entitiesRestoring[e].getType());
 					restoredEntityNumbers++;
 				}
-				
 			}
-			
-			
 		}
 		
 		if(restoring_chunk.isLoaded()) restoring_chunk.unload();
@@ -166,6 +163,17 @@ public class RestoreNatureUtil {
 		
 		return restoredEntityNumbers;
 	
+	}
+	private static void removeChunkEntity(Chunk chunk){
+		//remove existing entities
+		Entity[] entitiesRestored = chunk.getEntities();
+		for(int e=0;e<entitiesRestored.length;e++){
+			Entity currentEntity = entitiesRestored[e];
+			if(currentEntity.getCustomName()!=null) continue;
+			if( isValidRemovedEntityType(currentEntity.getType()) ){
+				currentEntity.remove();
+			}
+		}
 	}
 	public static void restoreChunkForce(Chunk player_chunk, Chunk restoring_chunk, MapChunkInfo chunk_info,int array_x,int array_z){
     	for(int x=0;x<16;x++){
@@ -206,6 +214,64 @@ public class RestoreNatureUtil {
         	chunk_info.chunk_untouchedtime[array_x][array_z]=0;
     	}
     }
+
+	private static boolean isValidRemovedEntityType(EntityType e){
+		return 
+		e.equals(EntityType.DROPPED_ITEM)  || 
+		e.equals(EntityType.BLAZE)  ||
+		e.equals(EntityType.CAVE_SPIDER)  ||
+		e.equals(EntityType.CHICKEN)  ||
+		e.equals(EntityType.COW)  ||
+		e.equals(EntityType.DONKEY)  ||
+		e.equals(EntityType.LLAMA)  ||
+		e.equals(EntityType.HORSE)  ||
+		e.equals(EntityType.GUARDIAN)  ||
+		e.equals(EntityType.ELDER_GUARDIAN)  ||
+		e.equals(EntityType.MULE)  ||
+		e.equals(EntityType.MUSHROOM_COW)  ||
+		e.equals(EntityType.OCELOT)  ||
+		e.equals(EntityType.PIG)  ||
+		e.equals(EntityType.PARROT)  ||
+		e.equals(EntityType.POLAR_BEAR)  ||
+		e.equals(EntityType.RABBIT)  ||
+		e.equals(EntityType.SHEEP)  ||
+		e.equals(EntityType.SQUID)  ||
+		e.equals(EntityType.SHULKER)  ||
+		e.equals(EntityType.WOLF)  ||
+		e.equals(EntityType.VILLAGER) ||
+		e.equals(EntityType.VINDICATOR)  ||
+		e.equals(EntityType.EVOKER)  ||
+		e.equals(EntityType.WITCH);
+	}
+	private static boolean isValidRestoredEntityType(EntityType e){
+		return 
+		e.equals(EntityType.BAT)  || 
+		e.equals(EntityType.BLAZE)  ||
+		e.equals(EntityType.CAVE_SPIDER)  ||
+		e.equals(EntityType.CHICKEN)  ||
+		e.equals(EntityType.COW)  ||
+		e.equals(EntityType.DONKEY)  ||
+		e.equals(EntityType.LLAMA)  ||
+		e.equals(EntityType.HORSE)  ||
+		e.equals(EntityType.GUARDIAN)  ||
+		e.equals(EntityType.ELDER_GUARDIAN)  ||
+		e.equals(EntityType.MULE)  ||
+		e.equals(EntityType.MUSHROOM_COW)  ||
+		e.equals(EntityType.OCELOT)  ||
+		e.equals(EntityType.PIG)  ||
+		e.equals(EntityType.PARROT)  ||
+		e.equals(EntityType.POLAR_BEAR)  ||
+		e.equals(EntityType.RABBIT)  ||
+		e.equals(EntityType.SHEEP)  ||
+		e.equals(EntityType.SQUID)  ||
+		e.equals(EntityType.SHULKER)  ||
+		e.equals(EntityType.WOLF)  ||
+		e.equals(EntityType.VILLAGER) ||
+		e.equals(EntityType.VINDICATOR)  ||
+		e.equals(EntityType.EVOKER)  ||
+		e.equals(EntityType.WITCH);
+	}
+	
     public static int removeBannedBlockedInChunk(Chunk restored, Chunk restoring){
     	int removedSnow =0;
     	for(int x=0;x<16;x++){
@@ -230,7 +296,6 @@ public class RestoreNatureUtil {
     	return removedSnow;
                 	
     }
-
 
     public static int convertArrayIdxToChunkIdx(int x){
 	    int chunk_x =0;
