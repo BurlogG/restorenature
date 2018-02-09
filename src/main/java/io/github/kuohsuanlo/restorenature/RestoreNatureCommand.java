@@ -103,35 +103,35 @@ public class RestoreNatureCommand implements CommandExecutor {
 					         Chunk player_chunk = player.getWorld().getChunkAt(player_location);
 					         Chunk restoring_chunk = sender.getServer().getWorld(player_world_name+RestoreNaturePlugin.WORLD_SUFFIX).getChunkAt(player_location) ;
 
-		 					if(!rplugin.ChunkEnqueuer.checkLocationClaimed(player_location)){ // Land not claimed
-						         
-						     	for(int i=0;i<rplugin.maintain_world_chunk_info.size();i++){
-						     		if(player_world_name.equals( rplugin.maintain_world_chunk_info.get(i).world_name)){
-						     			if(!RestoreNatureUtil.isValidLocation(player_chunk, rplugin.maintain_world_chunk_info.get(i))) continue;
-							    		
-						     			MapChunkInfo chunksInfo = rplugin.maintain_world_chunk_info.get(i);
-							    		int x = RestoreNatureUtil.convertChunkIdxToArrayIdx(player_chunk.getX());
-							    		int z = RestoreNatureUtil.convertChunkIdxToArrayIdx(player_chunk.getZ());
-
-							    		if(chunksInfo.chunk_untouchedtime[x][z]>=RestoreNaturePlugin.MAX_SECONDS_UNTOUCHED){
-							    			RestoreNatureUtil.restoreChunk(player_chunk,restoring_chunk,chunksInfo,x,z);
-								        	
-								        	sender.sendMessage(ChatColor.YELLOW+"Chunk successfully restored on world chunk : "+player_world_name+" "+restoring_chunk.getX()+" ; "+restoring_chunk.getZ());	
-								            return true;    
-							    			
-
-										}
-							    		else{
-							    			sender.sendMessage(ChatColor.YELLOW+"Chunk untouch time not enough : "+chunksInfo.chunk_untouchedtime[x][z]+" < "+RestoreNaturePlugin.MAX_SECONDS_UNTOUCHED);	
-								            return true; 
-							    		}
-						     		}
-						     	}
-		 					}
-		 					else{
-				    			sender.sendMessage(ChatColor.YELLOW+"Chunk claimed");	
-					            return true; 
-		 					}
+//		 					if(!rplugin.ChunkEnqueuer.checkLocationClaimed(player_location)){ // Land not claimed
+//
+//						     	for(int i=0;i<rplugin.maintain_world_chunk_info.size();i++){
+//						     		if(player_world_name.equals( rplugin.maintain_world_chunk_info.get(i).world_name)){
+//						     			if(!RestoreNatureUtil.isValidLocation(player_chunk, rplugin.maintain_world_chunk_info.get(i))) continue;
+//
+//						     			MapChunkInfo chunksInfo = rplugin.maintain_world_chunk_info.get(i);
+//							    		int x = RestoreNatureUtil.convertChunkIdxToArrayIdx(player_chunk.getX());
+//							    		int z = RestoreNatureUtil.convertChunkIdxToArrayIdx(player_chunk.getZ());
+//
+//							    		if(chunksInfo.chunk_untouchedtime[x][z]>=RestoreNaturePlugin.MAX_SECONDS_UNTOUCHED){
+//							    			RestoreNatureUtil.restoreChunk(player_chunk,restoring_chunk,chunksInfo,x,z);
+//
+//								        	sender.sendMessage(ChatColor.YELLOW+"Chunk successfully restored on world chunk : "+player_world_name+" "+restoring_chunk.getX()+" ; "+restoring_chunk.getZ());
+//								            return true;
+//
+//
+//										}
+//							    		else{
+//							    			sender.sendMessage(ChatColor.YELLOW+"Chunk untouch time not enough : "+chunksInfo.chunk_untouchedtime[x][z]+" < "+RestoreNaturePlugin.MAX_SECONDS_UNTOUCHED);
+//								            return true;
+//							    		}
+//						     		}
+//						     	}
+//		 					}
+//		 					else{
+//				    			sender.sendMessage(ChatColor.YELLOW+"Chunk claimed");
+//					            return true;
+//		 					}
 		 					
 		    			 }
 		    			 else{
@@ -147,35 +147,35 @@ public class RestoreNatureCommand implements CommandExecutor {
 					        	
 					         Chunk player_chunk = player.getWorld().getChunkAt(player_location);
 					         
-		 					if(!rplugin.ChunkEnqueuer.checkLocationClaimed(player_location)){ // Land not claimed
-						         
-						     	for(int i=0;i<rplugin.maintain_world_chunk_info.size();i++){
-						     		if(player_world_name.equals( rplugin.maintain_world_chunk_info.get(i).world_name)){
-						     			if(!RestoreNatureUtil.isValidLocation(player_chunk, rplugin.maintain_world_chunk_info.get(i))) continue;
-							    		
-							    		MapChunkInfo chunksInfo = rplugin.maintain_world_chunk_info.get(i);
-							    		int x = RestoreNatureUtil.convertChunkIdxToArrayIdx(player_chunk.getX());
-							    		int z = RestoreNatureUtil.convertChunkIdxToArrayIdx(player_chunk.getZ());
-
-							    		if (x>chunksInfo.max_x ||  z>chunksInfo.max_z){
-							    			sender.sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+RestoreNaturePlugin.OUT_OF_BOUND+chunksInfo.chunk_radius*16);
-							    		}
-							    		else if(chunksInfo.chunk_untouchedtime[x][z]>=RestoreNaturePlugin.MAX_SECONDS_UNTOUCHED){
-							    			sender.sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+RestoreNaturePlugin.UNTOUCHED_TIME_ENOUGH+chunksInfo.chunk_untouchedtime[x][z]+" >= "+RestoreNaturePlugin.MAX_SECONDS_UNTOUCHED);	
-							    			sender.sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+RestoreNaturePlugin.WILL_BE_RESTORED_SOON);	
-							    			return true;  
-										}
-							    		else{
-							    			sender.sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+RestoreNaturePlugin.UNTOUCHED_TIME_NOT_ENOUGH+chunksInfo.chunk_untouchedtime[x][z]+" < "+RestoreNaturePlugin.MAX_SECONDS_UNTOUCHED);	
-								            return true; 
-							    		}
-						     		}
-						     	}
-		 					}
-		 					else{
-		 						sender.sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+RestoreNaturePlugin.CLAIMED);
-					            return true; 
-		 					}
+//		 					if(!rplugin.ChunkEnqueuer.checkLocationClaimed(player_location)){ // Land not claimed
+//
+//						     	for(int i=0;i<rplugin.maintain_world_chunk_info.size();i++){
+//						     		if(player_world_name.equals( rplugin.maintain_world_chunk_info.get(i).world_name)){
+//						     			if(!RestoreNatureUtil.isValidLocation(player_chunk, rplugin.maintain_world_chunk_info.get(i))) continue;
+//
+//							    		MapChunkInfo chunksInfo = rplugin.maintain_world_chunk_info.get(i);
+//							    		int x = RestoreNatureUtil.convertChunkIdxToArrayIdx(player_chunk.getX());
+//							    		int z = RestoreNatureUtil.convertChunkIdxToArrayIdx(player_chunk.getZ());
+//
+//							    		if (x>chunksInfo.max_x ||  z>chunksInfo.max_z){
+//							    			sender.sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+RestoreNaturePlugin.OUT_OF_BOUND+chunksInfo.chunk_radius*16);
+//							    		}
+//							    		else if(chunksInfo.chunk_untouchedtime[x][z]>=RestoreNaturePlugin.MAX_SECONDS_UNTOUCHED){
+//							    			sender.sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+RestoreNaturePlugin.UNTOUCHED_TIME_ENOUGH+chunksInfo.chunk_untouchedtime[x][z]+" >= "+RestoreNaturePlugin.MAX_SECONDS_UNTOUCHED);
+//							    			sender.sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+RestoreNaturePlugin.WILL_BE_RESTORED_SOON);
+//							    			return true;
+//										}
+//							    		else{
+//							    			sender.sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+RestoreNaturePlugin.UNTOUCHED_TIME_NOT_ENOUGH+chunksInfo.chunk_untouchedtime[x][z]+" < "+RestoreNaturePlugin.MAX_SECONDS_UNTOUCHED);
+//								            return true;
+//							    		}
+//						     		}
+//						     	}
+//		 					}
+//		 					else{
+//		 						sender.sendMessage(RestoreNaturePlugin.PLUGIN_PREFIX+RestoreNaturePlugin.CLAIMED);
+//					            return true;
+//		 					}
 		 					
 		    			 }
 		    			 else{

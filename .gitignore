@@ -1,13 +1,51 @@
-# Eclipse stuff
-/.classpath
-/.project
-/.settings
+# Compiled class file #
+*.class
+
+#my
+/target
+/classes
+
+# Log file #
+*.log
+
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME) #
+.mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Other #
+*.xml
+out/
+
+# Intellij #
+.idea/*
+*.iml
+*.iws
+
+# Eclipse #
+.classpath
+.project
+.settings/
 
 # netbeans
 /nbproject
 
-# maven
-/target
+# Mac #
+.DS_Store
+
+# Maven #
+log/
+target/
+plugins/
 
 # ant
 /bin
@@ -15,3 +53,7 @@
 
 # vim
 .*.sw[a-p]
+
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
